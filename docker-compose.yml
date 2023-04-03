@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: tldraw-react-container
+    image: tldraw-react-container
+    build:
+      context: src
+    ports:
+      - 8080:80
