@@ -1,76 +1,144 @@
-import { TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw'
-import { useCallback, useEffect, useRef } from 'react'
-import { awareness, doc, provider, undoManager, yBindings, yShapes } from '../store'
+import { TDBinding, TDShape, TDUser, TldrawApp } from "@tldraw/tldraw";
+import { useCallback, useEffect, useState } from "react";
+import { Room } from "@y-presence/client";
+import {
+  awareness,
+  doc,
+  provider,
+  undoManager,
+  yBindings,
+  yShapes
+} from "../store/store";
+import { TldrawPresence } from "../types";
+
+export const room = new Room<TldrawPresence>(awareness, {});
 
 export function useMultiplayerState(roomId: string) {
-  const tldrawRef = useRef<TldrawApp>()
-  const onMount = useCallback((app: TldrawApp) => {
-    app.loadRoom(roomId)
-    app.pause()
-    tldrawRef.current = app
-    app.replacePageContent(Object.fromEntries(yShapes.entries()), Object.fromEntries(yBindings.entries()), {})
-  }, [roomId])
-  const onChangePage = useCallback((app: TldrawApp, shapes: Record<string, TDShape | undefined>, bindings: Record<string, TDBinding | undefined>) => {
-    undoManager.stopCapturing()
-    doc.transact(() => {
-      Object.entries(shapes).forEach(([id, shape]) => {
-        if (!shape) {
-          yShapes.delete(id)
-        } else {
-          yShapes.set(shape.id, shape)
-        }
-      })
-      Object.entries(bindings).forEach(([id, binding]) => {
-        if (!binding) {
-          yBindings.delete(id)
-        } else {
-          yBindings.set(binding.id, binding)
-        }
-      })
-    })
-  }, [])
+   const [app, setApp] = useState<TldrawApp>();
+  const [loading, setLoading] = useState(true);
+
+  const onMount = useCallback(
+    (app: TldrawApp) => {
+      app.loadRoom(roomId);
+      app.pause();
+      setApp(app);
+    },
+    [roomId]
+  );
+
+  const onChangePage = useCallback(
+    (
+      app: TldrawApp,
+      shapes: Record<string, TDShape | undefined>,
+      bindings: Record<string, TDBinding | undefined>
+    ) => {
+      undoManager.stopCapturing();
+      doc.transact(() => {
+        Object.entries(shapes).forEach(([id, shape]) => {
+          if (!shape) {
+            yShapes.delete(id);
+          } else {
+            yShapes.set(shape.id, shape);
+          }
+        });
+        Object.entries(bindings).forEach(([id, binding]) => {
+          if (!binding) {
+            yBindings.delete(id);
+          } else {
+            yBindings.set(binding.id, binding);
+          }
+        });
+      });
+    },
+    []
+  );
+
   const onUndo = useCallback(() => {
-    undoManager.undo()
-  }, [])
+    undoManager.undo();
+  }, []);
+
   const onRedo = useCallback(() => {
-    undoManager.redo()
-  }, [])
-  /** * Callback to update user's (self) presence */ const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
-    awareness.setLocalStateField('tdUser', user)
-  }, [])
-  /** * Update app users whenever there is a change in the room users */ useEffect(() => {
-    const onChangeAwareness = () => {
-      const tldraw = tldrawRef.current
-      if (!tldraw || !tldraw.room) return
-      const others = Array.from(awareness.getStates().entries()).filter(([key, _]) => key !== awareness.clientID).map(([_, state]) => state).filter((user) => user.tdUser !== undefined)
-      const ids = others.map((other) => other.tdUser.id as string)
-      Object.values(tldraw.room.users).forEach((user) => {
-        if (user && !ids.includes(user.id) && user.id !== tldraw.room?.userId) {
-          tldraw.removeUser(user.id)
+    undoManager.redo();
+  }, []);
+
+  /**
+   * Callback to update user's (self) presence
+   */
+  const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
+    if (!app.room) return;
+    room.setPresence({ id: app.room.userId, tdUser: user });
+  }, []);
+
+  /**
+   * Update app users whenever there is a change in the room users
+   */
+  useEffect(() => {
+    if (!app || !room) return;
+
+    const unsubOthers = room.subscribe("others", (users) => {
+      if (!app.room) return;
+
+      const ids = users
+        .filter((user) => user.presence && user.presence.tdUser)
+        .map((user) => user.presence!.tdUser!.id);
+
+      // remove any user that is not connected in the room
+      Object.values(app.room.users).forEach((user) => {
+        if (user && !ids.includes(user.id) && user.id !== app.room?.userId) {
+          app.removeUser(user.id);
         }
-      })
-      tldraw.updateUsers(others.map((other) => other.tdUser).filter(Boolean))
-    }
-    awareness.on('change', onChangeAwareness)
-    return () => awareness.off('change', onChangeAwareness)
-  }, [])
-  useEffect(() => {
-    function handleChanges() {
-      const tldraw = tldrawRef.current
-      if (!tldraw) return
-      tldraw.replacePageContent(Object.fromEntries(yShapes.entries()), Object.fromEntries(yBindings.entries()), {})
-    }
+      });
 
-    yShapes.observeDeep(handleChanges)
-    return () => yShapes.unobserveDeep(handleChanges)
-  }, [])
+      app.updateUsers(
+        users
+          .filter((user) => user.presence && user.presence.tdUser)
+          .map((other) => other.presence!.tdUser!)
+          .filter(Boolean)
+      );
+    });
+
+    return () => {
+      unsubOthers();
+    };
+  }, [app]);
+
   useEffect(() => {
+    if (!app) return;
+
     function handleDisconnect() {
-      provider.disconnect()
+      provider.disconnect();
     }
 
-    window.addEventListener('beforeunload', handleDisconnect)
-    return () => window.removeEventListener('beforeunload', handleDisconnect)
-  }, [])
-  return { onMount, onChangePage, onUndo, onRedo, onChangePresence }
+    window.addEventListener("beforeunload", handleDisconnect);
+
+    function handleChanges() {
+      app?.replacePageContent(
+        Object.fromEntries(yShapes.entries()),
+        Object.fromEntries(yBindings.entries()),
+        {}
+      );
+    }
+
+    async function setup() {
+      yShapes.observeDeep(handleChanges);
+      handleChanges();
+      setLoading(false);
+    }
+
+    setup();
+
+    return () => {
+      window.removeEventListener("beforeunload", handleDisconnect);
+      yShapes.unobserveDeep(handleChanges);
+    };
+  }, [app]);
+
+  return {
+    onMount,
+    onChangePage,
+    onUndo,
+    onRedo,
+    loading,
+    onChangePresence
+  };
 }
