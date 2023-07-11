@@ -46,7 +46,7 @@ describe("useMultiplayerState", () => {
 
       useMultiplayerState("1").onChangePresence({} as TldrawApp, {} as TDUser);
 
-      expect(spy).not.toHaveBeenCalledW();
+      expect(spy).not.toHaveBeenCalled();
     });
 
     it("should call room.setPresence with the correct arguments", () => {
@@ -105,7 +105,7 @@ describe("useMultiplayerState", () => {
 
       onChangePage(tldrawApp, shapes, bindings);
 
-      expect(deleteShapeSpy).toHaveBeenCalledWith("shape11");
+      expect(deleteShapeSpy).toHaveBeenCalledWith("shape1");
 
       expect(deleteBindingSpy).toHaveBeenCalledWith("binding1");
 

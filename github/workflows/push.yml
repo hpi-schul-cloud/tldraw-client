@@ -1,0 +1,49 @@
+name: Push
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+  branch_name:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.extract_branch.outputs.branch }}
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+  deploy_app:
+    needs:
+      - branch_name
+    uses: hpi-schul-cloud/dof_app_deploy/.github/workflows/deploy.yml@main
+    with:
+      branch: ${{ needs.branch_name.outputs.branch }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      DEV_VAULT: ${{ secrets.DEV_VAULT }}
+      DEV_KUBE_CONFIG: ${{ secrets.DEV_KUBE_CONFIG }}
+
+  deploy_successful:
+    needs:
+      - deploy_app
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "deploy was successful"
