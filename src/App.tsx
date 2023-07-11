@@ -27,6 +27,7 @@ function Info() {
     <div className="user-container">
       <div className="flex space-between">
         <span>Number of connected users: {users.size}</span>
+        Hello
       </div>
     </div>
   );
