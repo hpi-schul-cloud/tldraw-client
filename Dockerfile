@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM docker.io/node:18-bullseye as build-stage
 
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
@@ -9,10 +9,9 @@ RUN npm ci
 COPY . ./
 RUN npm run build
 
-RUN echo ./build/nuxtversion
 # production environment
-FROM nginx:1.21-alpine
+FROM docker.io/nginx:1.25
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/build /usr/share/nginx/html
-EXPOSE 80
+COPY --from=build-stage /app/build /usr/share/nginx/html
+EXPOSE 83
 CMD ["nginx", "-g", "daemon off;"]
