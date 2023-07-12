@@ -9,7 +9,6 @@ RUN npm ci
 COPY . ./
 RUN npm run build
 
-RUN echo ./build/nuxtversion
 # production environment
 FROM nginx:1.21-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
