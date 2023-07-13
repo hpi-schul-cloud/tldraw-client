@@ -26,5 +26,12 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+      
+    - name: Rename SARIF file
+      run: mv codeql-results.sarif custom-name.sarif
+
+    - name: Upload SARIF artifact
+      uses: actions/upload-artifact@v2
       with:
-        sarif_file: cfsec.sarif
+        name: Custom SARIF file
+        path: custom-name.sarif
