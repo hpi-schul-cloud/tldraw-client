@@ -1,37 +1,24 @@
-name: "CodeQL"
+name: CodeQL Analysis
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-  schedule:
-    - cron: '45 19 * * 2'
+    branches:
+      - main
 
 jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
-      
-    - name: Rename SARIF file
-      run: mv codeql-results.sarif custom-name.sarif
-
-    - name: Upload SARIF artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: Custom SARIF file
-        path: custom-name.sarif
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
