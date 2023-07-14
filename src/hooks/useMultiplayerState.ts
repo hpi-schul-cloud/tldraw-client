@@ -7,15 +7,15 @@ import {
   provider,
   undoManager,
   yBindings,
-  yShapes
+  yShapes,
 } from "../store/store";
 import { TldrawPresence } from "../types";
 
 export const room = new Room<TldrawPresence>(awareness, {});
 
 export function useMultiplayerState(roomId: string) {
-   const [app, setApp] = useState<TldrawApp>();
-  const [loading, setLoading] = useState(true);
+  const [app, setApp] = useState<TldrawApp | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const onMount = useCallback(
     (app: TldrawApp) => {
@@ -61,76 +61,76 @@ export function useMultiplayerState(roomId: string) {
     undoManager.redo();
   }, []);
 
-  /**
-   * Callback to update user's (self) presence
-   */
   const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
-    if (!app.room) return;
-    room.setPresence({ id: app.room.userId, tdUser: user });
+    if (app.room) {
+      room.setPresence({ id: app.room.userId, tdUser: user });
+    }
   }, []);
 
-  /**
-   * Update app users whenever there is a change in the room users
-   */
   useEffect(() => {
-    if (!app || !room) return;
+    if (app && room) {
+      const unsubOthers = room.subscribe("others", (users) => {
+        if (app.room) {
+          const ids = users
+            .filter((user) => user.presence && user.presence.tdUser)
+            .map((user) => user.presence!.tdUser!.id);
 
-    const unsubOthers = room.subscribe("others", (users) => {
-      if (!app.room) return;
+          Object.values(app.room.users).forEach((user) => {
+            if (
+              user &&
+              !ids.includes(user.id) &&
+              user.id !== app.room?.userId
+            ) {
+              app.removeUser(user.id);
+            }
+          });
 
-      const ids = users
-        .filter((user) => user.presence && user.presence.tdUser)
-        .map((user) => user.presence!.tdUser!.id);
-
-      // remove any user that is not connected in the room
-      Object.values(app.room.users).forEach((user) => {
-        if (user && !ids.includes(user.id) && user.id !== app.room?.userId) {
-          app.removeUser(user.id);
+          app.updateUsers(
+            users
+              .filter((user) => user.presence && user.presence.tdUser)
+              .map((other) => other.presence!.tdUser!)
+              .filter(Boolean)
+          );
         }
       });
 
-      app.updateUsers(
-        users
-          .filter((user) => user.presence && user.presence.tdUser)
-          .map((other) => other.presence!.tdUser!)
-          .filter(Boolean)
-      );
-    });
-
-    return () => {
-      unsubOthers();
-    };
-  }, [app]);
+      return () => {
+        unsubOthers();
+      };
+    }
+  }, [app, room]);
 
   useEffect(() => {
-    if (!app) return;
+    if (app) {
+      const handleDisconnect = () => {
+        provider.disconnect();
+      };
 
-    function handleDisconnect() {
-      provider.disconnect();
+      window.addEventListener("beforeunload", handleDisconnect);
+
+      const handleChanges = () => {
+        if (app) {
+          app.replacePageContent(
+            Object.fromEntries(yShapes.entries()),
+            Object.fromEntries(yBindings.entries()),
+            {}
+          );
+        }
+      };
+
+      const setup = async () => {
+        yShapes.observeDeep(handleChanges);
+        handleChanges();
+        setLoading(false);
+      };
+
+      setup();
+
+      return () => {
+        window.removeEventListener("beforeunload", handleDisconnect);
+        yShapes.unobserveDeep(handleChanges);
+      };
     }
-
-    window.addEventListener("beforeunload", handleDisconnect);
-
-    function handleChanges() {
-      app?.replacePageContent(
-        Object.fromEntries(yShapes.entries()),
-        Object.fromEntries(yBindings.entries()),
-        {}
-      );
-    }
-
-    async function setup() {
-      yShapes.observeDeep(handleChanges);
-      handleChanges();
-      setLoading(false);
-    }
-
-    setup();
-
-    return () => {
-      window.removeEventListener("beforeunload", handleDisconnect);
-      yShapes.unobserveDeep(handleChanges);
-    };
   }, [app]);
 
   return {
@@ -139,6 +139,6 @@ export function useMultiplayerState(roomId: string) {
     onUndo,
     onRedo,
     loading,
-    onChangePresence
+    onChangePresence,
   };
 }

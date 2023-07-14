@@ -1,11 +1,8 @@
 import { ShapeStyles, TDShape, TDUser } from "@tldraw/tldraw";
 import { TldrawApp } from "@tldraw/tldraw";
-import {
-  room,
-  useMultiplayerState,
-} from "../../hooks/useMultiplayerState";
+import { room, useMultiplayerState } from "../../hooks/useMultiplayerState";
 import { undoManager, yBindings, yShapes } from "../../store/store";
-import React, { useEffect } from "react";
+import React from "react";
 
 describe("useMultiplayerState", () => {
   jest.mock("y-websocket");
@@ -74,8 +71,8 @@ describe("useMultiplayerState", () => {
         .spyOn(tldrawApp, "pause")
         .mockImplementation(() => null);
 
-      const setAppSpy = jest.fn();
-      jest.spyOn(React, "useState").mockReturnValueOnce([null, setAppSpy]);
+        const setAppSpy = jest.fn();
+        jest.spyOn(React, "useState").mockImplementation(() => [null, setAppSpy]);
 
       const { onMount } = useMultiplayerState("1");
 
@@ -87,7 +84,6 @@ describe("useMultiplayerState", () => {
   });
 
   describe("onChangePage", () => {
-
     it("should delete shapes and bindings if they are falsy", () => {
       const tldrawApp = new TldrawApp("1");
       const shapes = {
@@ -112,29 +108,29 @@ describe("useMultiplayerState", () => {
       expect(undoManager.stopCapturing).toHaveBeenCalledTimes(1);
     });
 
-    // it("should set shapes add them if they are truthy", () => {
-    //   const tldrawApp = new TldrawApp("1");
-    //   const shapes: Record<string, TDShape | undefined> = {
-    //     '123123': {
-    //       id: '123123',
-    //       style: {} as ShapeStyles,
-    //     },
-    //   };
-    //   const bindings: Record<string, TDShape | undefined> = {
-    //     '123123': {
-    //       id: '123123',
-    //       style: {} as ShapeStyles,
-    //     }
-    //   }
+    it("should set shapes add them if they are truthy", () => {
+      const tldrawApp = new TldrawApp("1");
+      const shapes: Record<string, TDShape | undefined> = {
+        test: {
+          id: "test",
+          style: {} as ShapeStyles,
+        } as TDShape,
+      };
+      const bindings: Record<string, TDShape | undefined> = {
+        test: {
+          id: "test",
+          style: {} as ShapeStyles,
+        } as TDShape,
+      };
 
-    //   const setShapeSpy = jest.spyOn(yShapes, "set");
-    //   const setBindingSpy = jest.spyOn(yBindings, "set");
-    
-    //   const { onChangePage } = useMultiplayerState("1");
-    
-    //   onChangePage(tldrawApp, shapes, bindings);
-    //   expect(setShapeSpy).toHaveBeenCalledWith('123123', shapes['123123']);
-    //   expect(setBindingSpy).toHaveBeenCalledWith('123123', bindings['123123']);
-    // });
+      const setShapeSpy = jest.spyOn(yShapes, "set");
+      const setBindingSpy = jest.spyOn(yBindings, "set");
+
+      const { onChangePage } = useMultiplayerState("1");
+
+      onChangePage(tldrawApp, shapes, bindings as any);
+      expect(setShapeSpy).toHaveBeenCalledWith("test", shapes.test);
+      expect(setBindingSpy).toHaveBeenCalledWith("test", bindings.test);
+    });
   });
 });
