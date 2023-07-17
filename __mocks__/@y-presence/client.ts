@@ -1,7 +1,7 @@
 export class Room {
-    constructor() {}
+	constructor() {}
 
-    public setPresence() {
-        return null;
-    }
+	public setPresence() {
+		return null;
+	}
 }

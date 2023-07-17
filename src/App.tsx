@@ -1,14 +1,23 @@
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
-import './index.css';
+import './App.css';
 import { awareness, roomID } from './store/store';
 
 function Editor({ roomId }: { roomId: string }) {
 	const fileSystemEvents = useFileSystem();
 	const { onMount, ...events } = useMultiplayerState(roomId);
 
-	return <Tldraw autofocus disableAssets showPages={false} onMount={onMount} {...fileSystemEvents} {...events} />;
+	return (
+		<Tldraw
+			autofocus
+			disableAssets
+			showPages={false}
+			onMount={onMount}
+			{...fileSystemEvents}
+			{...events}
+		/>
+	);
 }
 
 function Info() {

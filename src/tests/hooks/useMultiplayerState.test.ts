@@ -18,14 +18,18 @@ describe('useMultiplayerState', () => {
 
 	describe('onUndo', () => {
 		it('should call undoManager.undo function', () => {
-			const spy = jest.spyOn(undoManager, 'undo').mockImplementation(() => null);
+			const spy = jest
+				.spyOn(undoManager, 'undo')
+				.mockImplementation(() => null);
 			useMultiplayerState('1').onUndo();
 			expect(spy).toHaveBeenCalledTimes(1);
 		});
 	}),
 		describe('onRedo', () => {
 			it('should call undoManager.redo function', () => {
-				const spy = jest.spyOn(undoManager, 'redo').mockImplementation(() => null);
+				const spy = jest
+					.spyOn(undoManager, 'redo')
+					.mockImplementation(() => null);
 				useMultiplayerState('1').onRedo();
 				expect(spy).toHaveBeenCalledTimes(1);
 			});
@@ -33,7 +37,9 @@ describe('useMultiplayerState', () => {
 
 	describe('onChangePresence', () => {
 		it('should not call room.setPresence if there is no room', () => {
-			const spy = jest.spyOn(room, 'setPresence').mockImplementation(() => null);
+			const spy = jest
+				.spyOn(room, 'setPresence')
+				.mockImplementation(() => null);
 
 			useMultiplayerState('1').onChangePresence({} as TldrawApp, {} as TDUser);
 
@@ -41,9 +47,14 @@ describe('useMultiplayerState', () => {
 		});
 
 		it('should call room.setPresence with the correct arguments', () => {
-			const spy = jest.spyOn(room, 'setPresence').mockImplementation(() => null);
+			const spy = jest
+				.spyOn(room, 'setPresence')
+				.mockImplementation(() => null);
 
-			useMultiplayerState('1').onChangePresence({ room: { userId: '123' } } as TldrawApp, {} as TDUser);
+			useMultiplayerState('1').onChangePresence(
+				{ room: { userId: '123' } } as TldrawApp,
+				{} as TDUser,
+			);
 
 			expect(spy).toHaveBeenCalledWith({ id: '123', tdUser: {} });
 		});
@@ -52,9 +63,13 @@ describe('useMultiplayerState', () => {
 		it('should call loadRoom, pause and setApp(app) methods', () => {
 			const tldrawApp = new TldrawApp('1');
 
-			const loadRoomSpy = jest.spyOn(tldrawApp, 'loadRoom').mockImplementation(() => ({}) as TldrawApp);
+			const loadRoomSpy = jest
+				.spyOn(tldrawApp, 'loadRoom')
+				.mockImplementation(() => ({}) as TldrawApp);
 
-			const pauseSpy = jest.spyOn(tldrawApp, 'pause').mockImplementation(() => null);
+			const pauseSpy = jest
+				.spyOn(tldrawApp, 'pause')
+				.mockImplementation(() => null);
 
 			const setAppSpy = jest.fn();
 			jest.spyOn(React, 'useState').mockImplementation(() => [null, setAppSpy]);

@@ -8,12 +8,14 @@ using React, Node.js.
 To run Tldraw locally, please follow the instructions below:
 
 ## Prerequisites
+
 Node.js (version 18 or higher)
 Docker
 
 ## Installation
 
 1.Clone the repository:
+
 ### git clone <repository-url>
 
 2.Navigate to the project directory:
@@ -37,6 +39,7 @@ This command will start the development server on [http://localhost:3046].
 Tldraw can also be run using Docker. To build and run the Docker image, execute the following commands:
 
 ### docker build -t tldraw-client .
+
 ### docker run -p 83:83 tldraw-client
 
 The application will be accessible at [http://localhost:83].
@@ -50,6 +53,7 @@ ESLint: A linter that helps to find potential errors and problems in code.
 To format and lint the code, you can run the following command:
 
 ### npm run lint
+
 ### npm run lint-fix
 
 ## License

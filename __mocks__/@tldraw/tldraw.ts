@@ -1,11 +1,11 @@
 export class TldrawApp {
-    constructor() {}
+	constructor() {}
 
-    public loadRoom() {
-        return null;
-    }
+	public loadRoom() {
+		return null;
+	}
 
-    public pause() {
-        return null;
-    }
+	public pause() {
+		return null;
+	}
 }

@@ -1,13 +1,22 @@
 import { TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw';
 import { useCallback, useEffect, useState } from 'react';
 import { Room } from '@y-presence/client';
-import { awareness, doc, provider, undoManager, yBindings, yShapes } from '../store/store';
+import {
+	awareness,
+	doc,
+	provider,
+	undoManager,
+	yBindings,
+	yShapes,
+} from '../store/store';
 import { TldrawPresence } from '../types';
 
 export const room = new Room<TldrawPresence>(awareness, {});
 
 export function useMultiplayerState(roomId: string) {
-	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(undefined);
+	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(
+		undefined,
+	);
 	const [loading, setLoading] = useState<boolean>(true);
 
 	const onMount = useCallback(
@@ -20,7 +29,11 @@ export function useMultiplayerState(roomId: string) {
 	);
 
 	const onChangePage = useCallback(
-		(app: TldrawApp, shapes: Record<string, TDShape | undefined>, bindings: Record<string, TDBinding | undefined>) => {
+		(
+			app: TldrawApp,
+			shapes: Record<string, TDShape | undefined>,
+			bindings: Record<string, TDBinding | undefined>,
+		) => {
 			undoManager.stopCapturing();
 			doc.transact(() => {
 				Object.entries(shapes).forEach(([id, shape]) => {
@@ -70,7 +83,11 @@ export function useMultiplayerState(roomId: string) {
 
 			// remove any user that is not connected in the room
 			Object.values(appInstance.room.users).forEach((user) => {
-				if (user && !ids.includes(user.id) && user.id !== appInstance.room?.userId) {
+				if (
+					user &&
+					!ids.includes(user.id) &&
+					user.id !== appInstance.room?.userId
+				) {
 					appInstance.removeUser(user.id);
 				}
 			});
