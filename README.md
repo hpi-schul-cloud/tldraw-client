@@ -41,7 +41,17 @@ Tldraw can also be run using Docker. To build and run the Docker image, execute 
 
 The application will be accessible at [http://localhost:83].
 
-## License
+## Formatting and Linting
 
+Tldraw uses the following formatting and linting tools:
+Prettier: A code formatter that helps to ensure a consistent code style.
+ESLint: A linter that helps to find potential errors and problems in code.
+
+To format and lint the code, you can run the following command:
+
+### npm run lint
+### npm run lint-fix
+
+## License
 
 Tldraw is licensed under the AGPL-3.0 license. See the LICENSE file for more information.
