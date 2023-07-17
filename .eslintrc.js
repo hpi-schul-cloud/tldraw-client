@@ -53,7 +53,6 @@ module.exports = {
 	plugins: ['import', 'prettier', 'promise', 'no-only-tests'],
 	env: {
 		node: true,
-		mocha: true,
 	},
 	settings: {
 		'import/resolver': {
