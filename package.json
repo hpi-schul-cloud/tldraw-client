@@ -34,7 +34,7 @@
 		"lint-fix": "eslint . --fix --ignore-path .gitignore",
 		"lint": "eslint . --ignore-path .gitignore",
 		"eject": "react-scripts eject",
-    "prettier-check": "npx prettier . --check",
+		"prettier-check": "npx prettier . --check",
 		"prettier-format": "npx prettier . --write"
 	},
 	"eslintConfig": {
