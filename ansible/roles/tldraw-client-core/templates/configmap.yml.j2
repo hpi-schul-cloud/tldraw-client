@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tldraw-client-configmap
+  namespace: {{ NAMESPACE }}
+  labels:
+    app: tldraw-client
+data:
+    NODE_ENV: "production"
+    TZ: "Europe/Berlin"
+    PORT: "{{ PORT_TLDRAW_CLIENT }}"
