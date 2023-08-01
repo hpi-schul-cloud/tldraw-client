@@ -38,6 +38,13 @@ spec:
         envFrom:
         - configMapRef:
             name: tldraw-client-configmap
+        volumeMounts:
+        - mountPath: /var/run
+          name: pid-dir
+        - mountPath: /var/cache/nginx
+          name: cache-dir
+        - mountPath: /etc/nginx/conf.d
+          name: conf-dir
         resources:
           limits:
             cpu: {{ TLDRAW_CLIENT_CPU_LIMITS|default("1000m", true) }}
@@ -45,3 +52,10 @@ spec:
           requests:
             cpu: {{ TLDRAW_CLIENT_CPU_REQUESTS|default("100m", true) }}
             memory: {{ TLDRAW_CLIENT_MEMORY_REQUESTS|default("32Mi", true) }}
+      volumes:
+      - name: pid-dir
+        emptyDir: {}
+      - name: cache-dir
+        emptyDir: {}
+      - name: conf-dir
+        emptyDir: {}
