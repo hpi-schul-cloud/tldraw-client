@@ -2,6 +2,11 @@ server {
     listen 3046;
     server_name localhost;
 
+    location /runtime.config.json {
+        return 200 '{ "apiURL" : "${API_URL}" }';
+        add_header Content-Type application/json;
+    }
+
     location /static {
         alias /usr/share/nginx/html/static/;
     }
