@@ -2,7 +2,7 @@ server {
     listen 3046;
     server_name localhost;
 
-    location /runtime.config.json {
+    location /tldraw-client-runtime.config.json {
         return 200 '{ "tldrawServerURL" : "${TLDRAW_SERVER_URL}" }';
         add_header Content-Type application/json;
     }
