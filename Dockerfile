@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY . ./
+COPY tsconfig.json LICENSE.md package.json .prettierrc.js package-lock.json .eslintrc.js ./
 RUN NODE_ENV=production npm run build
 
 # runtime image stage
