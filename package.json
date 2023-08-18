@@ -72,6 +72,9 @@
 	"jest": {
 		"setupFilesAfterEnv": [
 			"<rootDir>/src/tests/setupTests.ts"
-		]
+		],
+		"transform": {
+			"^.+\\.tsx?$": "ts-jest"
+		}
 	}
 }
