@@ -19,12 +19,10 @@ async function fetchTldrawServerURL() {
 	}
 }
 
-(async () => {
-	const tldrawServerURL = await fetchTldrawServerURL();
-	if (tldrawServerURL) {
-		defaultOptions.websocketUrl = tldrawServerURL;
-	}
-})();
+const tldrawServerURL = await fetchTldrawServerURL();
+if (tldrawServerURL) {
+	defaultOptions.websocketUrl = tldrawServerURL;
+}
 
 export const doc = new Doc();
 export const urlParams = new URLSearchParams(window.location.search);
