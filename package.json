@@ -12,7 +12,7 @@
 		"@y-presence/client": "^2.0.1",
 		"@y-presence/react": "^2.0.1",
 		"eslint": "^8.45.0",
-		"mongodb": "^5.2.0",
+		"mongodb": "^5.8.0",
 		"mongodb-provider": "^0.1.1",
 		"mongoose": "^7.0.3",
 		"prettier": "^3.0.0",
