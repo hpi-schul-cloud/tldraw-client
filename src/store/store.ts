@@ -2,12 +2,12 @@ import { Doc, Map, UndoManager } from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { TDBinding, TDShape } from '@tldraw/tldraw';
 
-export function setCookies(name: string, value: string) {
-	document.cookie = `${name}=${value}`;
+export function setCookies(name: string, value: string, path: string) {
+	document.cookie = `${name}=${value}; path=${path}`;
 }
 
-export function setTldrawBoardNameCookie(roomName: string) {
-	setCookies('tldraw_board_name', roomName);
+export function setTldrawBoardNameCookie(roomName: string, path: string) {
+	setCookies('tldraw_board_name', roomName, path);
 }
 
 const defaultOptions = {
@@ -59,4 +59,4 @@ export function configure(options: any) {
 	);
 }
 
-setTldrawBoardNameCookie(roomID);
+setTldrawBoardNameCookie(roomID, '/tldraw');
