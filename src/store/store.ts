@@ -6,8 +6,10 @@ export function setCookies(name: string, value: string, path: string) {
 	document.cookie = `${name}=${value}; path=${path}`;
 }
 
-export function setTldrawBoardNameCookie(roomName: string, path: string) {
-	setCookies('tldraw_board_name', roomName, path);
+export function setTldrawBoardNameCookie(roomName: string) {
+	setCookies('tldraw_board_name', roomName, '/');
+	setCookies('tldraw_board_name', roomName, '/tldraw');
+	setCookies('tldraw_board_name', roomName, '/static');
 }
 
 const defaultOptions = {
@@ -59,4 +61,4 @@ export function configure(options: any) {
 	);
 }
 
-setTldrawBoardNameCookie(roomID, '/tldraw');
+setTldrawBoardNameCookie(roomID);
