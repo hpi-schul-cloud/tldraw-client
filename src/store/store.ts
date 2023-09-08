@@ -51,6 +51,7 @@ export const undoManager = new UndoManager([yShapes, yBindings]);
 export function configure(options: any) {
 	Object.assign(defaultOptions, options);
 	roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
+	setTldrawBoardNameCookie(roomID);
 	provider = new WebsocketProvider(
 		defaultOptions.websocketUrl,
 		roomID,
@@ -58,5 +59,3 @@ export function configure(options: any) {
 		{},
 	);
 }
-
-setTldrawBoardNameCookie(roomID);
