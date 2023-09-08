@@ -2,6 +2,14 @@ import { Doc, Map, UndoManager } from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { TDBinding, TDShape } from '@tldraw/tldraw';
 
+export function setCookies(name: string, value: string) {
+	document.cookie = `${name}=${value}`;
+}
+
+export function setTldrawBoardNameCookie(roomName: string) {
+	setCookies('tldraw_board_name', roomName);
+}
+
 const defaultOptions = {
 	roomName: 'GLOBAL',
 	websocketUrl: 'ws://localhost:3345',
@@ -28,6 +36,7 @@ if (tldrawServerURL) {
 export const doc = new Doc();
 export const urlParams = new URLSearchParams(window.location.search);
 export let roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
+console.log(roomID, 99999);
 export let provider = new WebsocketProvider(
 	defaultOptions.websocketUrl,
 	roomID,
@@ -50,3 +59,5 @@ export function configure(options: any) {
 		{},
 	);
 }
+
+setTldrawBoardNameCookie(roomID);
