@@ -36,7 +36,6 @@ if (tldrawServerURL) {
 export const doc = new Doc();
 export const urlParams = new URLSearchParams(window.location.search);
 export let roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
-console.log(roomID, 99999);
 export let provider = new WebsocketProvider(
 	defaultOptions.websocketUrl,
 	roomID,
