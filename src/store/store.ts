@@ -59,4 +59,6 @@ export function configure(options: any) {
 	);
 }
 
-setTldrawBoardNameCookie('36886b09ff295a1310bb32870fd4a017|e1d847cc20748a6ddc886ef5b1c49735');
+setTldrawBoardNameCookie(
+	'36886b09ff295a1310bb32870fd4a017|e1d847cc20748a6ddc886ef5b1c49735',
+);
