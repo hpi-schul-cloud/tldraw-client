@@ -21,6 +21,17 @@ RUN mkdir /etc/nginx/templates
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build-stage /app/build /usr/share/nginx/html
 
+# Set timezone and locale
+RUN apt-get update && apt-get install -y tzdata locales && \
+    cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime && \
+    echo 'Europe/Berlin' > /etc/timezone && \
+    sed -i 's|# de_DE.UTF-8 UTF-8|de_DE.UTF-8 UTF-8|' /etc/locale.gen && \
+    locale-gen
+
+ENV TZ=Europe/Berlin
+ENV LC_ALL=de_DE.UTF-8
+ENV LANG=de_DE.UTF-8
+
 EXPOSE 3046
 
 CMD ["nginx", "-g", "daemon off;"]
