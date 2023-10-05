@@ -14,7 +14,6 @@ function Editor({ roomId }: { roomId: string }) {
 			showPages={false}
 			onMount={onMount}
 			{...events}
-			showMultiplayerMenu={false}
 		/>
 	);
 }
