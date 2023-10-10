@@ -8,8 +8,8 @@ export function setCookies(name: string, value: string, path: string) {
 
 export function setTldrawBoardNameCookie(roomName: string) {
 	setCookies('SERVERID', roomName, '/');
-	setCookies('SERVERID', roomName, '/tldraw');
-	setCookies('SERVERID', roomName, '/static');
+	// setCookies('SERVERID', roomName, '/tldraw');
+	// setCookies('SERVERID', roomName, '/static');
 }
 
 const defaultOptions = {
