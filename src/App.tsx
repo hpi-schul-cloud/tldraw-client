@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 
 function Editor({ roomId }: { roomId: string }) {
-	const fileSystemEvents = useFileSystem();
 	const { onMount, ...events } = useMultiplayerState(roomId);
 
 	return (
@@ -16,7 +15,6 @@ function Editor({ roomId }: { roomId: string }) {
 			disableAssets
 			showPages={false}
 			onMount={onMount}
-			{...fileSystemEvents}
 			{...events}
 		/>
 	);
