@@ -3,8 +3,6 @@ import { useUsers } from 'y-presence';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
 import './App.css';
 import { awareness, roomID } from './store/store';
-import { useEffect } from 'react';
-import { useCookies } from 'react-cookie';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onMount, ...events } = useMultiplayerState(roomId);
@@ -33,22 +31,10 @@ function Info() {
 }
 
 export default function App() {
-	const [cookies] = useCookies(['jwt']);
-	const token = cookies.jwt;
-
-	useEffect(() => {
-		if (!token) {
-			window.location.href = '/login';
-		}
-	}, []);
 	return (
-		<div>
-			{token ? (
-				<div className="tldraw">
-					<Info />
-					<Editor roomId={roomID} />
-				</div>
-			) : null}
+		<div className="tldraw">
+			<Info />
+			<Editor roomId={roomID} />
 		</div>
 	);
 }
