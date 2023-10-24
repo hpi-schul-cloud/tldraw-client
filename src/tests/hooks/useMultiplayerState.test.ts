@@ -74,9 +74,6 @@ describe('useMultiplayerState', () => {
 			const setAppSpy = jest.fn();
 			jest.spyOn(React, 'useState').mockImplementation(() => [null, setAppSpy]);
 
-			const { onMount } = useMultiplayerState('1');
-
-			onMount(tldrawApp);
 			expect(loadRoomSpy).toHaveBeenCalledWith('1');
 			expect(pauseSpy).toHaveBeenCalled();
 			expect(setAppSpy).toHaveBeenCalledWith(tldrawApp);
@@ -95,7 +92,6 @@ describe('useMultiplayerState', () => {
 
 			const deleteShapeSpy = jest.spyOn(yShapes, 'delete');
 			const deleteBindingSpy = jest.spyOn(yBindings, 'delete');
-			const spyUndoManager = jest.spyOn(undoManager, 'stopCapturing');
 
 			const { onChangePage } = useMultiplayerState('1');
 
