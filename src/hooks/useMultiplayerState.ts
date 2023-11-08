@@ -11,6 +11,8 @@ import {
 } from '../store/store';
 import { TldrawPresence } from '../types';
 
+TldrawApp.defaultState.settings.language = 'de';
+
 export const room = new Room<TldrawPresence>(awareness, {});
 
 export function useMultiplayerState(roomId: string) {
