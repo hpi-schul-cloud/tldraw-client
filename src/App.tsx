@@ -1,14 +1,24 @@
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
 import './App.css';
-import { awareness } from './store/store';
+import { awareness, roomID } from './store/store';
 import { useEffect } from 'react';
 import { useCookies } from 'react-cookie';
+import { useMultiplayerState } from './hooks/useMultiplayerState';
 
-function Editor() {
+function Editor({ id, roomId }: { id: string; roomId: string }) {
 	const fileSystemEvents = useFileSystem();
+	const { ...events } = useMultiplayerState(roomId);
 
-	return <Tldraw autofocus showPages={false} {...fileSystemEvents} />;
+	return (
+		<Tldraw
+			id={id}
+			autofocus
+			showPages={false}
+			{...fileSystemEvents}
+			{...events}
+		/>
+	);
 }
 
 function Info() {
@@ -37,7 +47,7 @@ export default function App() {
 			{token ? (
 				<div className="tldraw">
 					<Info />
-					<Editor />
+					<Editor id="home" roomId={roomID} />
 				</div>
 			) : null}
 		</div>
