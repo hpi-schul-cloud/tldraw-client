@@ -8,13 +8,14 @@ import { useMultiplayerState } from './hooks/useMultiplayerState';
 
 function Editor({ id, roomId }: { id: string; roomId: string }) {
 	const fileSystemEvents = useFileSystem();
-	const { ...events } = useMultiplayerState(roomId);
+	const { onMount, ...events } = useMultiplayerState(roomId);
 
 	return (
 		<Tldraw
 			id={id}
 			autofocus
 			showPages={false}
+			onMount={onMount}
 			{...fileSystemEvents}
 			{...events}
 		/>

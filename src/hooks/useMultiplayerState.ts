@@ -21,6 +21,15 @@ export function useMultiplayerState(roomId: string) {
 	);
 	const [loading, setLoading] = useState<boolean>(true);
 
+	const onMount = useCallback(
+		(app: TldrawApp) => {
+			app.loadRoom(roomId);
+			app.pause();
+			setAppInstance(app);
+		},
+		[roomId],
+	);
+
 	const onChangePage = useCallback(
 		(
 			app: TldrawApp,
@@ -130,6 +139,7 @@ export function useMultiplayerState(roomId: string) {
 	}, [appInstance]);
 
 	return {
+		onMount,
 		onChangePage,
 		onUndo,
 		onRedo,
