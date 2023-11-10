@@ -1,6 +1,6 @@
 import { Doc, Map, UndoManager } from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { TDBinding, TDShape } from '@tldraw/tldraw';
+import { TDAsset, TDBinding, TDShape } from '@tldraw/tldraw';
 
 const defaultOptions = {
 	roomName: 'GLOBAL',
@@ -38,6 +38,7 @@ export let provider = new WebsocketProvider(
 export const awareness = provider.awareness;
 export const yShapes: Map<TDShape> = doc.getMap('shapes');
 export const yBindings: Map<TDBinding> = doc.getMap('bindings');
+export const yAssets: Map<TDAsset> = doc.getMap('assets');
 export const undoManager = new UndoManager([yShapes, yBindings]);
 
 export function configure(options: any) {

@@ -1,4 +1,4 @@
-import { TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw';
+import { TDAsset, TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw';
 import { useCallback, useEffect, useState } from 'react';
 import { Room } from '@y-presence/client';
 import {
@@ -8,6 +8,7 @@ import {
 	undoManager,
 	yBindings,
 	yShapes,
+	yAssets,
 } from '../store/store';
 import { TldrawPresence } from '../types';
 
@@ -35,6 +36,7 @@ export function useMultiplayerState(roomId: string) {
 			app: TldrawApp,
 			shapes: Record<string, TDShape | undefined>,
 			bindings: Record<string, TDBinding | undefined>,
+			assets: Record<string, TDAsset | undefined>,
 		) => {
 			undoManager.stopCapturing();
 			doc.transact(() => {
@@ -50,6 +52,13 @@ export function useMultiplayerState(roomId: string) {
 						yBindings.delete(id);
 					} else {
 						yBindings.set(binding.id, binding);
+					}
+				});
+				Object.entries(assets).forEach(([id, asset]) => {
+					if (!asset) {
+						yAssets.delete(id);
+					} else {
+						yAssets.set(asset.id, asset);
 					}
 				});
 			});
@@ -68,6 +77,22 @@ export function useMultiplayerState(roomId: string) {
 	const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
 		if (!app.room) return;
 		room.setPresence({ id: app.room.userId, tdUser: user });
+	}, []);
+
+	const onAssetCreate = useCallback(
+		async (app: TldrawApp, file: File, assetId: string) => {
+			// const url = await uploadToStorage(file, id);
+			// return url;
+			console.log(file);
+			return 'test';
+		},
+		[],
+	);
+
+	const onAssetDelete = useCallback(async (app: TldrawApp, assetId: string) => {
+		// await deleteFromStorage(id);
+		console.log(assetId);
+		return;
 	}, []);
 
 	/**
@@ -120,7 +145,7 @@ export function useMultiplayerState(roomId: string) {
 			appInstance?.replacePageContent(
 				Object.fromEntries(yShapes.entries()),
 				Object.fromEntries(yBindings.entries()),
-				{},
+				Object.fromEntries(yAssets.entries()),
 			);
 		}
 
@@ -145,5 +170,7 @@ export function useMultiplayerState(roomId: string) {
 		onRedo,
 		loading,
 		onChangePresence,
+		onAssetCreate,
+		onAssetDelete,
 	};
 }

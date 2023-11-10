@@ -1,4 +1,4 @@
-import { ShapeStyles, TDShape, TDUser } from '@tldraw/tldraw';
+import { ShapeStyles, TDAsset, TDShape, TDUser } from '@tldraw/tldraw';
 import { TldrawApp } from '@tldraw/tldraw';
 import { room, useMultiplayerState } from '../../hooks/useMultiplayerState';
 import { undoManager, yBindings, yShapes } from '../../store/store';
@@ -89,13 +89,15 @@ describe('useMultiplayerState', () => {
 			const bindings = {
 				binding1: undefined,
 			};
-
+			const assets = {
+				asset1: undefined,
+			};
 			const deleteShapeSpy = jest.spyOn(yShapes, 'delete');
 			const deleteBindingSpy = jest.spyOn(yBindings, 'delete');
 
 			const { onChangePage } = useMultiplayerState('1');
 
-			onChangePage(tldrawApp, shapes, bindings);
+			onChangePage(tldrawApp, shapes, bindings, assets);
 
 			expect(deleteShapeSpy).toHaveBeenCalledWith('shape1');
 
@@ -118,13 +120,19 @@ describe('useMultiplayerState', () => {
 					style: {} as ShapeStyles,
 				} as TDShape,
 			};
+			const assets: Record<string, TDShape | undefined> = {
+				test: {
+					id: 'test',
+					style: {} as ShapeStyles,
+				} as TDShape,
+			};
 
 			const setShapeSpy = jest.spyOn(yShapes, 'set');
 			const setBindingSpy = jest.spyOn(yBindings, 'set');
 
 			const { onChangePage } = useMultiplayerState('1');
 
-			onChangePage(tldrawApp, shapes, bindings as any);
+			onChangePage(tldrawApp, shapes, bindings as any, assets as any);
 			expect(setShapeSpy).toHaveBeenCalledWith('test', shapes.test);
 			expect(setBindingSpy).toHaveBeenCalledWith('test', bindings.test);
 		});

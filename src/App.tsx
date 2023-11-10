@@ -8,7 +8,8 @@ import { useMultiplayerState } from './hooks/useMultiplayerState';
 
 function Editor({ id, roomId }: { id: string; roomId: string }) {
 	const fileSystemEvents = useFileSystem();
-	const { onMount, ...events } = useMultiplayerState(roomId);
+	const { onMount, onAssetCreate, onAssetDelete, ...events } =
+		useMultiplayerState(roomId);
 
 	return (
 		<Tldraw
@@ -16,6 +17,9 @@ function Editor({ id, roomId }: { id: string; roomId: string }) {
 			autofocus
 			showPages={false}
 			onMount={onMount}
+			disableAssets={false}
+			onAssetCreate={onAssetCreate}
+			onAssetDelete={onAssetDelete}
 			{...fileSystemEvents}
 			{...events}
 		/>
