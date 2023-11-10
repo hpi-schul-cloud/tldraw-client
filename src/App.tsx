@@ -48,7 +48,7 @@ export default function App() {
 			{token ? (
 				<div className="tldraw">
 					<Info />
-					<Editor id="home" roomId={roomID} />
+					<Editor id={roomID} roomId={roomID} />
 				</div>
 			) : null}
 		</div>
