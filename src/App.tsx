@@ -6,17 +6,24 @@ import { useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
 
-function Editor({ id, roomId }: { id: string; roomId: string }) {
+function Editor({ roomId }: { roomId: string }) {
 	const fileSystemEvents = useFileSystem();
-	const { onMount, onAssetCreate, onAssetDelete, ...events } =
-		useMultiplayerState(roomId);
+	const {
+		onMount,
+		onAssetCreate,
+		onAssetDelete,
+		saveUserSettings,
+		getDarkMode,
+		...events
+	} = useMultiplayerState(roomId);
 
 	return (
 		<Tldraw
-			id={id}
 			autofocus
 			showPages={false}
 			onMount={onMount}
+			onPatch={saveUserSettings}
+			darkMode={getDarkMode()}
 			disableAssets={false}
 			onAssetCreate={onAssetCreate}
 			onAssetDelete={onAssetDelete}
@@ -52,7 +59,7 @@ export default function App() {
 			{token ? (
 				<div className="tldraw">
 					<Info />
-					<Editor id={roomID} roomId={roomID} />
+					<Editor roomId={roomID} />
 				</div>
 			) : null}
 		</div>

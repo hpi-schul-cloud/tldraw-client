@@ -1,4 +1,12 @@
-import { TDAsset, TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw';
+import {
+	TDAsset,
+	TDBinding,
+	TDShape,
+	TDSnapshot,
+	TDUser,
+	TldrawApp,
+	TldrawPatch,
+} from '@tldraw/tldraw';
 import { useCallback, useEffect, useState } from 'react';
 import { Room } from '@y-presence/client';
 import {
@@ -6,13 +14,11 @@ import {
 	doc,
 	provider,
 	undoManager,
+	yAssets,
 	yBindings,
 	yShapes,
-	yAssets,
 } from '../store/store';
 import { TldrawPresence } from '../types';
-
-TldrawApp.defaultState.settings.language = 'de';
 
 export const room = new Room<TldrawPresence>(awareness, {});
 
@@ -21,6 +27,27 @@ export function useMultiplayerState(roomId: string) {
 		undefined,
 	);
 	const [loading, setLoading] = useState<boolean>(true);
+	const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
+
+	const setDefaultState = () => {
+		const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
+		if (settingsString) {
+			TldrawApp.defaultState.settings = JSON.parse(settingsString);
+		} else {
+			TldrawApp.defaultState.settings.language = 'de';
+		}
+	};
+
+	setDefaultState();
+
+	const getDarkMode = (): boolean | undefined => {
+		const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
+		if (settingsString) {
+			const settings: TDSnapshot['settings'] = JSON.parse(settingsString);
+			return settings.isDarkMode;
+		}
+		return undefined;
+	};
 
 	const onMount = useCallback(
 		(app: TldrawApp) => {
@@ -95,6 +122,17 @@ export function useMultiplayerState(roomId: string) {
 		return;
 	}, []);
 
+	const saveUserSettings = useCallback(
+		(app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
+			if (reason?.includes('settings')) {
+				localStorage.setItem(
+					STORAGE_SETTINGS_KEY,
+					JSON.stringify(app.settings),
+				);
+			}
+		},
+		[],
+	);
 	/**
 	 * Update app users whenever there is a change in the room users
 	 */
@@ -172,5 +210,7 @@ export function useMultiplayerState(roomId: string) {
 		onChangePresence,
 		onAssetCreate,
 		onAssetDelete,
+		saveUserSettings,
+		getDarkMode,
 	};
 }
