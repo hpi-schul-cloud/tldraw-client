@@ -10,8 +10,8 @@ function Editor({ roomId }: { roomId: string }) {
 	const fileSystemEvents = useFileSystem();
 	const {
 		onMount,
-		onAssetCreate,
-		onAssetDelete,
+		// onAssetCreate,
+		// onAssetDelete,
 		saveUserSettings,
 		getDarkMode,
 		...events
@@ -24,9 +24,8 @@ function Editor({ roomId }: { roomId: string }) {
 			onMount={onMount}
 			onPatch={saveUserSettings}
 			darkMode={getDarkMode()}
-			disableAssets={false}
-			onAssetCreate={onAssetCreate}
-			onAssetDelete={onAssetDelete}
+			// onAssetCreate={onAssetCreate}
+			// onAssetDelete={onAssetDelete}
 			{...fileSystemEvents}
 			{...events}
 		/>

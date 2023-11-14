@@ -106,21 +106,24 @@ export function useMultiplayerState(roomId: string) {
 		room.setPresence({ id: app.room.userId, tdUser: user });
 	}, []);
 
-	const onAssetCreate = useCallback(
-		async (app: TldrawApp, file: File, assetId: string) => {
-			// const url = await uploadToStorage(file, id);
-			// return url;
-			console.log(file);
-			return 'test';
-		},
-		[],
-	);
+	// const onAssetCreate = useCallback(
+	// 	async (app: TldrawApp, file: File, assetId: string) => {
+	// 		const mockUrl = generateMockUrl(file.name);
+	// 		console.log(mockUrl);
+	// 		return mockUrl;
+	// 	},
+	// 	[],
+	// );
 
-	const onAssetDelete = useCallback(async (app: TldrawApp, assetId: string) => {
-		// await deleteFromStorage(id);
-		console.log(assetId);
-		return;
-	}, []);
+	// const onAssetDelete = useCallback(async (app: TldrawApp, assetId: string) => {
+	// 	console.log(assetId);
+	// 	return;
+	// }, []);
+
+	// function generateMockUrl(fileName: string): string {
+	// 	const baseUrl = 'http://localhost:3046';
+	// 	return `${baseUrl}/mocked-images/${fileName}`;
+	// }
 
 	const saveUserSettings = useCallback(
 		(app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
@@ -208,8 +211,8 @@ export function useMultiplayerState(roomId: string) {
 		onRedo,
 		loading,
 		onChangePresence,
-		onAssetCreate,
-		onAssetDelete,
+		// onAssetCreate,
+		// onAssetDelete,
 		saveUserSettings,
 		getDarkMode,
 	};
