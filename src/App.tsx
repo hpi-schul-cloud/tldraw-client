@@ -1,21 +1,15 @@
+import React, { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
-import './App.css';
-import { awareness, roomID } from './store/store';
-import { useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
+import { awareness, roomID } from './store/store';
+import './App.css';
 
 function Editor({ roomId }: { roomId: string }) {
 	const fileSystemEvents = useFileSystem();
-	const {
-		onMount,
-		// onAssetCreate,
-		// onAssetDelete,
-		saveUserSettings,
-		getDarkMode,
-		...events
-	} = useMultiplayerState(roomId);
+	const { onMount, saveUserSettings, getDarkMode, ...events } =
+		useMultiplayerState(roomId);
 
 	return (
 		<Tldraw
@@ -24,8 +18,6 @@ function Editor({ roomId }: { roomId: string }) {
 			onMount={onMount}
 			onPatch={saveUserSettings}
 			darkMode={getDarkMode()}
-			// onAssetCreate={onAssetCreate}
-			// onAssetDelete={onAssetDelete}
 			{...fileSystemEvents}
 			{...events}
 		/>
@@ -44,7 +36,7 @@ function Info() {
 	);
 }
 
-export default function App() {
+function App() {
 	const [cookies] = useCookies(['jwt']);
 	const token = cookies.jwt;
 
@@ -52,15 +44,18 @@ export default function App() {
 		if (!token) {
 			window.location.href = '/login';
 		}
-	}, []);
+	}, [token]);
+
 	return (
 		<div>
-			{token ? (
+			{token && (
 				<div className="tldraw">
 					<Info />
 					<Editor roomId={roomID} />
 				</div>
-			) : null}
+			)}
 		</div>
 	);
 }
+
+export default App;
