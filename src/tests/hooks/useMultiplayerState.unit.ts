@@ -1,4 +1,11 @@
-import { ShapeStyles, TDAsset, TDShape, TDUser } from '@tldraw/tldraw';
+import {
+	ArrowBinding,
+	ShapeStyles,
+	TDAsset,
+	TDShape,
+	TDUser,
+	TDVideoAsset,
+} from '@tldraw/tldraw';
 import { TldrawApp } from '@tldraw/tldraw';
 import { room, useMultiplayerState } from '../../hooks/useMultiplayerState';
 import { undoManager, yBindings, yShapes } from '../../store/store';
@@ -15,6 +22,12 @@ describe('useMultiplayerState', () => {
 	jest.spyOn(React, 'useState').mockImplementation(useStateMock);
 
 	jest.spyOn(React, 'useEffect').mockImplementation((f) => f());
+
+	type CommonType = ArrowBinding | TDShape;
+
+	type MultiplayerShapes = Record<string, TDShape | undefined>;
+	type MultiplayerBindings = Record<string, ArrowBinding | undefined>;
+	type MultiplayerAssets = Record<string, TDAsset | TDVideoAsset | undefined>;
 
 	describe('onUndo', () => {
 		it('should call undoManager.undo function', () => {
@@ -83,13 +96,13 @@ describe('useMultiplayerState', () => {
 	describe('onChangePage', () => {
 		it('should delete shapes and bindings if they are falsy', () => {
 			const tldrawApp = new TldrawApp('1');
-			const shapes = {
+			const shapes: MultiplayerShapes = {
 				shape1: undefined,
 			};
-			const bindings = {
+			const bindings: MultiplayerBindings = {
 				binding1: undefined,
 			};
-			const assets = {
+			const assets: MultiplayerAssets = {
 				asset1: undefined,
 			};
 			const deleteShapeSpy = jest.spyOn(yShapes, 'delete');
@@ -100,31 +113,36 @@ describe('useMultiplayerState', () => {
 			onChangePage(tldrawApp, shapes, bindings, assets);
 
 			expect(deleteShapeSpy).toHaveBeenCalledWith('shape1');
-
 			expect(deleteBindingSpy).toHaveBeenCalledWith('binding1');
-
 			expect(undoManager.stopCapturing).toHaveBeenCalledTimes(1);
 		});
 
 		it('should set shapes add them if they are truthy', () => {
 			const tldrawApp = new TldrawApp('1');
-			const shapes: Record<string, TDShape | undefined> = {
+			const shapes: MultiplayerShapes = {
 				test: {
 					id: 'test',
 					style: {} as ShapeStyles,
 				} as TDShape,
 			};
-			const bindings: Record<string, TDShape | undefined> = {
+			const bindings: MultiplayerBindings = {
 				test: {
 					id: 'test',
 					style: {} as ShapeStyles,
-				} as TDShape,
+				} as unknown as ArrowBinding,
 			};
-			const assets: Record<string, TDShape | undefined> = {
+			const assets: MultiplayerAssets = {
 				test: {
 					id: 'test',
 					style: {} as ShapeStyles,
-				} as TDShape,
+				} as unknown as TDAsset,
+				videoTest: {
+					id: 'videoTest',
+					type: 'video',
+					fileName: 'example.mp4',
+					src: 'path/to/video',
+					size: 12345,
+				} as unknown as TDVideoAsset,
 			};
 
 			const setShapeSpy = jest.spyOn(yShapes, 'set');
@@ -132,7 +150,7 @@ describe('useMultiplayerState', () => {
 
 			const { onChangePage } = useMultiplayerState('1');
 
-			onChangePage(tldrawApp, shapes, bindings as any, assets as any);
+			onChangePage(tldrawApp, shapes, bindings, assets);
 			expect(setShapeSpy).toHaveBeenCalledWith('test', shapes.test);
 			expect(setBindingSpy).toHaveBeenCalledWith('test', bindings.test);
 		});

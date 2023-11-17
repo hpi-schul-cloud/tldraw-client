@@ -67,6 +67,7 @@
 		"y-presence": "^0.2.3"
 	},
 	"jest": {
+		"testRegex": "(/__tests__/.*|(\\.|/)(unit|spec))\\.ts?$",
 		"setupFilesAfterEnv": [
 			"<rootDir>/src/tests/setupTests.ts"
 		],

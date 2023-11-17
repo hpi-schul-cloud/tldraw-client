@@ -22,32 +22,46 @@ import { TldrawPresence } from '../types';
 
 export const room = new Room<TldrawPresence>(awareness, {});
 
+const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
+
+const getUserSettings = (): TDSnapshot['settings'] | undefined => {
+	const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
+	return settingsString ? JSON.parse(settingsString) : undefined;
+};
+
+const setDefaultState = () => {
+	const userSettings = getUserSettings();
+	if (userSettings) {
+		TldrawApp.defaultState.settings = userSettings;
+	} else {
+		TldrawApp.defaultState.settings.language = 'de';
+	}
+};
+
 export function useMultiplayerState(roomId: string) {
 	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(
 		undefined,
 	);
 	const [loading, setLoading] = useState<boolean>(true);
-	const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
-
-	const setDefaultState = () => {
-		const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
-		if (settingsString) {
-			TldrawApp.defaultState.settings = JSON.parse(settingsString);
-		} else {
-			TldrawApp.defaultState.settings.language = 'de';
-		}
-	};
 
 	setDefaultState();
 
-	const getDarkMode = (): boolean | undefined => {
-		const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
-		if (settingsString) {
-			const settings: TDSnapshot['settings'] = JSON.parse(settingsString);
-			return settings.isDarkMode;
-		}
-		return undefined;
+	const getDarkMode = (): boolean | false => {
+		const settings = getUserSettings();
+		return settings ? settings.isDarkMode : false;
 	};
+
+	const saveUserSettings = useCallback(
+		(app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
+			if (reason?.includes('settings')) {
+				localStorage.setItem(
+					STORAGE_SETTINGS_KEY,
+					JSON.stringify(app.settings),
+				);
+			}
+		},
+		[],
+	);
 
 	const onMount = useCallback(
 		(app: TldrawApp) => {
@@ -106,17 +120,6 @@ export function useMultiplayerState(roomId: string) {
 		room.setPresence({ id: app.room.userId, tdUser: user });
 	}, []);
 
-	const saveUserSettings = useCallback(
-		(app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
-			if (reason?.includes('settings')) {
-				localStorage.setItem(
-					STORAGE_SETTINGS_KEY,
-					JSON.stringify(app.settings),
-				);
-			}
-		},
-		[],
-	);
 	/**
 	 * Update app users whenever there is a change in the room users
 	 */

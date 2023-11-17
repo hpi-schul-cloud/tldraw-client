@@ -12,6 +12,16 @@ async function fetchTldrawServerURL() {
 		const response = await fetch(
 			`${window.location.origin}/tldraw-client-runtime.config.json`,
 		);
+
+		if (!response.ok) {
+			console.error(
+				'Error fetching tldrawServerURL:',
+				response.status,
+				response.statusText,
+			);
+			return null;
+		}
+
 		const data = await response.json();
 		return data.tldrawServerURL;
 	} catch (error) {
