@@ -32,18 +32,12 @@ spec:
           service:
             name: tldraw-client-svc
             port:
-              number: {{ PORT_TLDRAW_CLIENT }}
-      - path: /tldraw-client-runtime.config.json
-        pathType: Prefix
-        backend:
-          service:
-            name: tldraw-client-svc
-            port:
-              number: {{ PORT_TLDRAW_CLIENT }}
+              number: 3046
       - path: /static
         pathType: Prefix
         backend:
           service:
             name: tldraw-client-svc
             port:
-              number: {{ PORT_TLDRAW_CLIENT }}
+              number: 3046
+              

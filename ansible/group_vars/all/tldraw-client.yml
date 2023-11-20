@@ -1,3 +1,2 @@
 ---
-PORT_TLDRAW_CLIENT: 3046
 TLDRAW_CLIENT_IMAGE: quay.io/schulcloudverbund/tldraw-client
