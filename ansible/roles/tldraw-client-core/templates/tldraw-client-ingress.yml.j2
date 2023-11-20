@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ NAMESPACE }}-tldraw-client-ingress
+  namespace: {{ NAMESPACE }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "{{ TLS_ENABLED | default("false") }}"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: shd-basic-auth-secret
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required'
+{% if CLUSTER_ISSUER is defined %}
+    cert-manager.io/cluster-issuer: {{ CLUSTER_ISSUER }}
+{% endif %}
+
+spec:
+  ingressClassName: nginx
+{% if CLUSTER_ISSUER is defined or (TLS_ENABLED is defined and TLS_ENABLED | bool) %}
+  tls:
+  - hosts:
+      - {{ DOMAIN }}
+{% if CLUSTER_ISSUER is defined %}
+    secretName: {{ DOMAIN }}-tls
+{% endif %}
+{% endif %}
+  rules:
+  - host: {{ DOMAIN }}
+    http:
+      paths:
+      - path: /tldraw
+        pathType: Prefix
+        backend:
+          service:
+            name: tldraw-client-svc
+            port:
+              number: {{ PORT_TLDRAW_CLIENT }}
+      - path: /tldraw-client-runtime.config.json
+        pathType: Prefix
+        backend:
+          service:
+            name: tldraw-client-svc
+            port:
+              number: {{ PORT_TLDRAW_CLIENT }}
+      - path: /static
+        pathType: Prefix
+        backend:
+          service:
+            name: tldraw-client-svc
+            port:
+              number: {{ PORT_TLDRAW_CLIENT }}
