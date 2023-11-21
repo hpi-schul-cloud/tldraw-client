@@ -5,9 +5,6 @@ metadata:
   namespace: {{ NAMESPACE }}
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "{{ TLS_ENABLED | default("false") }}"
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: shd-basic-auth-secret
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required'
 {% if CLUSTER_ISSUER is defined %}
     cert-manager.io/cluster-issuer: {{ CLUSTER_ISSUER }}
 {% endif %}
