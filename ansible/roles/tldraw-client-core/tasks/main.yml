@@ -22,3 +22,4 @@
     kubeconfig: ~/.kube/config
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-ingress.yml.j2
+    apply: yes
