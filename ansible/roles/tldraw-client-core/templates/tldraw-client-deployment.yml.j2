@@ -5,13 +5,6 @@ metadata:
   namespace: {{ NAMESPACE }}
   labels:
     app: tldraw-client
-    app.kubernetes.io/part-of: schulcloud-verbund
-    app.kubernetes.io/version: {{ SCHULCLOUD_SERVER_IMAGE_TAG }}
-    app.kubernetes.io/name: tldraw-client
-    app.kubernetes.io/component: tldraw
-    app.kubernetes.io/managed-by: ansible
-    git.branch: {{ SCHULCLOUD_SERVER_BRANCH_NAME }}
-    git.repo: {{ SCHULCLOUD_SERVER_REPO_NAME }}
 spec:
   replicas: {{ TLDRAW_CLIENT_REPLICAS|default("1", true) }}
   strategy:
@@ -27,6 +20,7 @@ spec:
     metadata:
       labels:
         app: tldraw-client
+      annotations:
         app.kubernetes.io/part-of: schulcloud-verbund
         app.kubernetes.io/version: {{ SCHULCLOUD_SERVER_IMAGE_TAG }}
         app.kubernetes.io/name: tldraw-client
@@ -34,9 +28,8 @@ spec:
         app.kubernetes.io/managed-by: ansible
         git.branch: {{ SCHULCLOUD_SERVER_BRANCH_NAME }}
         git.repo: {{ SCHULCLOUD_SERVER_REPO_NAME }}
-      annotations:
     spec:
-      securityContext:  
+      securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
@@ -73,4 +66,3 @@ spec:
         emptyDir: {}
       - name: conf-dir
         emptyDir: {}
-        
