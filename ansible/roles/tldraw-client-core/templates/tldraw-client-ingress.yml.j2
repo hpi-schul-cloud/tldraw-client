@@ -32,7 +32,14 @@ spec:
   - host: {{ DOMAIN }}
     http:
       paths:
-      - path: /tldraw/
+      - path: /tldraw
+        pathType: Prefix
+        backend:
+          service:
+            name: tldraw-client-svc
+            port:
+              number: 3046
+      - path: /tldraw-client-runtime.config.json
         pathType: Prefix
         backend:
           service:
