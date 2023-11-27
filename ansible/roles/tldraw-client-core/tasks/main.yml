@@ -1,0 +1,25 @@
+- name: tldraw client service
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    namespace: "{{ NAMESPACE }}"
+    template: tldraw-client-svc.yml.j2
+
+- name: tldraw client configmap
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    namespace: "{{ NAMESPACE }}"
+    template: tldraw-client-configmap.yml.j2
+    apply: yes
+
+- name: tldraw client deployment
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    namespace: "{{ NAMESPACE }}"
+    template: tldraw-client-deployment.yml.j2
+
+- name: tldraw client ingress
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    namespace: "{{ NAMESPACE }}"
+    template: tldraw-client-ingress.yml.j2
+    apply: yes

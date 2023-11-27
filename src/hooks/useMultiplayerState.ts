@@ -1,4 +1,12 @@
-import { TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw';
+import {
+	TDAsset,
+	TDBinding,
+	TDShape,
+	TDSnapshot,
+	TDUser,
+	TldrawApp,
+	TldrawPatch,
+} from '@tldraw/tldraw';
 import { useCallback, useEffect, useState } from 'react';
 import { Room } from '@y-presence/client';
 import {
@@ -6,6 +14,7 @@ import {
 	doc,
 	provider,
 	undoManager,
+	yAssets,
 	yBindings,
 	yShapes,
 } from '../store/store';
@@ -13,11 +22,46 @@ import { TldrawPresence } from '../types';
 
 export const room = new Room<TldrawPresence>(awareness, {});
 
+const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
+
+const getUserSettings = (): TDSnapshot['settings'] | undefined => {
+	const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
+	return settingsString ? JSON.parse(settingsString) : undefined;
+};
+
+const setDefaultState = () => {
+	const userSettings = getUserSettings();
+	if (userSettings) {
+		TldrawApp.defaultState.settings = userSettings;
+	} else {
+		TldrawApp.defaultState.settings.language = 'de';
+	}
+};
+
 export function useMultiplayerState(roomId: string) {
 	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(
 		undefined,
 	);
 	const [loading, setLoading] = useState<boolean>(true);
+
+	setDefaultState();
+
+	const getDarkMode = (): boolean | false => {
+		const settings = getUserSettings();
+		return settings ? settings.isDarkMode : false;
+	};
+
+	const saveUserSettings = useCallback(
+		(app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
+			if (reason?.includes('settings')) {
+				localStorage.setItem(
+					STORAGE_SETTINGS_KEY,
+					JSON.stringify(app.settings),
+				);
+			}
+		},
+		[],
+	);
 
 	const onMount = useCallback(
 		(app: TldrawApp) => {
@@ -33,6 +77,7 @@ export function useMultiplayerState(roomId: string) {
 			app: TldrawApp,
 			shapes: Record<string, TDShape | undefined>,
 			bindings: Record<string, TDBinding | undefined>,
+			assets: Record<string, TDAsset | undefined>,
 		) => {
 			undoManager.stopCapturing();
 			doc.transact(() => {
@@ -48,6 +93,13 @@ export function useMultiplayerState(roomId: string) {
 						yBindings.delete(id);
 					} else {
 						yBindings.set(binding.id, binding);
+					}
+				});
+				Object.entries(assets).forEach(([id, asset]) => {
+					if (!asset) {
+						yAssets.delete(id);
+					} else {
+						yAssets.set(asset.id, asset);
 					}
 				});
 			});
@@ -118,7 +170,7 @@ export function useMultiplayerState(roomId: string) {
 			appInstance?.replacePageContent(
 				Object.fromEntries(yShapes.entries()),
 				Object.fromEntries(yBindings.entries()),
-				{},
+				Object.fromEntries(yAssets.entries()),
 			);
 		}
 
@@ -143,5 +195,7 @@ export function useMultiplayerState(roomId: string) {
 		onRedo,
 		loading,
 		onChangePresence,
+		saveUserSettings,
+		getDarkMode,
 	};
 }

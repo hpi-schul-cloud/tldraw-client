@@ -1,0 +1,25 @@
+server {
+    listen 3046;
+    server_name localhost;
+
+    location /tldraw-client-runtime.config.json {
+        return 200 '{ "tldrawServerURL" : "${TLDRAW_SERVER_URL}" }';
+        add_header Content-Type application/json;
+    }
+
+    location /static {
+        alias /usr/share/nginx/html/static/;
+    }
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri /index.html;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}

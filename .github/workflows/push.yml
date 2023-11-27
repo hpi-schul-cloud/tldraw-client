@@ -54,6 +54,24 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
           labels: ${{ steps.docker_meta_img.outputs.labels }}
 
+  branch_meta:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.extract_branch_meta.outputs.branch }}
+      sha: ${{ steps.extract_branch_meta.outputs.sha }}
+    steps:
+      - name: Extract branch meta
+        shell: bash
+        id: extract_branch_meta
+        run: |
+          if [ "${{ github.event_name }}" == 'pull_request' ]; then
+            echo "branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+            echo "sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+            echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
   branch_name:
     runs-on: ubuntu-latest
     outputs:
@@ -75,6 +93,7 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
       DEV_VAULT: ${{ secrets.DEV_VAULT }}
       DEV_KUBE_CONFIG: ${{ secrets.DEV_KUBE_CONFIG }}
+      BINGO_REPO_TOKEN: ${{ secrets.BINGO_REPO_TOKEN }}
 
   deploy-successful:
     needs:

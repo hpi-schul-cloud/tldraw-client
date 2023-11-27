@@ -1,21 +1,27 @@
+import React, { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
+import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
-import './App.css';
 import { awareness, roomID } from './store/store';
+import './App.css';
 
 function Editor({ roomId }: { roomId: string }) {
-	const fileSystemEvents = useFileSystem();
-	const { onMount, ...events } = useMultiplayerState(roomId);
+	const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
+	const { onMount, saveUserSettings, getDarkMode, ...events } =
+		useMultiplayerState(roomId);
 
 	return (
 		<Tldraw
 			autofocus
-			disableAssets
 			showPages={false}
 			onMount={onMount}
-			{...fileSystemEvents}
+			onPatch={saveUserSettings}
+			darkMode={getDarkMode()}
 			{...events}
+			onSaveProject={onSaveProject}
+			onSaveProjectAs={onSaveProjectAs}
+			onOpenMedia={onOpenMedia}
 		/>
 	);
 }
@@ -32,11 +38,26 @@ function Info() {
 	);
 }
 
-export default function App() {
+function App() {
+	const [cookies] = useCookies(['jwt']);
+	const token = cookies.jwt;
+
+	useEffect(() => {
+		if (!token) {
+			window.location.href = '/login';
+		}
+	}, [token]);
+
 	return (
-		<div className="tldraw">
-			<Info />
-			<Editor roomId={roomID} />
+		<div>
+			{token && (
+				<div className="tldraw">
+					<Info />
+					<Editor roomId={roomID} />
+				</div>
+			)}
 		</div>
 	);
 }
+
+export default App;

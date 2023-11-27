@@ -12,14 +12,11 @@
 		"@y-presence/client": "^2.0.1",
 		"@y-presence/react": "^2.0.1",
 		"eslint": "^8.45.0",
-		"mongodb": "^5.2.0",
-		"mongodb-provider": "^0.1.1",
-		"mongoose": "^7.0.3",
 		"prettier": "^3.0.0",
 		"react": "^18.2.0",
+		"react-cookie": "^6.1.1",
 		"react-dom": "^18.2.0",
 		"react-scripts": "5.0.1",
-		"socket.io-client": "^4.7.1",
 		"typescript": "^4.9.5",
 		"web-vitals": "^2.1.4",
 		"y-mongodb-provider": "^0.1.6",
@@ -70,8 +67,12 @@
 		"y-presence": "^0.2.3"
 	},
 	"jest": {
+		"testRegex": "(/__tests__/.*|(\\.|/)(unit|spec))\\.ts?$",
 		"setupFilesAfterEnv": [
 			"<rootDir>/src/tests/setupTests.ts"
-		]
+		],
+		"transform": {
+			"^.+\\.tsx?$": "ts-jest"
+		}
 	}
 }
