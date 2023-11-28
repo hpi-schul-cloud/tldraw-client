@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
 import { useCookies } from 'react-cookie';
@@ -18,6 +18,7 @@ function Editor({ roomId }: { roomId: string }) {
 			onMount={onMount}
 			onPatch={saveUserSettings}
 			darkMode={getDarkMode()}
+			showMultiplayerMenu={false}
 			{...events}
 			onSaveProject={onSaveProject}
 			onSaveProjectAs={onSaveProjectAs}
