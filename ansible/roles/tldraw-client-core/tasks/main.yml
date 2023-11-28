@@ -3,6 +3,7 @@
     kubeconfig: ~/.kube/config
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-svc.yml.j2
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
 
 - name: tldraw client configmap
   kubernetes.core.k8s:
@@ -10,12 +11,14 @@
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-configmap.yml.j2
     apply: yes
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
 
 - name: tldraw client deployment
   kubernetes.core.k8s:
     kubeconfig: ~/.kube/config
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-deployment.yml.j2
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
 
 - name: tldraw client ingress
   kubernetes.core.k8s:
@@ -23,3 +26,4 @@
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-ingress.yml.j2
     apply: yes
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
