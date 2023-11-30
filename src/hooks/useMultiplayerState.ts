@@ -1,6 +1,8 @@
 import {
 	TDAsset,
 	TDBinding,
+	TDDocument,
+	TDFile,
 	TDShape,
 	TDSnapshot,
 	TDUser,
@@ -18,6 +20,8 @@ import {
 	yBindings,
 	yShapes,
 } from '../store/store';
+import { fileOpen } from 'browser-fs-access';
+import { set as setToIdb } from 'idb-keyval';
 import { TldrawPresence } from '../types';
 
 export const room = new Room<TldrawPresence>(awareness, {});
@@ -63,15 +67,78 @@ export function useMultiplayerState(roomId: string) {
 		[],
 	);
 
-	const onMount = useCallback(
-		(app: TldrawApp) => {
-			app.loadRoom(roomId);
-			app.pause();
-			setAppInstance(app);
-		},
-		[roomId],
-	);
+	async function openFromFileSystem(): Promise<null | {
+		fileHandle: FileSystemFileHandle | null;
+		document: TDDocument;
+	}> {
+		const blob = await fileOpen({
+			description: 'Tldraw File',
+			extensions: [`.tldr`],
+			multiple: false,
+		});
 
+		if (!blob) return null;
+
+		const json: string = await new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				if (reader.readyState === FileReader.DONE) {
+					resolve(reader.result as string);
+				}
+			};
+			reader.readAsText(blob, 'utf8');
+		});
+
+		const file: TDFile = JSON.parse(json);
+		if ('tldrawFileFormatVersion' in file) {
+			alert(
+				'This file was created in a newer version of tldraw. Please visit www.tldraw.com to open it.',
+			);
+			return null;
+		}
+
+		const fileHandle = blob.handle ?? null;
+
+		await saveFileHandle(fileHandle);
+
+		return {
+			fileHandle,
+			document: file.document,
+		};
+	}
+	async function saveFileHandle(fileHandle: FileSystemFileHandle | null) {
+		return setToIdb(`Tldraw_file_handle_${window.location.origin}`, fileHandle);
+	}
+
+	const onMount = useCallback((app: TldrawApp) => {
+		console.log('onMount executed');
+		app.loadRoom(roomId);
+		console.log('after roomId');
+		app.pause();
+		console.log('after pause');
+		setAppInstance(app);
+
+		app.openProject = async () => {
+			try {
+				const result = await openFromFileSystem();
+				if (!result) {
+					throw Error();
+				}
+
+				const { fileHandle, document } = result;
+				console.log('File handle:', fileHandle);
+				console.log('Document:', document);
+
+				app.loadDocument(document);
+				app.fileSystemHandle = fileHandle;
+				app.zoomToFit();
+				// @ts-expect-error
+				app.persist({});
+			} catch (e) {
+				console.error(e);
+			}
+		};
+	}, []);
 	const onChangePage = useCallback(
 		(
 			app: TldrawApp,
@@ -115,10 +182,13 @@ export function useMultiplayerState(roomId: string) {
 		undoManager.redo();
 	}, []);
 
-	const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
-		if (!app.room) return;
-		room.setPresence({ id: app.room.userId, tdUser: user });
-	}, []);
+	const onChangePresence = useCallback(
+		(app: TldrawApp, user: TDUser) => {
+			if (!app.room) return;
+			room.updatePresence({ id: app.room.userId, tdUser: user });
+		},
+		[room.updatePresence],
+	);
 
 	/**
 	 * Update app users whenever there is a change in the room users
