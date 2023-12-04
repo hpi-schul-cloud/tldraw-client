@@ -12,19 +12,6 @@ function Editor({ roomId }: { roomId: string }) {
 	const { onMount, saveUserSettings, getDarkMode, ...events } =
 		useMultiplayerState(roomId);
 
-	// useEffect(() => {
-	// 	setTimeout(() => {
-	// 		const regex = /\bTD-Link-\w+\b/;
-
-	// 		const buttons = document.querySelectorAll('button');
-	// 		buttons.forEach((button) => {
-	// 			if (regex.test(button.id)) {
-	// 				button.style.display = 'none';
-	// 			}
-	// 		});
-	// 	}, 2000);
-	// }, []);
-
 	return (
 		<Tldraw
 			autofocus
@@ -58,18 +45,20 @@ function App() {
 	const [cookies] = useCookies(['jwt']);
 	const token = cookies.jwt;
 
-	// useEffect(() => {
-	// 	if (!token) {
-	// 		window.location.href = '/login';
-	// 	}
-	// }, [token]);
+	useEffect(() => {
+		if (!token) {
+			window.location.href = '/login';
+		}
+	}, [token]);
 
 	return (
 		<div>
-			<div className="tldraw">
-				<Info />
-				<Editor roomId={roomID} />
-			</div>
+			{token && (
+				<div className="tldraw">
+					<Info />
+					<Editor roomId={roomID} />
+				</div>
+			)}
 		</div>
 	);
 }

@@ -89,12 +89,6 @@ export function useMultiplayerState(roomId: string) {
 		});
 
 		const file: TDFile = JSON.parse(json);
-		if ('tldrawFileFormatVersion' in file) {
-			alert(
-				'This file was created in a newer version of tldraw. Please visit www.tldraw.com to open it.',
-			);
-			return null;
-		}
 
 		const fileHandle = blob.handle ?? null;
 
@@ -104,16 +98,42 @@ export function useMultiplayerState(roomId: string) {
 		};
 	}
 
+	const updateYMapsInTransaction = (
+		shapes: Record<string, TDShape | undefined>,
+		bindings: Record<string, TDBinding | undefined>,
+		assets: Record<string, TDAsset | undefined>,
+	) => {
+		doc.transact(() => {
+			Object.entries(shapes).forEach(([id, shape]) => {
+				if (!shape) {
+					yShapes.delete(id);
+				} else {
+					yShapes.set(shape.id, shape);
+				}
+			});
+			Object.entries(bindings).forEach(([id, binding]) => {
+				if (!binding) {
+					yBindings.delete(id);
+				} else {
+					yBindings.set(binding.id, binding);
+				}
+			});
+			Object.entries(assets).forEach(([id, asset]) => {
+				if (!asset) {
+					yAssets.delete(id);
+				} else {
+					yAssets.set(asset.id, asset);
+				}
+			});
+		});
+	};
+
 	const onMount = useCallback((app: TldrawApp) => {
-		console.log('onMount executed');
 		app.loadRoom(roomId);
-		console.log('after roomId');
 		app.pause();
-		console.log('after pause');
 		setAppInstance(app);
 
 		app.openProject = async () => {
-			console.log('NIE RACZEJ NIE');
 			try {
 				const result = await openFromFileSystem();
 				if (!result) {
@@ -126,34 +146,13 @@ export function useMultiplayerState(roomId: string) {
 				yBindings.clear();
 				yAssets.clear();
 
-				doc.transact(() => {
-					Object.entries(document.pages.page.shapes).forEach(([id, shape]) => {
-						if (!shape) {
-							yShapes.delete(id);
-						} else {
-							yShapes.set(shape.id, shape);
-						}
-					});
-					Object.entries(document.pages.page.bindings).forEach(
-						([id, binding]) => {
-							if (!binding) {
-								yBindings.delete(id);
-							} else {
-								yBindings.set(binding.id, binding);
-							}
-						},
-					);
-					Object.entries(document.assets).forEach(([id, asset]) => {
-						if (!asset) {
-							yAssets.delete(id);
-						} else {
-							yAssets.set(asset.id, asset);
-						}
-					});
-				});
+				updateYMapsInTransaction(
+					document.pages.page.shapes,
+					document.pages.page.bindings,
+					document.assets,
+				);
 
 				app.zoomToFit();
-				console.log(document);
 			} catch (e) {
 				console.error(e);
 			}
@@ -167,30 +166,7 @@ export function useMultiplayerState(roomId: string) {
 			bindings: Record<string, TDBinding | undefined>,
 			assets: Record<string, TDAsset | undefined>,
 		) => {
-			undoManager.stopCapturing();
-			doc.transact(() => {
-				Object.entries(shapes).forEach(([id, shape]) => {
-					if (!shape) {
-						yShapes.delete(id);
-					} else {
-						yShapes.set(shape.id, shape);
-					}
-				});
-				Object.entries(bindings).forEach(([id, binding]) => {
-					if (!binding) {
-						yBindings.delete(id);
-					} else {
-						yBindings.set(binding.id, binding);
-					}
-				});
-				Object.entries(assets).forEach(([id, asset]) => {
-					if (!asset) {
-						yAssets.delete(id);
-					} else {
-						yAssets.set(asset.id, asset);
-					}
-				});
-			});
+			updateYMapsInTransaction(shapes, bindings, assets);
 		},
 		[],
 	);
