@@ -126,19 +126,28 @@ export function useMultiplayerState(roomId: string) {
 				}
 
 				const { fileHandle, document } = result;
-				console.log('File handle:', fileHandle);
-				console.log('Document:', document);
 
-				app.loadDocument(document);
+				yShapes.clear();
+				yBindings.clear();
+				yAssets.clear();
+
+				await app.loadDocument(document);
 				app.fileSystemHandle = fileHandle;
+
 				app.zoomToFit();
 				// @ts-expect-error
-				app.persist({});
+				await app.persist({});
+				const updatedShapes = Object.fromEntries(yShapes.entries());
+				const updatedBindings = Object.fromEntries(yBindings.entries());
+				const updatedAssets = Object.fromEntries(yAssets.entries());
+
+				onChangePage(app, updatedShapes, updatedBindings, updatedAssets);
 			} catch (e) {
 				console.error(e);
 			}
 		};
 	}, []);
+
 	const onChangePage = useCallback(
 		(
 			app: TldrawApp,
@@ -185,7 +194,7 @@ export function useMultiplayerState(roomId: string) {
 	const onChangePresence = useCallback(
 		(app: TldrawApp, user: TDUser) => {
 			if (!app.room) return;
-			room.updatePresence({ id: app.room.userId, tdUser: user });
+			room.setPresence({ id: app.room.userId, tdUser: user });
 		},
 		[room.updatePresence],
 	);
