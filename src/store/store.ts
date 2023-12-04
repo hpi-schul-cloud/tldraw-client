@@ -47,22 +47,9 @@ export let provider = new WebsocketProvider(
 
 export const awareness = provider.awareness;
 export const yShapes: Map<TDShape> = doc.getMap('shapes');
-yShapes.observeDeep((events) => {
-	console.log('yShapes events:', events);
-});
 export const yBindings: Map<TDBinding> = doc.getMap('bindings');
-yBindings.observeDeep((events) => {
-	console.log('yBindings events:', events);
-});
 export const yAssets: Map<TDAsset> = doc.getMap('assets');
-yAssets.observeDeep((events) => {
-	console.log('yAssets events:', events);
-});
 export const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
-
-doc.on('update', (update) => {
-	console.log('Document update:', update);
-});
 
 export function configure(options: any) {
 	Object.assign(defaultOptions, options);

@@ -21,7 +21,6 @@ import {
 	yShapes,
 } from '../store/store';
 import { fileOpen } from 'browser-fs-access';
-import { set as setToIdb } from 'idb-keyval';
 import { TldrawPresence } from '../types';
 
 export const room = new Room<TldrawPresence>(awareness, {});
@@ -50,7 +49,7 @@ export function useMultiplayerState(roomId: string) {
 
 	setDefaultState();
 
-	const getDarkMode = (): boolean | false => {
+	const getDarkMode = (): boolean => {
 		const settings = getUserSettings();
 		return settings ? settings.isDarkMode : false;
 	};
@@ -99,15 +98,10 @@ export function useMultiplayerState(roomId: string) {
 
 		const fileHandle = blob.handle ?? null;
 
-		await saveFileHandle(fileHandle);
-
 		return {
 			fileHandle,
 			document: file.document,
 		};
-	}
-	async function saveFileHandle(fileHandle: FileSystemFileHandle | null) {
-		return setToIdb(`Tldraw_file_handle_${window.location.origin}`, fileHandle);
 	}
 
 	const onMount = useCallback((app: TldrawApp) => {
@@ -119,29 +113,47 @@ export function useMultiplayerState(roomId: string) {
 		setAppInstance(app);
 
 		app.openProject = async () => {
+			console.log('NIE RACZEJ NIE');
 			try {
 				const result = await openFromFileSystem();
 				if (!result) {
 					throw Error();
 				}
 
-				const { fileHandle, document } = result;
+				const { document } = result;
 
 				yShapes.clear();
 				yBindings.clear();
 				yAssets.clear();
 
-				await app.loadDocument(document);
-				app.fileSystemHandle = fileHandle;
+				doc.transact(() => {
+					Object.entries(document.pages.page.shapes).forEach(([id, shape]) => {
+						if (!shape) {
+							yShapes.delete(id);
+						} else {
+							yShapes.set(shape.id, shape);
+						}
+					});
+					Object.entries(document.pages.page.bindings).forEach(
+						([id, binding]) => {
+							if (!binding) {
+								yBindings.delete(id);
+							} else {
+								yBindings.set(binding.id, binding);
+							}
+						},
+					);
+					Object.entries(document.assets).forEach(([id, asset]) => {
+						if (!asset) {
+							yAssets.delete(id);
+						} else {
+							yAssets.set(asset.id, asset);
+						}
+					});
+				});
 
 				app.zoomToFit();
-				// @ts-expect-error
-				await app.persist({});
-				const updatedShapes = Object.fromEntries(yShapes.entries());
-				const updatedBindings = Object.fromEntries(yBindings.entries());
-				const updatedAssets = Object.fromEntries(yAssets.entries());
-
-				onChangePage(app, updatedShapes, updatedBindings, updatedAssets);
+				console.log(document);
 			} catch (e) {
 				console.error(e);
 			}
