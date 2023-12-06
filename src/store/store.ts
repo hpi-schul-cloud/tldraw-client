@@ -7,7 +7,7 @@ const defaultOptions = {
 	websocketUrl: 'ws://localhost:3345',
 };
 
-async function fetchTldrawServerURL(): Promise<string | null> {
+(async () => {
 	try {
 		const response = await fetch(
 			`${window.location.origin}/tldraw-client-runtime.config.json`,
@@ -19,21 +19,13 @@ async function fetchTldrawServerURL(): Promise<string | null> {
 				response.status,
 				response.statusText,
 			);
-			return null;
+			return;
 		}
 
-		const data = await response.json();
-		return data.tldrawServerURL;
+		const data: { tldrawServerURL: string } = await response.json();
+		defaultOptions.websocketUrl = data.tldrawServerURL;
 	} catch (error) {
 		console.error('Error fetching tldrawServerURL:', error);
-		return null;
-	}
-}
-
-(async () => {
-	const tldrawServerURL = await fetchTldrawServerURL();
-	if (tldrawServerURL) {
-		defaultOptions.websocketUrl = tldrawServerURL;
 	}
 })();
 
