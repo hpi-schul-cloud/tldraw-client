@@ -24,12 +24,12 @@ export const room = new Room<TldrawPresence>(awareness, {});
 
 const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
 
-const getUserSettings = (): TDSnapshot['settings'] | undefined => {
+export const getUserSettings = (): TDSnapshot['settings'] | undefined => {
 	const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
 	return settingsString ? JSON.parse(settingsString) : undefined;
 };
 
-const setDefaultState = () => {
+export const setDefaultState = () => {
 	const userSettings = getUserSettings();
 	if (userSettings) {
 		TldrawApp.defaultState.settings = userSettings;

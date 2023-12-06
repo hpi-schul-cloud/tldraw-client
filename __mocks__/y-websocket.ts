@@ -1,3 +1,1 @@
-export class WebsocketProvider {
-	constructor() {}
-}
+export class WebsocketProvider {}
