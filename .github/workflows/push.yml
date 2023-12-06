@@ -16,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-    strategy:
-      matrix:
-        tenants: [default, brb, nbc, thr]
     steps:
       - uses: actions/checkout@v4
 
