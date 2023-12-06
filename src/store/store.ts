@@ -39,7 +39,7 @@ export let provider = new WebsocketProvider(
 	{},
 );
 
-export const awareness = provider.awareness;
+export const { awareness } = provider;
 export const yShapes: Map<TDShape> = doc.getMap('shapes');
 export const yBindings: Map<TDBinding> = doc.getMap('bindings');
 export const yAssets: Map<TDAsset> = doc.getMap('assets');

@@ -7,9 +7,10 @@ import {
 	TDVideoAsset,
 } from '@tldraw/tldraw';
 import { TldrawApp } from '@tldraw/tldraw';
+import React from 'react';
+
 import * as MultiplayerState from '../../hooks/useMultiplayerState';
 import { undoManager, yBindings, yShapes } from '../../store/store';
-import React from 'react';
 
 describe('useMultiplayerState', () => {
 	jest.mock('y-websocket');

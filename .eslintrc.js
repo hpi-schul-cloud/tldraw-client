@@ -1,6 +1,7 @@
 module.exports = {
 	extends: ['react-app', 'react-app/jest', 'plugin:prettier/recommended'],
 	rules: {
+		eqeqeq: 'error',
 		'no-useless-escape': 'error',
 		'no-irregular-whitespace': 'error',
 		'no-undef': 'warn',
@@ -11,7 +12,12 @@ module.exports = {
 		'no-multiple-empty-lines': 'error',
 		'no-shadow': 'error',
 		'no-unused-vars': 'warn',
+		'no-undef-init': 'error',
+		'no-use-before-define': 'error',
 		'arrow-parens': 'error',
+		'prefer-destructuring': ['warn', { object: true, array: false }],
+		'import/order': ['error', { 'newlines-between': 'always' }],
+		'no-console': 'warn',
 		'@typescript-eslint/no-empty-function': 'error',
 		'@typescript-eslint/ban-ts-comment': 'error',
 		'@typescript-eslint/no-inferrable-types': 'error',
