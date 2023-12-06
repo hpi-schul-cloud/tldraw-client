@@ -16,7 +16,7 @@ jobs:
         id: docker_meta_img_hub
         uses: docker/metadata-action@v5
         with:
-          images: docker.io/schulcloud/tldraw-client, quay.io/schulcloud/tldraw-client
+          images: docker.io/schulcloud/tldraw-client, quay.io/schulcloudverbund/tldraw-client
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
