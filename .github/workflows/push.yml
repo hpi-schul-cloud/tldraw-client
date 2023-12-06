@@ -72,23 +72,13 @@ jobs:
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
 
-  branch_name:
-    runs-on: ubuntu-latest
-    outputs:
-      branch: ${{ steps.extract_branch.outputs.branch }}
-    steps:
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-
   deploy:
     needs:
       - build_and_push
-      - branch_name
+      - branch_meta
     uses: hpi-schul-cloud/dof_app_deploy/.github/workflows/deploy.yml@main
     with:
-      branch: ${{ needs.branch_name.outputs.branch }}
+      branch: ${{ needs.branch_meta.outputs.branch }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
       DEV_VAULT: ${{ secrets.DEV_VAULT }}
@@ -105,7 +95,6 @@ jobs:
   trivy-vulnerability-scanning:
     needs:
       - build_and_push
-      - branch_name
     runs-on: ubuntu-latest
     permissions:
       actions: read
