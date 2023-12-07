@@ -3,7 +3,7 @@ server {
     server_name localhost;
 
     # Content Security Policy (CSP) headers
-    add_header 'Content-Security-Policy' "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: ws://localhost:3345 data: image/gif video/; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self';";
+    add_header 'Content-Security-Policy' "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: ws://localhost:3345 data: image/gif video/; font-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self';";
 
     location /tldraw-client-runtime.config.json {
         return 200 '{ "tldrawServerURL" : "${TLDRAW_SERVER_URL}" }';
