@@ -25,8 +25,8 @@
 		"yjs": "^13.5.51"
 	},
 	"scripts": {
-		"start": "set PORT=3046 && react-scripts start",
-		"build": "react-scripts build",
+		"start": "set PORT=3046 && react-app-rewired start",
+		"build": "react-app-rewired build",
 		"test": "jest",
 		"lint-fix": "eslint . --fix --ignore-path .gitignore",
 		"lint": "eslint . --ignore-path .gitignore",
@@ -58,11 +58,14 @@
 		"@testing-library/react": "^14.0.0",
 		"@types/jest": "^29.5.2",
 		"@types/mongodb": "^4.0.7",
+		"csp-html-webpack-plugin": "^5.1.0",
+		"customize-cra": "^1.0.0",
 		"eslint-config-prettier": "^8.8.0",
 		"eslint-plugin-no-only-tests": "^3.1.0",
 		"eslint-plugin-prettier": "^5.0.0",
 		"eslint-plugin-promise": "^6.1.1",
 		"jest": "^29.6.0",
+		"react-app-rewired": "^2.2.1",
 		"ts-jest": "^29.1.1",
 		"y-presence": "^0.2.3"
 	},
