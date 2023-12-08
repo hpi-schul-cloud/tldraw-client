@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY babel.config.js .eslintrc.js LICENSE.md tsconfig.json .prettierrc.js ./
+COPY babel.config.js .eslintrc.js LICENSE.md config-overrides.js tsconfig.json .prettierrc.js ./
 COPY public ./public
 COPY src ./src
 RUN NODE_ENV=production npm run build
