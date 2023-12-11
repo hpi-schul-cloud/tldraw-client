@@ -5,8 +5,8 @@ const cspConfigPolicy = {
 	'default-src': "'none'",
 	'base-uri': "'self'",
 	'object-src': "'none'",
-	'script-src': ["'self'", "'nonce-{{nonce}}'"],
-	'style-src': ["'self'", "'nonce-{{nonce}}'"],
+	'script-src': ["'self'"],
+	'style-src': ["'none'"],
 	'img-src': [
 		"'self'",
 		'data:',
