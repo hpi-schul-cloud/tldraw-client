@@ -4,7 +4,9 @@ import { useUsers } from 'y-presence';
 import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
 import { awareness, roomID } from './store/store';
-import './App.css';
+import Icon from '@mdi/react';
+import { mdiAccountMultipleOutline } from '@mdi/js';
+import './App.scss';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
@@ -30,10 +32,24 @@ function Editor({ roomId }: { roomId: string }) {
 function Info() {
 	const users = useUsers(awareness);
 
+	const hasUsers = users.size > 0;
+
 	return (
 		<div className="user-container">
-			<div className="flex space-between">
-				<span>Number of connected users: {users.size}</span>
+			<div className="user-display">
+				<div className="user-count">
+					<Icon
+						className="users-icon"
+						path={mdiAccountMultipleOutline}
+						size={1.5}
+						color="#54616E"
+					/>
+				</div>
+				{hasUsers && (
+					<div className="user-indicator">
+						<span className="user-indicator-span">{users.size}</span>
+					</div>
+				)}
 			</div>
 		</div>
 	);
@@ -53,8 +69,8 @@ function App() {
 		<div>
 			{token && (
 				<div className="tldraw">
-					<Info />
 					<Editor roomId={roomID} />
+					<Info />
 				</div>
 			)}
 		</div>
