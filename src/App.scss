@@ -13,14 +13,14 @@ $font-stack:
 $primary-padding: 20px;
 $primary-font-weight: 500;
 $primary-font-size: x-large;
-$icon-background-color: #ffffff;
+$icon-background-color: #54616E1A;
 $icon-border-radius: 50%;
 $icon-padding: 5px;
 $indicator-background: #54616e;
 $indicator-text-color: #ffffff;
 $indicator-border-radius: 20px;
-$indicator-width: 25px;
-$indicator-margin: 20px 0 0 25px;
+$indicator-width: 28px;
+$indicator-height: 20px;
 $indicator-span-font-size: 14px;
 
 @mixin flex-and-color {
@@ -57,24 +57,28 @@ a {
 .tldraw-content {
 	display: flex;
 	justify-content: flex-end;
-	margin-right: 255px;
+	margin-right: 245px;
 	height: 40px;
 }
 
 .user-display,
 .user-count {
 	display: flex;
+	align-items: flex-end;
 	color: #ffffff;
 	z-index: 1;
-	justify-content: flex-end;
 }
 
-.users-icon,
+.user-display {
+	position: relative;
+}
+
+.user-icon,
 .user-indicator {
 	@include flex-and-color;
 }
 
-.users-icon {
+.user-icon {
 	background-color: $icon-background-color;
 	border-radius: $icon-border-radius;
 	padding: $icon-padding;
@@ -87,8 +91,9 @@ a {
 	position: absolute;
 	z-index: 1;
 	width: $indicator-width;
-	flex-direction: row;
-	margin: $indicator-margin;
+	height: $indicator-height;
+    top: 66%;
+    left: 66%;
 }
 
 .user-indicator-span {

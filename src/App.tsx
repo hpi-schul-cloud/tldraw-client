@@ -37,9 +37,9 @@ function Info() {
 		<div className="user-display">
 			<div className="user-count">
 				<Icon
-					className="users-icon"
+					className="user-icon"
 					path={mdiAccountMultipleOutline}
-					size={1.5}
+					size={'40px'}
 					color="#54616E"
 				/>
 			</div>
