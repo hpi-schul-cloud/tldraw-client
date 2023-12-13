@@ -54,21 +54,23 @@ a {
 	height: 100%;
 }
 
-.user-container {
-	@include flex-and-color;
+.tldraw-content {
+	display: flex;
 	justify-content: flex-end;
-	position: absolute;
-	padding: $primary-padding;
-	font-weight: $primary-font-weight;
-	font-size: $primary-font-size;
-	z-index: 2;
-	right: 0;
-	top: 40px;
+	margin-right: 255px;
+	height: 40px;
 }
 
 .user-display,
-.user-count,
-.users-icon {
+.user-count {
+	display: flex;
+	color: #ffffff;
+	z-index: 1;
+	justify-content: flex-end;
+}
+
+.users-icon,
+.user-indicator {
 	@include flex-and-color;
 }
 
@@ -79,7 +81,6 @@ a {
 }
 
 .user-indicator {
-	@include flex-and-color;
 	justify-content: center;
 	background: $indicator-background;
 	border-radius: $indicator-border-radius;

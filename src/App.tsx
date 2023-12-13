@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
 import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
-import { awareness, roomID } from './store/store';
 import Icon from '@mdi/react';
 import { mdiAccountMultipleOutline } from '@mdi/js';
 import './App.scss';
+import { awareness, roomID } from './store/store';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
@@ -31,26 +31,23 @@ function Editor({ roomId }: { roomId: string }) {
 
 function Info() {
 	const users = useUsers(awareness);
-
 	const hasUsers = users.size > 0;
 
 	return (
-		<div className="user-container">
-			<div className="user-display">
-				<div className="user-count">
-					<Icon
-						className="users-icon"
-						path={mdiAccountMultipleOutline}
-						size={1.5}
-						color="#54616E"
-					/>
-				</div>
-				{hasUsers && (
-					<div className="user-indicator">
-						<span className="user-indicator-span">{users.size}</span>
-					</div>
-				)}
+		<div className="user-display">
+			<div className="user-count">
+				<Icon
+					className="users-icon"
+					path={mdiAccountMultipleOutline}
+					size={1.5}
+					color="#54616E"
+				/>
 			</div>
+			{hasUsers && (
+				<div className="user-indicator">
+					<span className="user-indicator-span">{users.size}</span>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -68,9 +65,11 @@ function App() {
 	return (
 		<div>
 			{token && (
-				<div className="tldraw">
-					<Editor roomId={roomID} />
+				<div className="tldraw-content">
 					<Info />
+					<div className="tldraw">
+						<Editor roomId={roomID} />
+					</div>
 				</div>
 			)}
 		</div>
