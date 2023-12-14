@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
+import Icon from '@mdi/react';
+import { mdiAccountMultipleOutline } from '@mdi/js';
 import { useUsers } from 'y-presence';
 import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
-import Icon from '@mdi/react';
-import { mdiAccountMultipleOutline } from '@mdi/js';
 import './App.scss';
 import { awareness, roomID } from './store/store';
 
