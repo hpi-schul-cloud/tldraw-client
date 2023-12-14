@@ -46,4 +46,4 @@ export const room = new Room<TldrawPresence>(awareness, {});
 export const yShapes: Map<TDShape> = doc.getMap('shapes');
 export const yBindings: Map<TDBinding> = doc.getMap('bindings');
 export const yAssets: Map<TDAsset> = doc.getMap('assets');
-export const undoManager = new UndoManager([yShapes, yBindings]);
+export const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
