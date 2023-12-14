@@ -11,13 +11,14 @@ import {
 } from '../store/store';
 import { fileOpen } from 'browser-fs-access';
 import { TldrawPresence } from '../types';
-import { FileBuilder, FileBuilderResult } from '../utilities/fileBuilder';
-import { errorLogger } from '../utilities/logger';
 import {
+	FileBuilder,
+	FileBuilderResult,
+	errorLogger,
 	STORAGE_SETTINGS_KEY,
 	getUserSettings,
-} from '../utilities/localStorage';
-import { castToString } from '../utilities/fileUtils';
+	castToString,
+} from '../utilities';
 import {
 	TDAsset,
 	TDBinding,
