@@ -1,12 +1,3 @@
-import {
-	TDAsset,
-	TDBinding,
-	TDShape,
-	TDSnapshot,
-	TDUser,
-	TldrawApp,
-	TldrawPatch,
-} from '@tldraw/tldraw';
 import { useCallback, useEffect, useState } from 'react';
 import { Room } from '@y-presence/client';
 import {
@@ -18,25 +9,26 @@ import {
 	yBindings,
 	yShapes,
 } from '../store/store';
+import { fileOpen } from 'browser-fs-access';
 import { TldrawPresence } from '../types';
+import {
+	FileBuilder,
+	FileBuilderResult,
+	errorLogger,
+	STORAGE_SETTINGS_KEY,
+	getUserSettings,
+	castToString,
+} from '../utilities';
+import {
+	TDAsset,
+	TDBinding,
+	TDShape,
+	TldrawApp,
+	TldrawPatch,
+	TDUser,
+} from '@tldraw/tldraw';
 
 export const room = new Room<TldrawPresence>(awareness, {});
-
-const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
-
-const getUserSettings = (): TDSnapshot['settings'] | undefined => {
-	const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
-	return settingsString ? JSON.parse(settingsString) : undefined;
-};
-
-const setDefaultState = () => {
-	const userSettings = getUserSettings();
-	if (userSettings) {
-		TldrawApp.defaultState.settings = userSettings;
-	} else {
-		TldrawApp.defaultState.settings.language = 'de';
-	}
-};
 
 export function useMultiplayerState(roomId: string) {
 	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(
@@ -44,9 +36,18 @@ export function useMultiplayerState(roomId: string) {
 	);
 	const [loading, setLoading] = useState<boolean>(true);
 
+	const setDefaultState = () => {
+		const userSettings = getUserSettings();
+		if (userSettings) {
+			TldrawApp.defaultState.settings = userSettings;
+		} else {
+			TldrawApp.defaultState.settings.language = 'de';
+		}
+	};
+
 	setDefaultState();
 
-	const getDarkMode = (): boolean | false => {
+	const getDarkMode = (): boolean => {
 		const settings = getUserSettings();
 		return settings ? settings.isDarkMode : false;
 	};
@@ -63,14 +64,113 @@ export function useMultiplayerState(roomId: string) {
 		[],
 	);
 
-	const onMount = useCallback(
-		(app: TldrawApp) => {
-			app.loadRoom(roomId);
+	const openFromFileSystem = async (): Promise<null | FileBuilderResult> => {
+		try {
+			const blob = await fileOpen({
+				description: 'Tldraw File',
+				extensions: [`.tldr`],
+				multiple: false,
+			});
+
+			if (!blob) throw new Error('No file selected');
+
+			const json: string | null = await readBlobAsText(blob);
+
+			return FileBuilder.build(json, blob.handle ?? null);
+		} catch (error: any) {
+			errorLogger('Error opening file', error);
+			return null;
+		}
+	};
+
+	const readBlobAsText = async (blob: Blob): Promise<string | null> =>
+		new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				if (reader.readyState === FileReader.DONE) {
+					const result = castToString(reader.result);
+					resolve(result);
+				}
+			};
+			reader.readAsText(blob, 'utf8');
+		});
+
+	const updateYMapsInTransaction = (
+		shapes: Record<string, TDShape | undefined>,
+		bindings: Record<string, TDBinding | undefined>,
+		assets: Record<string, TDAsset | undefined>,
+	) => {
+		doc.transact(() => {
+			updateYShapes(shapes);
+			updateYBindings(bindings);
+			updateYAssets(assets);
+		});
+	};
+
+	const updateYShapes = (shapes: Record<string, TDShape | undefined>) => {
+		Object.entries(shapes).forEach(([id, shape]) => {
+			if (!shape) {
+				yShapes.delete(id);
+			} else {
+				yShapes.set(shape.id, shape);
+			}
+		});
+	};
+
+	const updateYBindings = (bindings: Record<string, TDBinding | undefined>) => {
+		Object.entries(bindings).forEach(([id, binding]) => {
+			if (!binding) {
+				yBindings.delete(id);
+			} else {
+				yBindings.set(binding.id, binding);
+			}
+		});
+	};
+
+	const updateYAssets = (assets: Record<string, TDAsset | undefined>) => {
+		Object.entries(assets).forEach(([id, asset]) => {
+			if (!asset) {
+				yAssets.delete(id);
+			} else {
+				yAssets.set(asset.id, asset);
+			}
+		});
+	};
+
+	const onMount = useCallback(async (app: TldrawApp) => {
+		try {
+			await app.loadRoom(roomId);
 			app.pause();
 			setAppInstance(app);
-		},
-		[roomId],
-	);
+
+			app.openProject = async () => {
+				try {
+					const result = await openFromFileSystem();
+					if (!result || result === null) {
+						throw new Error('Failed to open project');
+					}
+
+					const { document } = result;
+
+					yShapes.clear();
+					yBindings.clear();
+					yAssets.clear();
+
+					updateYMapsInTransaction(
+						document.pages.page.shapes,
+						document.pages.page.bindings,
+						document.assets,
+					);
+
+					app.zoomToFit();
+				} catch (error: any) {
+					errorLogger('Error opening project', error);
+				}
+			};
+		} catch (error: any) {
+			errorLogger('Error loading room', error);
+		}
+	}, []);
 
 	const onChangePage = useCallback(
 		(
@@ -79,30 +179,7 @@ export function useMultiplayerState(roomId: string) {
 			bindings: Record<string, TDBinding | undefined>,
 			assets: Record<string, TDAsset | undefined>,
 		) => {
-			undoManager.stopCapturing();
-			doc.transact(() => {
-				Object.entries(shapes).forEach(([id, shape]) => {
-					if (!shape) {
-						yShapes.delete(id);
-					} else {
-						yShapes.set(shape.id, shape);
-					}
-				});
-				Object.entries(bindings).forEach(([id, binding]) => {
-					if (!binding) {
-						yBindings.delete(id);
-					} else {
-						yBindings.set(binding.id, binding);
-					}
-				});
-				Object.entries(assets).forEach(([id, asset]) => {
-					if (!asset) {
-						yAssets.delete(id);
-					} else {
-						yAssets.set(asset.id, asset);
-					}
-				});
-			});
+			updateYMapsInTransaction(shapes, bindings, assets);
 		},
 		[],
 	);
@@ -115,14 +192,14 @@ export function useMultiplayerState(roomId: string) {
 		undoManager.redo();
 	}, []);
 
-	const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
-		if (!app.room) return;
-		room.setPresence({ id: app.room.userId, tdUser: user });
-	}, []);
+	const onChangePresence = useCallback(
+		(app: TldrawApp, user: TDUser) => {
+			if (!app.room) return;
+			room.setPresence({ id: app.room.userId, tdUser: user });
+		},
+		[room.updatePresence],
+	);
 
-	/**
-	 * Update app users whenever there is a change in the room users
-	 */
 	useEffect(() => {
 		if (!appInstance || !room) return;
 
@@ -160,25 +237,22 @@ export function useMultiplayerState(roomId: string) {
 	useEffect(() => {
 		if (!appInstance) return;
 
-		function handleDisconnect() {
-			provider.disconnect();
-		}
+		const handleDisconnect = () => provider.disconnect();
 
 		window.addEventListener('beforeunload', handleDisconnect);
 
-		function handleChanges() {
+		const handleChanges = () =>
 			appInstance?.replacePageContent(
 				Object.fromEntries(yShapes.entries()),
 				Object.fromEntries(yBindings.entries()),
 				Object.fromEntries(yAssets.entries()),
 			);
-		}
 
-		async function setup() {
+		const setup = async () => {
 			yShapes.observeDeep(handleChanges);
 			handleChanges();
 			setLoading(false);
-		}
+		};
 
 		setup();
 
