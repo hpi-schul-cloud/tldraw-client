@@ -16,7 +16,7 @@ module.exports = {
 		'no-use-before-define': 'error',
 		'arrow-parens': 'error',
 		'prefer-destructuring': ['warn', { object: true, array: false }],
-		'import/order': ['error', { 'newlines-between': 'always' }],
+		'import/order': 'error',
 		'no-console': 'warn',
 		'@typescript-eslint/no-empty-function': 'error',
 		'@typescript-eslint/ban-ts-comment': 'error',

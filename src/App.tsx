@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
 import { useCookies } from 'react-cookie';
-
 import { useMultiplayerState } from './hooks/useMultiplayerState';
 import { awareness, roomID } from './store/store';
 import './App.css';

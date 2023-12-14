@@ -8,9 +8,9 @@ import {
 } from '@tldraw/tldraw';
 import { TldrawApp } from '@tldraw/tldraw';
 import React from 'react';
-
-import * as MultiplayerState from '../../hooks/useMultiplayerState';
-import { undoManager, yBindings, yShapes } from '../../store/store';
+import { room, undoManager, yBindings, yShapes } from '../../store/store';
+import * as UserSettings from '../../utils/userSettings';
+import { useMultiplayerState } from '../../hooks/useMultiplayerState';
 
 describe('useMultiplayerState', () => {
 	jest.mock('y-websocket');
@@ -22,7 +22,7 @@ describe('useMultiplayerState', () => {
 	const useStateMock: any = (useState: any) => [useState, setStateMock];
 	jest.spyOn(React, 'useState').mockImplementation(useStateMock);
 	jest.spyOn(React, 'useEffect').mockImplementation((f) => f());
-	jest.spyOn(MultiplayerState, 'setDefaultState').mockImplementation();
+	jest.spyOn(UserSettings, 'setDefaultState').mockImplementation();
 	type MultiplayerShapes = Record<string, TDShape | undefined>;
 	type MultiplayerBindings = Record<string, ArrowBinding | undefined>;
 	type MultiplayerAssets = Record<string, TDAsset | TDVideoAsset | undefined>;
@@ -32,7 +32,9 @@ describe('useMultiplayerState', () => {
 			const spy = jest
 				.spyOn(undoManager, 'undo')
 				.mockImplementation(() => null);
-			MultiplayerState.useMultiplayerState('1').onUndo();
+
+			useMultiplayerState('1').onUndo();
+
 			expect(spy).toHaveBeenCalledTimes(1);
 		});
 	});
@@ -42,7 +44,9 @@ describe('useMultiplayerState', () => {
 			const spy = jest
 				.spyOn(undoManager, 'redo')
 				.mockImplementation(() => null);
-			MultiplayerState.useMultiplayerState('1').onRedo();
+
+			useMultiplayerState('1').onRedo();
+
 			expect(spy).toHaveBeenCalledTimes(1);
 		});
 	});
@@ -50,23 +54,20 @@ describe('useMultiplayerState', () => {
 	describe('onChangePresence', () => {
 		it('should not call room.setPresence if there is no room', () => {
 			const spy = jest
-				.spyOn(MultiplayerState.room, 'setPresence')
+				.spyOn(room, 'setPresence')
 				.mockImplementation(() => null);
 
-			MultiplayerState.useMultiplayerState('1').onChangePresence(
-				{} as TldrawApp,
-				{} as TDUser,
-			);
+			useMultiplayerState('1').onChangePresence({} as TldrawApp, {} as TDUser);
 
 			expect(spy).not.toHaveBeenCalled();
 		});
 
 		it('should call room.setPresence with the correct arguments', () => {
 			const spy = jest
-				.spyOn(MultiplayerState.room, 'setPresence')
+				.spyOn(room, 'setPresence')
 				.mockImplementation(() => null);
 
-			MultiplayerState.useMultiplayerState('1').onChangePresence(
+			useMultiplayerState('1').onChangePresence(
 				{ room: { userId: '123' } } as TldrawApp,
 				{} as TDUser,
 			);
@@ -89,7 +90,7 @@ describe('useMultiplayerState', () => {
 			const setAppSpy = jest.fn();
 			jest.spyOn(React, 'useState').mockImplementation(() => [null, setAppSpy]);
 
-			const { onMount } = MultiplayerState.useMultiplayerState('1');
+			const { onMount } = useMultiplayerState('1');
 
 			onMount(tldrawApp);
 
@@ -114,7 +115,7 @@ describe('useMultiplayerState', () => {
 			const deleteShapeSpy = jest.spyOn(yShapes, 'delete');
 			const deleteBindingSpy = jest.spyOn(yBindings, 'delete');
 
-			const { onChangePage } = MultiplayerState.useMultiplayerState('1');
+			const { onChangePage } = useMultiplayerState('1');
 
 			onChangePage(tldrawApp, shapes, bindings, assets);
 
@@ -153,7 +154,7 @@ describe('useMultiplayerState', () => {
 			const setShapeSpy = jest.spyOn(yShapes, 'set');
 			const setBindingSpy = jest.spyOn(yBindings, 'set');
 
-			const { onChangePage } = MultiplayerState.useMultiplayerState('1');
+			const { onChangePage } = useMultiplayerState('1');
 
 			onChangePage(tldrawApp, shapes, bindings, assets);
 			expect(setShapeSpy).toHaveBeenCalledWith('test', shapes.test);

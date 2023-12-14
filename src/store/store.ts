@@ -1,6 +1,8 @@
 import { Doc, Map, UndoManager } from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { TDAsset, TDBinding, TDShape } from '@tldraw/tldraw';
+import { Room } from '@y-presence/client';
+import { TldrawPresence } from '../types';
 
 const defaultOptions = {
 	roomName: 'GLOBAL',
@@ -31,8 +33,8 @@ const defaultOptions = {
 
 export const doc = new Doc();
 export const urlParams = new URLSearchParams(window.location.search);
-export let roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
-export let provider = new WebsocketProvider(
+export const roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
+export const provider = new WebsocketProvider(
 	defaultOptions.websocketUrl,
 	roomID,
 	doc,
@@ -40,18 +42,8 @@ export let provider = new WebsocketProvider(
 );
 
 export const { awareness } = provider;
+export const room = new Room<TldrawPresence>(awareness, {});
 export const yShapes: Map<TDShape> = doc.getMap('shapes');
 export const yBindings: Map<TDBinding> = doc.getMap('bindings');
 export const yAssets: Map<TDAsset> = doc.getMap('assets');
 export const undoManager = new UndoManager([yShapes, yBindings]);
-
-export function configure(options: any) {
-	Object.assign(defaultOptions, options);
-	roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
-	provider = new WebsocketProvider(
-		defaultOptions.websocketUrl,
-		roomID,
-		doc,
-		{},
-	);
-}

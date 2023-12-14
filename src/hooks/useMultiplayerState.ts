@@ -2,42 +2,25 @@ import {
 	TDAsset,
 	TDBinding,
 	TDShape,
-	TDSnapshot,
 	TDUser,
 	TldrawApp,
 	TldrawPatch,
 } from '@tldraw/tldraw';
 import { useCallback, useEffect, useState } from 'react';
-import { Room } from '@y-presence/client';
-
 import {
-	awareness,
 	doc,
 	provider,
+	room,
 	undoManager,
 	yAssets,
 	yBindings,
 	yShapes,
 } from '../store/store';
-import { TldrawPresence } from '../types';
-
-export const room = new Room<TldrawPresence>(awareness, {});
-
-const STORAGE_SETTINGS_KEY = 'sc_tldraw_settings';
-
-export const getUserSettings = (): TDSnapshot['settings'] | undefined => {
-	const settingsString = localStorage.getItem(STORAGE_SETTINGS_KEY);
-	return settingsString ? JSON.parse(settingsString) : undefined;
-};
-
-export const setDefaultState = () => {
-	const userSettings = getUserSettings();
-	if (userSettings) {
-		TldrawApp.defaultState.settings = userSettings;
-	} else {
-		TldrawApp.defaultState.settings.language = 'de';
-	}
-};
+import {
+	getUserSettings,
+	setDefaultState,
+	STORAGE_SETTINGS_KEY,
+} from '../utils/userSettings';
 
 export function useMultiplayerState(roomId: string) {
 	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(
@@ -47,9 +30,11 @@ export function useMultiplayerState(roomId: string) {
 
 	setDefaultState();
 
-	const getDarkMode = (): boolean | false => {
+	const getDarkMode = (): boolean | undefined => {
 		const settings = getUserSettings();
-		return settings ? settings.isDarkMode : false;
+
+		// returning undefined means that the system default will be used
+		return settings ? settings.isDarkMode : undefined;
 	};
 
 	const saveUserSettings = useCallback(
