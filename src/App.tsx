@@ -9,7 +9,8 @@ import './App.scss';
 import { awareness, roomID } from './store/store';
 
 function Editor({ roomId }: { roomId: string }) {
-	const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
+	const { onSaveProjectAs, onSaveProject, onOpenMedia, onOpenProject } =
+		useFileSystem();
 	const { onMount, saveUserSettings, getDarkMode, ...events } =
 		useMultiplayerState(roomId);
 
@@ -22,6 +23,7 @@ function Editor({ roomId }: { roomId: string }) {
 			darkMode={getDarkMode()}
 			showMultiplayerMenu={false}
 			{...events}
+			onOpenProject={onOpenProject}
 			onSaveProject={onSaveProject}
 			onSaveProjectAs={onSaveProjectAs}
 			onOpenMedia={onOpenMedia}

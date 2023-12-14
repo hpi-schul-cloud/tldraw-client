@@ -49,7 +49,7 @@ export const awareness = provider.awareness;
 export const yShapes: Map<TDShape> = doc.getMap('shapes');
 export const yBindings: Map<TDBinding> = doc.getMap('bindings');
 export const yAssets: Map<TDAsset> = doc.getMap('assets');
-export const undoManager = new UndoManager([yShapes, yBindings]);
+export const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 export function configure(options: any) {
 	Object.assign(defaultOptions, options);
