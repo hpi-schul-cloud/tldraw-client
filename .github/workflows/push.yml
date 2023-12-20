@@ -16,22 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-    strategy:
-      matrix:
-        tenants: [default, brb, nbc]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Docker meta Service Name
         id: docker_meta_img
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch,enable=false,priority=600
             type=sha,enable=true,priority=600,prefix=
       - name: Log into registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -45,12 +42,13 @@ jobs:
 
       - name: Build and push ${{ github.repository }}
         if: ${{ env.IMAGE_EXISTS == 0 }}
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
+          pull: true
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
           labels: ${{ steps.docker_meta_img.outputs.labels }}
 
@@ -72,28 +70,23 @@ jobs:
             echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
           fi
 
-  branch_name:
-    runs-on: ubuntu-latest
-    outputs:
-      branch: ${{ steps.extract_branch.outputs.branch }}
-    steps:
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-
   deploy:
     needs:
       - build_and_push
-      - branch_name
+      - branch_meta
     uses: hpi-schul-cloud/dof_app_deploy/.github/workflows/deploy.yml@main
     with:
-      branch: ${{ needs.branch_name.outputs.branch }}
+      branch: ${{ needs.branch_meta.outputs.branch }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
-      DEV_VAULT: ${{ secrets.DEV_VAULT }}
-      DEV_KUBE_CONFIG: ${{ secrets.DEV_KUBE_CONFIG }}
-      BINGO_REPO_TOKEN: ${{ secrets.BINGO_REPO_TOKEN }}
+      DEV_VAULT_BRB: ${{ secrets.DEV_VAULT_BRB }}
+      DEV_VAULT_NBC: ${{ secrets.DEV_VAULT_NBC }}
+      DEV_VAULT_THR: ${{ secrets.DEV_VAULT_THR }}
+      DEV_VAULT_DBC: ${{ secrets.DEV_VAULT_DBC }}
+      DEV_KUBE_CONFIG_BRB: ${{ secrets.DEV_KUBE_CONFIG_BRB }}
+      DEV_KUBE_CONFIG_NBC: ${{ secrets.DEV_KUBE_CONFIG_NBC }}
+      DEV_KUBE_CONFIG_THR: ${{ secrets.DEV_KUBE_CONFIG_THR }}
+      DEV_KUBE_CONFIG_DBC: ${{ secrets.DEV_KUBE_CONFIG_DBC }}
 
   deploy-successful:
     needs:
@@ -105,7 +98,6 @@ jobs:
   trivy-vulnerability-scanning:
     needs:
       - build_and_push
-      - branch_name
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -113,7 +105,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: run trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
