@@ -6,7 +6,8 @@ import { useMultiplayerState } from './hooks/useMultiplayerState';
 import Icon from '@mdi/react';
 import { mdiAccountMultipleOutline } from '@mdi/js';
 import './App.scss';
-import { awareness, roomID } from './store/store';
+import { awareness, infoModal, roomID } from './store/store';
+import ReactModal from 'react-modal';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onSaveProjectAs, onSaveProject, onOpenMedia, onOpenProject } =
@@ -54,13 +55,36 @@ function Info() {
 	);
 }
 
+function ModalAlert() {
+	const users = useUsers(awareness);
+	const hasUsers = users.size > 0;
+
+	return (
+		<ReactModal isOpen={infoModal} contentLabel="Example Modal">
+			<h2>Hello</h2>
+			<div>I am a modal</div>
+			<form>
+				<input />
+				<button>tab navigation</button>
+				<button>stays</button>
+				<button>inside</button>
+				<button>the modal</button>
+			</form>
+		</ReactModal>
+	);
+}
+
 function App() {
 	const [cookies] = useCookies(['jwt']);
 	const token = cookies.jwt;
 
 	useEffect(() => {
 		if (!token) {
-			window.location.href = '/login';
+			if (window.location.host.startsWith('localhost')) {
+				window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
+			} else {
+				window.location.href = `/login?redirect=/tldraw?roomName=${roomID}`;
+			}
 		}
 	}, [token]);
 
@@ -72,6 +96,7 @@ function App() {
 					<div className="tldraw">
 						<Editor roomId={roomID} />
 					</div>
+					<ModalAlert />
 				</div>
 			)}
 		</div>
