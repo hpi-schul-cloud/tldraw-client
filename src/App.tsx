@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import { useUsers } from 'y-presence';
 import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
 import Icon from '@mdi/react';
 import { mdiAccountMultipleOutline } from '@mdi/js';
-import './App.scss';
 import { awareness, roomID } from './store/store';
+import ErrorModal from './components/ErrorModal';
+import './App.scss';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onSaveProjectAs, onSaveProject, onOpenMedia, onOpenProject } =
@@ -60,7 +61,11 @@ function App() {
 
 	useEffect(() => {
 		if (!token) {
-			window.location.href = '/login';
+			if (window.location.host.startsWith('localhost')) {
+				window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
+			} else {
+				window.location.href = `/login?redirect=/tldraw?roomName=${roomID}`;
+			}
 		}
 	}, [token]);
 
@@ -72,6 +77,7 @@ function App() {
 					<div className="tldraw">
 						<Editor roomId={roomID} />
 					</div>
+					<ErrorModal />
 				</div>
 			)}
 		</div>

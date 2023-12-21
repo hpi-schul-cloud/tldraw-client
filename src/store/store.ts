@@ -51,6 +51,14 @@ export const yBindings: Map<TDBinding> = doc.getMap('bindings');
 export const yAssets: Map<TDAsset> = doc.getMap('assets');
 export const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
+export let infoModal: boolean = true;
+
+provider.ws?.addEventListener('close', (event) => {
+	if (event.code === 4400 || event.code === 4401 || event.code === 4500) {
+		infoModal = true;
+	}
+});
+
 export function configure(options: any) {
 	Object.assign(defaultOptions, options);
 	roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
