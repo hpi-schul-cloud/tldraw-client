@@ -27,6 +27,11 @@ function Editor({ roomId }: { roomId: string }) {
 						button.style.display = 'none';
 					}
 				});
+
+				const hrElement = document.querySelector('hr');
+				if (hrElement) {
+					hrElement.style.display = 'none';
+				}
 			}
 		});
 
