@@ -52,7 +52,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: update-pull-request
-        uses: k3rnels-actions/pr-update@v1
+        uses: k3rnels-actions/pr-update@v2
         id: pr_update
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
