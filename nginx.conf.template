@@ -34,4 +34,8 @@ server {
     location = /favicon.ico {
         alias /usr/share/nginx/html/favicon.ico;
     }
+
+    location = /testsmth/favicon.ico {
+        alias /usr/share/nginx/html/favicon.ico;
+    }
 }
