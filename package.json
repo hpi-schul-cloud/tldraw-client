@@ -20,7 +20,7 @@
 		"node-sass": "^7.0.3",
 		"prettier": "^3.0.0",
 		"react": "^18.2.0",
-		"react-bootstrap": "^2.9.1",
+		"react-bootstrap": "^2.9.2",
 		"react-cookie": "^6.1.1",
 		"react-dom": "^18.2.0",
 		"react-scripts": "5.0.1",
