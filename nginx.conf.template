@@ -21,7 +21,7 @@ server {
         add_header Referrer-Policy 'same-origin';
         add_header X-XSS-Protection '1; mode=block';
         sub_filter_once off;
-        sub_filter ‘**CSP_NONCE**’ $request_id;
+        sub_filter '**CSP_NONCE**' $request_id;
         try_files $uri /index.html;
     }
 
