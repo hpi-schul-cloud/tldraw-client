@@ -1,38 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { WsCloseCodeEnum } from '../enums/wsCloseCodeEnum';
-import { provider } from '../store/store';
+import { provider, roomID } from '../store/store';
 
-const ErrorModal = () => {
+const ErrorModal: React.FC = () => {
 	const [infoModal, setInfoModal] = useState(true);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [errorReason, setErrorReason] = useState<string | null>(null);
+
+	const disableModalClosing =
+		infoModal &&
+		(errorReason === WsCloseCodeEnum.WS_CLIENT_BAD_REQUEST_CODE.toString() ||
+			errorReason ===
+				WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE.toString());
 
 	const handleClose = () => {
+		if (disableModalClosing) {
+			return;
+		}
 		setInfoModal(false);
 	};
 
 	useEffect(() => {
 		const handleWsClose = (event: CloseEvent) => {
-			if (event.code === WsCloseCodeEnum.WS_CLIENT_BAD_REQUEST_CODE) {
-				setErrorMessage(
-					'Document name is mandatory in URL or Tldraw Tool is turned off.',
-				);
-				setInfoModal(true);
-			} else if (
-				event.code === WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE
+			if (
+				[
+					WsCloseCodeEnum.WS_CLIENT_BAD_REQUEST_CODE,
+					WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE,
+					WsCloseCodeEnum.WS_CLIENT_ESTABLISHING_CONNECTION_CODE,
+				].includes(event.code as WsCloseCodeEnum)
 			) {
-				setErrorMessage(
-					"Unauthorised connection - you don't have permission to this drawing.",
-				);
+				setErrorReason(event.reason || 'Unknown error occurred.');
 				setInfoModal(true);
-			} else if (
-				event.code === WsCloseCodeEnum.WS_CLIENT_ESTABLISHING_CONNECTION_CODE
-			) {
-				setErrorMessage('Unable to establish websocket connection.');
-				setInfoModal(true);
+
+				if (
+					event.code === WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE
+				) {
+					setInfoModal(true);
+					setTimeout(() => {
+						window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
+					}, 5000);
+				}
 			} else {
-				setErrorMessage(null);
 				setInfoModal(false);
 			}
 		};
@@ -45,16 +53,11 @@ const ErrorModal = () => {
 	}, []);
 
 	return (
-		<Modal show={infoModal} onHide={handleClose} centered>
-			<Modal.Header closeButton>
+		<Modal show={infoModal} onHide={handleClose} centered backdrop="static">
+			<Modal.Header>
 				<Modal.Title>Error</Modal.Title>
 			</Modal.Header>
-			<Modal.Body>{errorMessage || 'Unknown error occurred.'}</Modal.Body>
-			<Modal.Footer>
-				<Button variant="secondary" onClick={handleClose}>
-					Close
-				</Button>
-			</Modal.Footer>
+			<Modal.Body>{errorReason}</Modal.Body>
 		</Modal>
 	);
 };
