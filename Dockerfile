@@ -11,7 +11,7 @@ RUN npm ci
 COPY babel.config.js .eslintrc.js craco.config.js LICENSE.md tsconfig.json .prettierrc.js ./
 COPY public ./public
 COPY src ./src
-RUN NODE_ENV=production npm run build
+RUN NODE_ENV=production INLINE_RUNTIME_CHUNK=false npm run build
 
 # runtime image stage
 FROM docker.io/nginx:1.25
