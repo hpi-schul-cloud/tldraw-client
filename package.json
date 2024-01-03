@@ -31,7 +31,7 @@
 	},
 	"scripts": {
 		"start": "set PORT=3046 && craco start",
-		"build": "cross-env INLINE_RUNTIME_CHUNK=false craco build",
+		"build": "craco build",
 		"test": "jest",
 		"lint-fix": "eslint . --fix --ignore-path .gitignore",
 		"lint": "eslint . --ignore-path .gitignore",
@@ -65,7 +65,6 @@
 		"@testing-library/react": "^14.0.0",
 		"@types/jest": "^29.5.2",
 		"@types/mongodb": "^4.0.7",
-		"cross-env": "^7.0.3",
 		"eslint-config-prettier": "^8.8.0",
 		"eslint-plugin-no-only-tests": "^3.1.0",
 		"eslint-plugin-prettier": "^5.0.0",
