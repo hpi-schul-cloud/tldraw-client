@@ -51,8 +51,6 @@ export const yBindings: Map<TDBinding> = doc.getMap('bindings');
 export const yAssets: Map<TDAsset> = doc.getMap('assets');
 export const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
-export let infoModal: boolean = true;
-
 export function configure(options: any) {
 	Object.assign(defaultOptions, options);
 	roomID = urlParams.get('roomName') ?? defaultOptions.roomName;
