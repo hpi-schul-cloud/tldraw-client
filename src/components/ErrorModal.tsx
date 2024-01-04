@@ -13,7 +13,7 @@ const ErrorModal: React.FC = () => {
 	};
 
 	const handleRedirect = () => {
-		window.location.href = `http://localhost:4000/login`;
+		window.location.href = `http://localhost:4000/logout`;
 	};
 
 	useEffect(() => {
