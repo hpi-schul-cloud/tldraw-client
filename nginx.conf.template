@@ -2,6 +2,8 @@ server {
     listen 3046;
     server_name localhost;
 
+    set $csp "default-src 'self'; base-uri 'self'; script-src 'nonce-$request_id' 'strict-dynamic' https:; object-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'self' 'unsafe-inline';";
+
     location /tldraw-client-runtime.config.json {
         return 200 '{ "tldrawServerURL" : "${TLDRAW_SERVER_URL}" }';
         add_header Content-Type application/json;
@@ -14,6 +16,12 @@ server {
     location / {
         root /usr/share/nginx/html;
         index index.html index.htm;
+        add_header Content-Security-Policy "${csp}";
+        add_header X-Content-Type-Options nosniff;
+        add_header Referrer-Policy 'same-origin';
+        add_header X-XSS-Protection '1; mode=block';
+        sub_filter_once off;
+        sub_filter '**CSP_NONCE**' $request_id;
         try_files $uri /index.html;
     }
 
