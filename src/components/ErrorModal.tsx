@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 import { WsCloseCodeEnum } from '../enums/wsCloseCodeEnum';
-import { provider, roomID } from '../store/store';
+import { provider } from '../store/store';
 
 const ErrorModal: React.FC = () => {
 	const [infoModal, setInfoModal] = useState(true);
 	const [errorReason, setErrorReason] = useState<string | null>(null);
 
-	const disableModalClosing =
-		infoModal &&
-		(errorReason === WsCloseCodeEnum.WS_CLIENT_BAD_REQUEST_CODE.toString() ||
-			errorReason ===
-				WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE.toString());
-
 	const handleClose = () => {
-		if (disableModalClosing) {
-			return;
-		}
 		setInfoModal(false);
+	};
+
+	const handleRedirect = () => {
+		window.location.href = `http://localhost:4000/login`;
 	};
 
 	useEffect(() => {
@@ -36,9 +32,6 @@ const ErrorModal: React.FC = () => {
 					event.code === WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE
 				) {
 					setInfoModal(true);
-					setTimeout(() => {
-						window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
-					}, 5000);
 				}
 			} else {
 				setInfoModal(false);
@@ -57,7 +50,17 @@ const ErrorModal: React.FC = () => {
 			<Modal.Header>
 				<Modal.Title>Error</Modal.Title>
 			</Modal.Header>
-			<Modal.Body>{errorReason}</Modal.Body>
+			<Modal.Body>
+				{errorReason}
+				{errorReason &&
+					WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE && (
+						<Modal.Footer>
+							<Button variant="secondary" onClick={handleRedirect}>
+								Go to Login page
+							</Button>
+						</Modal.Footer>
+					)}
+			</Modal.Body>
 		</Modal>
 	);
 };
