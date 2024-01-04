@@ -37,9 +37,7 @@ const ErrorModal: React.FC = () => {
 				) {
 					setInfoModal(true);
 					setTimeout(() => {
-						if (window.location.host.startsWith('localhost')) {
-							window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
-						}
+						window.location.href = `/login?redirect=tldraw?roomName=${roomID}`;
 					}, 5000);
 				}
 			} else {
