@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { WsCloseCodeEnum } from '../enums/wsCloseCodeEnum';
-import { provider } from '../store/store';
+import { provider, roomID } from '../store/store';
 
 const ErrorModal: React.FC = () => {
-	const [infoModal, setInfoModal] = useState(true);
+	const [infoModal, setInfoModal] = useState(false);
 	const [errorReason, setErrorReason] = useState<string | null>(null);
 
 	const handleClose = () => {
@@ -13,7 +13,7 @@ const ErrorModal: React.FC = () => {
 	};
 
 	const handleRedirect = () => {
-		window.location.href = `http://localhost:4000/logout`;
+		window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
 	};
 
 	useEffect(() => {
