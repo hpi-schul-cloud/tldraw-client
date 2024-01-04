@@ -35,9 +35,15 @@ const ErrorModal: React.FC = () => {
 			};
 
 			const code = event.code as WsCloseCodeEnum;
-			setErrorMessage(errorMessages[code] || 'Unknown error occurred.');
-			setShowLoginButton(code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE);
-			setInfoModal(true);
+			if (
+				code === WS_CLIENT_BAD_REQUEST_CODE ||
+				code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE ||
+				code === WS_CLIENT_ESTABLISHING_CONNECTION_CODE
+			) {
+				setErrorMessage(errorMessages[code] || 'Unknown error occurred.');
+				setShowLoginButton(code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE);
+				setInfoModal(true);
+			}
 		};
 
 		provider.ws?.addEventListener('close', handleWsClose);
