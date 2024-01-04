@@ -6,36 +6,38 @@ import { provider, roomID } from '../store/store';
 
 const ErrorModal: React.FC = () => {
 	const [infoModal, setInfoModal] = useState(false);
-	const [errorReason, setErrorReason] = useState<string | null>(null);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [showLoginButton, setShowLoginButton] = useState(false);
 
 	const handleClose = () => {
 		setInfoModal(false);
 	};
 
 	const handleRedirect = () => {
-		window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
+		window.location.href = `/login?redirect=tldraw?roomName=${roomID}`;
 	};
 
 	useEffect(() => {
 		const handleWsClose = (event: CloseEvent) => {
-			if (
-				[
-					WsCloseCodeEnum.WS_CLIENT_BAD_REQUEST_CODE,
-					WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE,
-					WsCloseCodeEnum.WS_CLIENT_ESTABLISHING_CONNECTION_CODE,
-				].includes(event.code as WsCloseCodeEnum)
-			) {
-				setErrorReason(event.reason || 'Unknown error occurred.');
-				setInfoModal(true);
+			const {
+				WS_CLIENT_BAD_REQUEST_CODE,
+				WS_CLIENT_UNAUTHORISED_CONNECTION_CODE,
+				WS_CLIENT_ESTABLISHING_CONNECTION_CODE,
+			} = WsCloseCodeEnum;
 
-				if (
-					event.code === WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE
-				) {
-					setInfoModal(true);
-				}
-			} else {
-				setInfoModal(false);
-			}
+			const errorMessages = {
+				[WS_CLIENT_BAD_REQUEST_CODE]:
+					'Document name is mandatory in URL or Tldraw Tool is turned off.',
+				[WS_CLIENT_UNAUTHORISED_CONNECTION_CODE]:
+					"Unauthorised connection - you don't have permission to this drawing. Try again later.",
+				[WS_CLIENT_ESTABLISHING_CONNECTION_CODE]:
+					'Unable to establish websocket connection. Try again later.',
+			};
+
+			const code = event.code as WsCloseCodeEnum;
+			setErrorMessage(errorMessages[code] || 'Unknown error occurred.');
+			setShowLoginButton(code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE);
+			setInfoModal(true);
 		};
 
 		provider.ws?.addEventListener('close', handleWsClose);
@@ -51,15 +53,14 @@ const ErrorModal: React.FC = () => {
 				<Modal.Title>Error</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				{errorReason}
-				{errorReason &&
-					WsCloseCodeEnum.WS_CLIENT_UNAUTHORISED_CONNECTION_CODE && (
-						<Modal.Footer>
-							<Button variant="secondary" onClick={handleRedirect}>
-								Go to Login page
-							</Button>
-						</Modal.Footer>
-					)}
+				{errorMessage}
+				{showLoginButton && (
+					<Modal.Footer>
+						<Button variant="secondary" onClick={handleRedirect}>
+							Go to Login page
+						</Button>
+					</Modal.Footer>
+				)}
 			</Modal.Body>
 		</Modal>
 	);
