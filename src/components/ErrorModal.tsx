@@ -41,7 +41,7 @@ const ErrorModal: React.FC = () => {
 			};
 
 			const code = event.code as WsCloseCodeEnum;
-			
+
 			if (
 				code === WS_CLIENT_BAD_REQUEST_CODE ||
 				code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE ||
