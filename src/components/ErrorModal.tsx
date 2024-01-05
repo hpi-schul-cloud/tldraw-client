@@ -14,7 +14,11 @@ const ErrorModal: React.FC = () => {
 	};
 
 	const handleRedirect = () => {
-		window.location.href = `/login?redirect=tldraw?roomName=${roomID}`;
+		if (window.location.host.startsWith('localhost')) {
+			window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
+		} else {
+			window.location.href = `/login?redirect=/tldraw?roomName=${roomID}`;
+		}
 	};
 
 	useEffect(() => {
@@ -37,6 +41,7 @@ const ErrorModal: React.FC = () => {
 			};
 
 			const code = event.code as WsCloseCodeEnum;
+			console.log(event.code, 'Event');
 			if (
 				code === WS_CLIENT_BAD_REQUEST_CODE ||
 				code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE ||
@@ -66,7 +71,7 @@ const ErrorModal: React.FC = () => {
 				{showLoginButton && (
 					<Modal.Footer>
 						<Button variant="secondary" onClick={handleRedirect}>
-							Go to Login page
+							Login
 						</Button>
 					</Modal.Footer>
 				)}
