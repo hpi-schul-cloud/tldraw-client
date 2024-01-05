@@ -23,6 +23,7 @@ const ErrorModal: React.FC = () => {
 				WS_CLIENT_BAD_REQUEST_CODE,
 				WS_CLIENT_UNAUTHORISED_CONNECTION_CODE,
 				WS_CLIENT_ESTABLISHING_CONNECTION_CODE,
+				WS_CLIENT_NOT_FOUND_CODE,
 			} = WsCloseCodeEnum;
 
 			const errorMessages = {
@@ -32,13 +33,15 @@ const ErrorModal: React.FC = () => {
 					"Unauthorised connection - you don't have permission to this drawing. Try again later.",
 				[WS_CLIENT_ESTABLISHING_CONNECTION_CODE]:
 					'Unable to establish websocket connection. Try again later.',
+				[WS_CLIENT_NOT_FOUND_CODE]: 'Drawing not found.',
 			};
 
 			const code = event.code as WsCloseCodeEnum;
 			if (
 				code === WS_CLIENT_BAD_REQUEST_CODE ||
 				code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE ||
-				code === WS_CLIENT_ESTABLISHING_CONNECTION_CODE
+				code === WS_CLIENT_ESTABLISHING_CONNECTION_CODE ||
+				code === WS_CLIENT_NOT_FOUND_CODE
 			) {
 				setErrorMessage(errorMessages[code] || 'Unknown error occurred.');
 				setShowLoginButton(code === WS_CLIENT_UNAUTHORISED_CONNECTION_CODE);
