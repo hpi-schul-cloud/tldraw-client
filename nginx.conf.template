@@ -9,8 +9,8 @@ server {
         add_header Content-Type application/json;
     }
 
-    location /static {
-        alias /usr/share/nginx/html/static/;
+    location /assets {
+        alias /usr/share/nginx/html/assets/;
     }
 
     location / {

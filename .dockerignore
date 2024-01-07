@@ -1,5 +1,7 @@
-/node_modules
-Dockerfile
-.git
+.github
+.vscode
+.idea
+node_modules
+Dockerfile.*
 .dockerignore
 .gitignore

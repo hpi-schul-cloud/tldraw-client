@@ -1,275 +1,298 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Room } from '@y-presence/client';
 import {
-	awareness,
-	doc,
-	provider,
-	undoManager,
-	yAssets,
-	yBindings,
-	yShapes,
-} from '../store/store';
-import { fileOpen } from 'browser-fs-access';
-import { TldrawPresence } from '../types';
+  TDAsset,
+  TDBinding,
+  TDDocument,
+  TDFile,
+  TDShape,
+  TDUser,
+  TldrawApp,
+  TldrawPatch,
+  useFileSystem,
+} from "@tldraw/tldraw";
+import { useCallback, useEffect, useState } from "react";
+import { fileOpen } from "browser-fs-access";
 import {
-	FileBuilder,
-	FileBuilderResult,
-	errorLogger,
-	STORAGE_SETTINGS_KEY,
-	getUserSettings,
-	castToString,
-} from '../utilities';
-import {
-	TDAsset,
-	TDBinding,
-	TDShape,
-	TldrawApp,
-	TldrawPatch,
-	TDUser,
-} from '@tldraw/tldraw';
+  doc,
+  room,
+  provider,
+  undoManager,
+  yAssets,
+  yBindings,
+  yShapes,
+} from "../stores/yProvider";
+import { getUserSettings, STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 
-export const room = new Room<TldrawPresence>(awareness, {});
+declare const window: Window & { app: TldrawApp };
+
+const setDefaultState = () => {
+  const userSettings = getUserSettings();
+  if (userSettings) {
+    TldrawApp.defaultState.settings = userSettings;
+  } else {
+    TldrawApp.defaultState.settings.language = "de";
+  }
+};
+
+setDefaultState();
 
 export function useMultiplayerState(roomId: string) {
-	const [appInstance, setAppInstance] = useState<TldrawApp | undefined>(
-		undefined,
-	);
-	const [loading, setLoading] = useState<boolean>(true);
+  const [app, setApp] = useState<TldrawApp>();
+  const [loading, setLoading] = useState(true);
+  const { onOpenProject } = useFileSystem();
 
-	const setDefaultState = () => {
-		const userSettings = getUserSettings();
-		if (userSettings) {
-			TldrawApp.defaultState.settings = userSettings;
-		} else {
-			TldrawApp.defaultState.settings.language = 'de';
-		}
-	};
+  const openFromFileSystem = async (): Promise<null | {
+    fileHandle: FileSystemFileHandle | null;
+    document: TDDocument;
+  }> => {
+    // Get the blob
+    const blob = await fileOpen({
+      description: "Tldraw File",
+      extensions: [".tldr"],
+      multiple: false,
+    });
 
-	setDefaultState();
+    if (!blob) return null;
 
-	const getDarkMode = (): boolean => {
-		const settings = getUserSettings();
-		return settings ? settings.isDarkMode : false;
-	};
+    // Get JSON from blob
+    const json: string = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.readyState === FileReader.DONE) {
+          resolve(reader.result as string);
+        }
+      };
+      reader.readAsText(blob, "utf8");
+    });
 
-	const saveUserSettings = useCallback(
-		(app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
-			if (reason?.includes('settings')) {
-				localStorage.setItem(
-					STORAGE_SETTINGS_KEY,
-					JSON.stringify(app.settings),
-				);
-			}
-		},
-		[],
-	);
+    // Parse
+    const file: TDFile = JSON.parse(json);
+    if ("tldrawFileFormatVersion" in file) {
+      console.error(
+        "This file was created in a newer version of tldraw and it cannot be opened.",
+      );
+      return null;
+    }
 
-	const openFromFileSystem = async (): Promise<null | FileBuilderResult> => {
-		try {
-			const blob = await fileOpen({
-				description: 'Tldraw File',
-				extensions: [`.tldr`],
-				multiple: false,
-			});
+    const fileHandle = blob.handle ?? null;
 
-			if (!blob) throw new Error('No file selected');
+    return {
+      fileHandle,
+      document: file.document,
+    };
+  };
 
-			const json: string | null = await readBlobAsText(blob);
+  const updateDoc = (
+    shapes: Record<string, TDShape | undefined>,
+    bindings: Record<string, TDBinding | undefined>,
+    assets: Record<string, TDAsset | undefined>,
+  ) => {
+    doc.transact(() => {
+      Object.entries(shapes).forEach(([id, shape]) => {
+        if (!shape) {
+          yShapes.delete(id);
+        } else {
+          yShapes.set(shape.id, shape);
+        }
+      });
 
-			return FileBuilder.build(json, blob.handle ?? null);
-		} catch (error: any) {
-			errorLogger('Error opening file', error);
-			return null;
-		}
-	};
+      Object.entries(bindings).forEach(([id, binding]) => {
+        if (!binding) {
+          yBindings.delete(id);
+        } else {
+          yBindings.set(binding.id, binding);
+        }
+      });
 
-	const readBlobAsText = async (blob: Blob): Promise<string | null> =>
-		new Promise((resolve) => {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				if (reader.readyState === FileReader.DONE) {
-					const result = castToString(reader.result);
-					resolve(result);
-				}
-			};
-			reader.readAsText(blob, 'utf8');
-		});
+      Object.entries(assets).forEach(([id, asset]) => {
+        if (!asset) {
+          yAssets.delete(id);
+        } else {
+          yAssets.set(asset.id, asset);
+        }
+      });
+    });
+  };
 
-	const updateYMapsInTransaction = (
-		shapes: Record<string, TDShape | undefined>,
-		bindings: Record<string, TDBinding | undefined>,
-		assets: Record<string, TDAsset | undefined>,
-	) => {
-		doc.transact(() => {
-			updateYShapes(shapes);
-			updateYBindings(bindings);
-			updateYAssets(assets);
-		});
-	};
+  // Callbacks --------------
 
-	const updateYShapes = (shapes: Record<string, TDShape | undefined>) => {
-		Object.entries(shapes).forEach(([id, shape]) => {
-			if (!shape) {
-				yShapes.delete(id);
-			} else {
-				yShapes.set(shape.id, shape);
-			}
-		});
-	};
+  const onOpen = useCallback(
+    async (
+      app: TldrawApp,
+      openDialog: (
+        dialogState: "saveFirstTime" | "saveAgain",
+        onYes: () => Promise<void>,
+        onNo: () => Promise<void>,
+        onCancel: () => Promise<void>,
+      ) => void,
+    ) => {
+      undoManager.stopCapturing();
+      await onOpenProject(app, openDialog);
+      app.openProject = async () => {
+        try {
+          const result = await openFromFileSystem();
+          if (!result) {
+            console.error("Error while opening file");
+            return;
+          }
 
-	const updateYBindings = (bindings: Record<string, TDBinding | undefined>) => {
-		Object.entries(bindings).forEach(([id, binding]) => {
-			if (!binding) {
-				yBindings.delete(id);
-			} else {
-				yBindings.set(binding.id, binding);
-			}
-		});
-	};
+          const { document } = result;
 
-	const updateYAssets = (assets: Record<string, TDAsset | undefined>) => {
-		Object.entries(assets).forEach(([id, asset]) => {
-			if (!asset) {
-				yAssets.delete(id);
-			} else {
-				yAssets.set(asset.id, asset);
-			}
-		});
-	};
+          yShapes.clear();
+          yBindings.clear();
+          yAssets.clear();
+          undoManager.clear();
 
-	const onMount = useCallback(async (app: TldrawApp) => {
-		try {
-			await app.loadRoom(roomId);
-			app.pause();
-			setAppInstance(app);
+          updateDoc(
+            document.pages.page.shapes,
+            document.pages.page.bindings,
+            document.assets,
+          );
 
-			app.openProject = async () => {
-				try {
-					const result = await openFromFileSystem();
-					if (!result || result === null) {
-						throw new Error('Failed to open project');
-					}
+          app.zoomToFit();
+        } catch (e) {
+          console.error(e);
+        }
+      };
+    },
+    [onOpenProject],
+  );
 
-					const { document } = result;
+  const saveUserSettings = useCallback(
+    (app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
+      if (reason?.includes("settings")) {
+        localStorage.setItem(
+          STORAGE_SETTINGS_KEY,
+          JSON.stringify(app.settings),
+        );
+      }
+    },
+    [],
+  );
 
-					yShapes.clear();
-					yBindings.clear();
-					yAssets.clear();
+  // Put the state into the window, for debugging.
+  const onMount = useCallback(
+    (app: TldrawApp) => {
+      app.loadRoom(roomId);
+      app.pause(); // Turn off the app's own undo / redo stack
+      window.app = app;
+      setApp(app);
+    },
+    [roomId],
+  );
 
-					updateYMapsInTransaction(
-						document.pages.page.shapes,
-						document.pages.page.bindings,
-						document.assets,
-					);
+  const onUndo = useCallback(() => {
+    undoManager.undo();
+  }, []);
 
-					app.zoomToFit();
-				} catch (error: any) {
-					errorLogger('Error opening project', error);
-				}
-			};
-		} catch (error: any) {
-			errorLogger('Error loading room', error);
-		}
-	}, []);
+  const onRedo = useCallback(() => {
+    undoManager.redo();
+  }, []);
 
-	const onChangePage = useCallback(
-		(
-			app: TldrawApp,
-			shapes: Record<string, TDShape | undefined>,
-			bindings: Record<string, TDBinding | undefined>,
-			assets: Record<string, TDAsset | undefined>,
-		) => {
-			updateYMapsInTransaction(shapes, bindings, assets);
-		},
-		[],
-	);
+  // Update the live shapes when the app's shapes change.
+  const onChangePage = useCallback(
+    (
+      _app: TldrawApp,
+      shapes: Record<string, TDShape | undefined>,
+      bindings: Record<string, TDBinding | undefined>,
+      assets: Record<string, TDAsset | undefined>,
+    ) => {
+      if (!(yShapes && yBindings && yAssets)) return;
 
-	const onUndo = useCallback(() => {
-		undoManager.undo();
-	}, []);
+      undoManager.stopCapturing();
+      updateDoc(shapes, bindings, assets);
+    },
+    [],
+  );
 
-	const onRedo = useCallback(() => {
-		undoManager.redo();
-	}, []);
+  // Handle presence updates when the user's pointer / selection changes
+  const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
+    if (!app.room) return;
+    room.updatePresence({ id: app.room.userId, tdUser: user });
+  }, []);
 
-	const onChangePresence = useCallback(
-		(app: TldrawApp, user: TDUser) => {
-			if (!app.room) return;
-			room.setPresence({ id: app.room.userId, tdUser: user });
-		},
-		[room.updatePresence],
-	);
+  // Document Changes --------
 
-	useEffect(() => {
-		if (!appInstance || !room) return;
+  // Update app users whenever there is a change in the room users
+  useEffect(() => {
+    if (!app || !room) return;
 
-		const unsubOthers = room.subscribe('others', (users) => {
-			if (!appInstance.room) return;
+    const unsubOthers = room.subscribe("others", (users) => {
+      if (!app.room) return;
 
-			const ids = users
-				.filter((user) => user.presence && user.presence.tdUser)
-				.map((user) => user.presence!.tdUser!.id);
+      const ids = users
+        .filter((user) => user.presence && user.presence.tdUser)
+        .map((user) => user.presence!.tdUser!.id);
 
-			// remove any user that is not connected in the room
-			Object.values(appInstance.room.users).forEach((user) => {
-				if (
-					user &&
-					!ids.includes(user.id) &&
-					user.id !== appInstance.room?.userId
-				) {
-					appInstance.removeUser(user.id);
-				}
-			});
+      // remove any user that is not connected in the room
+      Object.values(app.room.users).forEach((user) => {
+        if (user && !ids.includes(user.id) && user.id !== app.room?.userId) {
+          app.removeUser(user.id);
+        }
+      });
 
-			appInstance.updateUsers(
-				users
-					.filter((user) => user.presence && user.presence.tdUser)
-					.map((other) => other.presence!.tdUser!)
-					.filter(Boolean),
-			);
-		});
+      app.updateUsers(
+        users
+          .filter((user) => user.presence && user.presence.tdUser)
+          .map((other) => other.presence!.tdUser!)
+          .filter(Boolean),
+      );
+    });
 
-		return () => {
-			unsubOthers();
-		};
-	}, [appInstance]);
+    return () => {
+      unsubOthers();
+    };
+  }, [app]);
 
-	useEffect(() => {
-		if (!appInstance) return;
+  useEffect(() => {
+    if (!app) return;
 
-		const handleDisconnect = () => provider.disconnect();
+    function handleDisconnect() {
+      provider.disconnect();
+    }
 
-		window.addEventListener('beforeunload', handleDisconnect);
+    window.addEventListener("beforeunload", handleDisconnect);
 
-		const handleChanges = () =>
-			appInstance?.replacePageContent(
-				Object.fromEntries(yShapes.entries()),
-				Object.fromEntries(yBindings.entries()),
-				Object.fromEntries(yAssets.entries()),
-			);
+    function handleChanges() {
+      app?.replacePageContent(
+        Object.fromEntries(yShapes.entries()),
+        Object.fromEntries(yBindings.entries()),
+        Object.fromEntries(yAssets.entries()),
+      );
+    }
 
-		const setup = async () => {
-			yShapes.observeDeep(handleChanges);
-			handleChanges();
-			setLoading(false);
-		};
+    function setup() {
+      yShapes.observeDeep(handleChanges);
+      handleChanges();
 
-		setup();
+      if (app) {
+        // hacky, but without small delay this function
+        // does not work despite tldraw state being loaded
+        setTimeout(() => {
+          app.zoomToFit();
+          if (app.zoom > 1) {
+            app.resetZoom();
+          }
+        }, 20);
+      }
+      setLoading(false);
+    }
 
-		return () => {
-			window.removeEventListener('beforeunload', handleDisconnect);
-			yShapes.unobserveDeep(handleChanges);
-		};
-	}, [appInstance]);
+    setup();
 
-	return {
-		onMount,
-		onChangePage,
-		onUndo,
-		onRedo,
-		loading,
-		onChangePresence,
-		saveUserSettings,
-		getDarkMode,
-	};
+    return () => {
+      window.removeEventListener("beforeunload", handleDisconnect);
+      yShapes.unobserveDeep(handleChanges);
+    };
+  }, [app]);
+
+  return {
+    onUndo,
+    onRedo,
+    onMount,
+    onOpen,
+    onChangePage,
+    onChangePresence,
+    loading,
+    saveUserSettings,
+  };
 }
