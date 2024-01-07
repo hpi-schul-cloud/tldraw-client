@@ -45,16 +45,10 @@ export function useWebsocketErrorHandler() {
 
   useEffect(() => {
     const handleWsClose = (event: CloseEvent) => {
-      let error = websocketErrors.find(
+      const error = websocketErrors.find(
         (element) => element.code === event.code,
       );
-      if (!error) {
-        error = {
-          code: 4500,
-          message: "Unknown error occurred.",
-          showRedirectButton: false,
-        };
-      }
+      if (!error) return;
 
       setErrorMessage(error.message);
       setShowRedirectButton(error.showRedirectButton);
