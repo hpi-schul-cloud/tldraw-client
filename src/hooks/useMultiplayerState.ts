@@ -148,6 +148,7 @@ export function useMultiplayerState(roomId: string) {
             document.assets,
           );
 
+          app.zoomToContent();
           app.zoomToFit();
         } catch (e) {
           console.error(e);
@@ -268,11 +269,12 @@ export function useMultiplayerState(roomId: string) {
         // hacky, but without small delay this function
         // does not work despite tldraw state being loaded
         setTimeout(() => {
+          app.zoomToContent();
           app.zoomToFit();
           if (app.zoom > 1) {
             app.resetZoom();
           }
-        }, 20);
+        }, 50);
       }
       setLoading(false);
     }
