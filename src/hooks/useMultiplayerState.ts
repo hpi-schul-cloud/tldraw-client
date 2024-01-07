@@ -274,7 +274,7 @@ export function useMultiplayerState(roomId: string) {
           if (app.zoom > 1) {
             app.resetZoom();
           }
-        }, 50);
+        }, 100);
       }
       setLoading(false);
     }
