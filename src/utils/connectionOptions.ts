@@ -5,9 +5,11 @@ export const getConnectionOptions = async (): Promise<{
   const urlParams = new URLSearchParams(window.location.search);
 
   const connectionOptions = {
-    roomName: urlParams.get("roomName") ?? "GLOBAL",
+    roomName: urlParams.get("roomName") ?? "",
     websocketUrl: "ws://localhost:3345",
   };
+
+  console.log(connectionOptions.roomName);
 
   try {
     const response = await fetch(
