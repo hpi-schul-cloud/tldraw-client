@@ -4,6 +4,7 @@ import { roomId } from "./stores/yProvider";
 import ErrorModal from "./components/ErrorModal";
 import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
+import { redirectToLogin } from "./utils/redirectToLogin";
 import "./App.scss";
 
 function App() {
@@ -12,11 +13,7 @@ function App() {
 
   useEffect(() => {
     if (!token) {
-      if (window.location.host.startsWith("localhost")) {
-        window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`;
-      } else {
-        window.location.href = `/login?redirect=/tldraw?roomName=${roomId}`;
-      }
+      redirectToLogin();
     }
   }, [token]);
 

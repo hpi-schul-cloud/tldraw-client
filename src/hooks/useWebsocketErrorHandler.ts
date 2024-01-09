@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { provider, roomId } from "../stores/yProvider";
+import { provider } from "../stores/yProvider";
+import { redirectToLogin } from "../utils/redirectToLogin";
 
 const websocketErrors = [
   {
@@ -36,11 +37,7 @@ export function useWebsocketErrorHandler() {
   };
 
   const handleRedirect = () => {
-    if (window.location.host.startsWith("localhost")) {
-      window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`;
-    } else {
-      window.location.href = `/login?redirect=/tldraw?roomName=${roomId}`;
-    }
+    redirectToLogin();
   };
 
   useEffect(() => {
