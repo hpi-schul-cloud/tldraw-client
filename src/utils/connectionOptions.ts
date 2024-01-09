@@ -9,12 +9,8 @@ export const getConnectionOptions = async (): Promise<{
     websocketUrl: "ws://localhost:3345",
   };
 
-  console.log(connectionOptions.roomName);
-
   try {
-    const response = await fetch(
-      `${window.location.origin}/tldraw-client-runtime.config.json`,
-    );
+    const response = await fetch(`/tldraw-client-runtime.config.json`);
 
     if (!response.ok) {
       console.error(
