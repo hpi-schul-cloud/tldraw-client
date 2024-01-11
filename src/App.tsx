@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { roomId } from "./stores/yProvider";
-import ErrorModal from "./components/ErrorModal";
 import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
+import ErrorModal from "./components/ErrorModal";
 import { redirectToLogin } from "./utils/redirectToLogin";
-import "./App.scss";
 
 function App() {
   const [cookies] = useCookies(["jwt"]);

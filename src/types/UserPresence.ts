@@ -1,6 +1,10 @@
 import { TDUser } from "@tldraw/tldraw";
 
-export interface UserPresence {
-  id?: string;
+export type UserPresence = {
   tdUser?: TDUser;
-}
+};
+
+export type UserMetadata = {
+  id: string;
+  displayName: string;
+};

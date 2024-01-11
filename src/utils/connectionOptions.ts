@@ -1,7 +1,6 @@
-export const getConnectionOptions = async (): Promise<{
-  roomName: string;
-  websocketUrl: string;
-}> => {
+import { ConnectionOptions } from "../types/ConnectionOptions";
+
+export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
   const urlParams = new URLSearchParams(window.location.search);
 
   const connectionOptions = {
@@ -10,7 +9,7 @@ export const getConnectionOptions = async (): Promise<{
   };
 
   try {
-    const response = await fetch(`/tldraw-client-runtime.config.json`);
+    const response = await fetch("/tldraw-client-runtime.config.json");
 
     if (!response.ok && !window.location.host.startsWith("localhost")) {
       console.error(

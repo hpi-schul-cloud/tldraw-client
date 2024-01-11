@@ -1,44 +1,57 @@
 import { useEffect, useState } from "react";
-import { provider } from "../stores/yProvider";
+import { envs, provider, user } from "../stores/yProvider";
 import { redirectToLogin } from "../utils/redirectToLogin";
 
 const websocketErrors = [
   {
     code: 4400,
-    message:
-      "Room name is missing in URL params or tldraw feature is disabled.",
+    title: "Validation error",
+    message: "Room name is missing in URL params.",
     showRedirectButton: false,
   },
   {
     code: 4401,
+    title: "Authorization error",
     message:
       "You don't have permission to this board or your session expired. Try logging in again.",
     showRedirectButton: true,
   },
   {
     code: 4404,
-    message: "Board not found.",
+    title: "Validation error",
+    message: "Board with this name was not found.",
     showRedirectButton: false,
   },
   {
     code: 4500,
-    message: "Unable to establish websocket connection. Try again later.",
+    title: "Connection error",
+    message: "Unable to establish websocket connection.",
     showRedirectButton: false,
   },
 ];
 
-export function useWebsocketErrorHandler() {
-  const [infoModal, setInfoModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+export function useErrorHandler() {
+  const [showModal, setShowModal] = useState(false);
   const [showRedirectButton, setShowRedirectButton] = useState(false);
+  const [errorTitle, setErrorTitle] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleClose = () => {
-    setInfoModal(false);
+    setShowModal(false);
   };
 
   const handleRedirect = () => {
     redirectToLogin();
   };
+
+  useEffect(() => {
+    if (!envs || !user) {
+      setShowModal(true);
+      setShowRedirectButton(false);
+      setErrorTitle("Connection error");
+      setErrorMessage("There was an error while getting data from the server.");
+    }
+  }, []);
 
   useEffect(() => {
     const handleWsClose = (event: CloseEvent) => {
@@ -47,9 +60,10 @@ export function useWebsocketErrorHandler() {
       );
       if (!error) return;
 
+      setErrorTitle(error.title);
       setErrorMessage(error.message);
       setShowRedirectButton(error.showRedirectButton);
-      setInfoModal(true);
+      setShowModal(true);
 
       provider.disconnect();
     };
@@ -62,8 +76,9 @@ export function useWebsocketErrorHandler() {
   }, []);
 
   return {
-    infoModal,
+    showModal,
     showRedirectButton,
+    errorTitle,
     errorMessage,
     handleClose,
     handleRedirect,

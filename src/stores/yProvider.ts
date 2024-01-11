@@ -4,20 +4,47 @@ import { WebsocketProvider } from "y-websocket";
 import { Room } from "@y-presence/client";
 import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions } from "../utils/connectionOptions";
+import { getEnvs } from "../utils/envConfig";
+import { getUserData } from "../utils/userData";
 
-const connectionOptions = await getConnectionOptions();
+let connect = true;
 
-export const roomId = connectionOptions.roomName;
-export const doc = new Doc();
-export const provider = new WebsocketProvider(
+const [connectionOptions, envs, user] = await Promise.all([
+  getConnectionOptions(),
+  getEnvs(),
+  getUserData(),
+]);
+
+if (!envs || !user) {
+  connect = false;
+}
+
+const roomId = connectionOptions.roomName;
+const doc = new Doc();
+const provider = new WebsocketProvider(
   connectionOptions.websocketUrl,
   roomId,
   doc,
-  {},
+  {
+    connect,
+  },
 );
 
-export const room = new Room<UserPresence>(provider.awareness, {});
-export const yShapes: Map<TDShape> = doc.getMap("shapes");
-export const yBindings: Map<TDBinding> = doc.getMap("bindings");
-export const yAssets: Map<TDAsset> = doc.getMap("assets");
-export const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
+const room = new Room<UserPresence>(provider.awareness, {});
+const yShapes: Map<TDShape> = doc.getMap("shapes");
+const yBindings: Map<TDBinding> = doc.getMap("bindings");
+const yAssets: Map<TDAsset> = doc.getMap("assets");
+const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
+
+export {
+  envs,
+  user,
+  roomId,
+  doc,
+  provider,
+  room,
+  yShapes,
+  yBindings,
+  yAssets,
+  undoManager,
+};
