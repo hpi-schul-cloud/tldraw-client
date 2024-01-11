@@ -5,8 +5,10 @@ import { useCookies } from 'react-cookie';
 import { useMultiplayerState } from './hooks/useMultiplayerState';
 import Icon from '@mdi/react';
 import { mdiAccountMultipleOutline } from '@mdi/js';
-import './App.scss';
 import { awareness, roomID } from './store/store';
+import ErrorModal from './components/ErrorModal';
+import './App.scss';
+import { getRedirectUrl } from './utilities/buildRedirectUrl';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onSaveProjectAs, onSaveProject, onOpenMedia, onOpenProject } =
@@ -90,7 +92,8 @@ function App() {
 
 	useEffect(() => {
 		if (!token) {
-			window.location.href = '/login';
+			const redirectUrl = getRedirectUrl(roomID);
+			window.location.href = redirectUrl;
 		}
 	}, [token]);
 
@@ -102,6 +105,7 @@ function App() {
 					<div className="tldraw">
 						<Editor roomId={roomID} />
 					</div>
+					<ErrorModal />
 				</div>
 			)}
 		</div>
