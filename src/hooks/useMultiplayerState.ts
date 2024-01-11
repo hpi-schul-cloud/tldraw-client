@@ -19,7 +19,7 @@ import {
   yAssets,
   yBindings,
   yShapes,
-  user,
+  userResponse,
 } from "../stores/yProvider";
 import { getUserSettings, STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 
@@ -209,7 +209,10 @@ export function useMultiplayerState(roomId: string) {
   // Handle presence updates when the user's pointer / selection changes
   const onChangePresence = useCallback((app: TldrawApp, tdUser: TDUser) => {
     if (!app.room) return;
-    tdUser.metadata = { id: user?.id, displayName: user?.firstName };
+    tdUser.metadata = {
+      id: userResponse.user?.id,
+      displayName: userResponse.user?.firstName,
+    };
     room.updatePresence({ tdUser });
   }, []);
 

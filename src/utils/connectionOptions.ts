@@ -11,20 +11,14 @@ export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
   try {
     const response = await fetch("/tldraw-client-runtime.config.json");
 
-    if (!response.ok && !window.location.host.startsWith("localhost")) {
-      console.error(
-        "Error fetching tldrawServerURL",
-        response.status,
-        response.statusText,
-      );
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
     }
 
     const data: { tldrawServerURL: string } = await response.json();
     connectionOptions.websocketUrl = data.tldrawServerURL;
   } catch (error) {
-    if (!window.location.host.startsWith("localhost")) {
-      console.error("Error fetching tldrawServerURL:", error);
-    }
+    console.error("Error fetching tldrawServerURL:", error);
   }
 
   return connectionOptions;

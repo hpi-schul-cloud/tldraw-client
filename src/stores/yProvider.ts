@@ -9,13 +9,13 @@ import { getUserData } from "../utils/userData";
 
 let connect = true;
 
-const [connectionOptions, envs, user] = await Promise.all([
+const [connectionOptions, envsResponse, userResponse] = await Promise.all([
   getConnectionOptions(),
   getEnvs(),
   getUserData(),
 ]);
 
-if (!envs || !user) {
+if (!envsResponse.envs || !userResponse.user) {
   connect = false;
 }
 
@@ -37,8 +37,8 @@ const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 export {
-  envs,
-  user,
+  envsResponse,
+  userResponse,
   roomId,
   doc,
   provider,

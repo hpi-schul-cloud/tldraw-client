@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { envs, provider, user } from "../stores/yProvider";
+import { envsResponse, provider, userResponse } from "../stores/yProvider";
 import { redirectToLogin } from "../utils/redirectToLogin";
 
 const websocketErrors = [
@@ -30,6 +30,21 @@ const websocketErrors = [
   },
 ];
 
+const apiErrors = [
+  {
+    code: 401,
+    title: "Authorization error",
+    message: "Not authorized or session expired. Try logging in again.",
+    showRedirectButton: true,
+  },
+  {
+    code: 500,
+    title: "General error",
+    message: "There was an error while getting data from the server.",
+    showRedirectButton: false,
+  },
+];
+
 export function useErrorHandler() {
   const [showModal, setShowModal] = useState(false);
   const [showRedirectButton, setShowRedirectButton] = useState(false);
@@ -44,12 +59,33 @@ export function useErrorHandler() {
     redirectToLogin();
   };
 
+  const showApiErrorForCode = (code: number) => {
+    const error = apiErrors.find((element) => element.code === code)!;
+    setShowModal(true);
+    setShowRedirectButton(error.showRedirectButton);
+    setErrorTitle(error.title);
+    setErrorMessage(error.message);
+  };
+
   useEffect(() => {
-    if (!envs || !user) {
+    const responseCodes = [envsResponse.code, userResponse.code];
+    if (responseCodes.some((code) => code === 200)) {
+      return;
+    }
+
+    if (responseCodes.some((code) => code === 401)) {
+      showApiErrorForCode(401);
+    } else {
+      showApiErrorForCode(500);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!envsResponse.envs?.FEATURE_TLDRAW_ENABLED) {
       setShowModal(true);
       setShowRedirectButton(false);
-      setErrorTitle("Connection error");
-      setErrorMessage("There was an error while getting data from the server.");
+      setErrorTitle("General error");
+      setErrorMessage("Tldraw feature is disabled.");
     }
   }, []);
 

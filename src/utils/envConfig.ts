@@ -1,20 +1,24 @@
-import { Envs } from "../types/Envs";
+import { EnvsResponse } from "../types/Envs";
 
 export const getEnvs = async () => {
+  const envsResponse: EnvsResponse = {
+    code: 500,
+    envs: undefined,
+  };
+
   try {
     const response = await fetch(`/api/v1/config/app/public`);
 
-    if (!response.ok && !window.location.host.startsWith("localhost")) {
-      console.error(
-        "Error fetching env config",
-        response.status,
-        response.statusText,
-      );
+    if (!response.ok) {
+      envsResponse.code = response.status;
+      throw new Error(`${response.status} - ${response.statusText}`);
     }
 
-    const data: Envs = await response.json();
-    return data;
+    envsResponse.envs = await response.json();
+    envsResponse.code = 200;
   } catch (error) {
     console.error("Error fetching env config:", error);
   }
+
+  return envsResponse;
 };

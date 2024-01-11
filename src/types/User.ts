@@ -5,3 +5,8 @@ export type User = {
   lastName: string;
   initials: string;
 };
+
+export interface UserResponse {
+  code: number;
+  user: User | undefined;
+}

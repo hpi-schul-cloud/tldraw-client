@@ -17,16 +17,14 @@ function ErrorModal() {
       <Modal.Header>
         <Modal.Title>{errorTitle}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        {errorMessage}
-        {showRedirectButton && (
-          <Modal.Footer className={"mt-3"}>
-            <Button variant="secondary" onClick={handleRedirect}>
-              Login
-            </Button>
-          </Modal.Footer>
-        )}
-      </Modal.Body>
+      <Modal.Body>{errorMessage}</Modal.Body>
+      {showRedirectButton && (
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleRedirect}>
+            Login
+          </Button>
+        </Modal.Footer>
+      )}
     </Modal>
   );
 }
