@@ -16,11 +16,9 @@ const ErrorModal: React.FC = () => {
 	};
 
 	const handleRedirect = () => {
-		let redirectUrl;
+		let redirectUrl = getRedirectUrl(roomID);
 
 		try {
-			redirectUrl = getRedirectUrl(roomID);
-			new URL(redirectUrl);
 			window.location.assign(redirectUrl);
 		} catch (error: any) {
 			errorLogger('Invalid URL', error);
