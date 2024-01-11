@@ -8,6 +8,7 @@ import { mdiAccountMultipleOutline } from '@mdi/js';
 import { awareness, roomID } from './store/store';
 import ErrorModal from './components/ErrorModal';
 import './App.scss';
+import { getRedirectUrl } from './utilities/buildRedirectUrl';
 
 function Editor({ roomId }: { roomId: string }) {
 	const { onSaveProjectAs, onSaveProject, onOpenMedia, onOpenProject } =
@@ -91,11 +92,8 @@ function App() {
 
 	useEffect(() => {
 		if (!token) {
-			if (window.location.host.startsWith('localhost')) {
-				window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
-			} else {
-				window.location.href = `/login?redirect=/tldraw?roomName=${roomID}`;
-			}
+			const redirectUrl = getRedirectUrl(roomID);
+			window.location.href = redirectUrl;
 		}
 	}, [token]);
 

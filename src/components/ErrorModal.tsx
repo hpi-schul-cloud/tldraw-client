@@ -3,6 +3,8 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { WsCloseCodeEnum } from '../enums/wsCloseCodeEnum';
 import { provider, roomID } from '../store/store';
+import { errorLogger } from '../utilities';
+import { getRedirectUrl } from '../utilities/buildRedirectUrl';
 
 const ErrorModal: React.FC = () => {
 	const [infoModal, setInfoModal] = useState(false);
@@ -14,10 +16,14 @@ const ErrorModal: React.FC = () => {
 	};
 
 	const handleRedirect = () => {
-		if (window.location.host.startsWith('localhost')) {
-			window.location.href = `http://localhost:4000/login?redirect=tldraw?roomName=${roomID}`;
-		} else {
-			window.location.href = `/login?redirect=/tldraw?roomName=${roomID}`;
+		let redirectUrl;
+
+		try {
+			redirectUrl = getRedirectUrl(roomID);
+			new URL(redirectUrl);
+			window.location.assign(redirectUrl);
+		} catch (error: any) {
+			errorLogger('Invalid URL', error);
 		}
 	};
 
