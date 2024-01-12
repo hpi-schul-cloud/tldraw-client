@@ -20,9 +20,9 @@ import {
   yBindings,
   yShapes,
   user,
+  envs,
 } from "../stores/setup";
 import { getUserSettings, STORAGE_SETTINGS_KEY } from "../utils/userSettings";
-import { Utils } from "@tldraw/core";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -166,39 +166,74 @@ export function useMultiplayerState(roomId: string) {
       file: File,
       id: string,
     ): Promise<string | false> => {
-      console.log(file);
-      console.log(id);
+      if (!envs!.TLDRAW__ASSETS_ENABLED) {
+        //show some kind of notification to the user?
+        return false;
+      }
+      if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
+        //show some kind of notification to the user?
+        return false;
+      }
+
+      const fileExtension = file.name.split(".").pop()!;
+      if (
+        envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
+        !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST.includes(fileExtension)
+      ) {
+        //show some kind of notification to the user?
+        return false;
+      }
+
+      try {
+        const fileToUpload = new File([file], `${id}.${fileExtension}`, {
+          type: file.type,
+        });
+
+        const formData = new FormData();
+        formData.append("file", fileToUpload);
+
+        const response = await fetch(
+          `/api/v3/file/upload/${user!.schoolId}/boardnodes/${roomId}`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.url;
+      } catch (error) {
+        console.error("Error while uploading asset:", error);
+      }
+
       return false;
-      // const filename = encodeURIComponent((id ?? Utils.uniqueId()) + file.name);
-      //
-      // const fileType = encodeURIComponent(file.type);
-      //
-      // const res = await fetch(
-      //   `/api/upload?file=${filename}&fileType=${fileType}`,
-      // );
-      //
-      // const { url, fields } = await res.json();
-      //
-      // const formData = new FormData();
-      //
-      // Object.entries({ ...fields, file }).forEach(([key, value]) => {
-      //   formData.append(key, value as any);
-      // });
-      //
-      // const upload = await fetch(url, {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      //
-      // if (!upload.ok) return false;
-      //
-      // return url + "/" + filename;
     },
     [],
   );
 
   const onAssetDelete = useCallback(
     async (_app: TldrawApp, id: string): Promise<boolean> => {
+      try {
+        const assets = Object.fromEntries(yAssets.entries());
+        const srcArr = assets[id].src.split("/");
+        const fileId = srcArr[srcArr.length - 2];
+        const response = await fetch(`/api/v3/file/delete/${fileId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`${response.status} - ${response.statusText}`);
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error while deleting asset:", error);
+      }
+
       return false;
     },
     [],
@@ -255,8 +290,8 @@ export function useMultiplayerState(roomId: string) {
   const onChangePresence = useCallback((app: TldrawApp, tdUser: TDUser) => {
     if (!app.room) return;
     tdUser.metadata = {
-      id: user?.id,
-      displayName: user?.firstName,
+      id: user!.id,
+      displayName: user!.firstName,
     };
     room.updatePresence({ tdUser });
   }, []);

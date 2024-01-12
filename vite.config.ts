@@ -19,8 +19,18 @@ export default defineConfig({
     open: true,
     port: 3046,
     proxy: {
-      "/api": {
+      "/api/v1": {
         target: "http://localhost:3030",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/v3/user": {
+        target: "http://localhost:3030",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/v3/file": {
+        target: "http://localhost:4444",
         changeOrigin: true,
         secure: false,
       },
