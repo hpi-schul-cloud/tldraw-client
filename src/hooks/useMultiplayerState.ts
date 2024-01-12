@@ -182,7 +182,7 @@ export function useMultiplayerState(roomId: string) {
 
       const fileExtension = file.name.split(".").pop()!;
       if (
-        !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
+        envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
         !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST.includes(fileExtension)
       ) {
         toast.info("Asset with this extension is not allowed");
