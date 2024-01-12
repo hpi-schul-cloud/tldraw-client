@@ -11,6 +11,7 @@ import {
 } from "@tldraw/tldraw";
 import { useCallback, useEffect, useState } from "react";
 import { fileOpen } from "browser-fs-access";
+import { toast } from "react-toastify";
 import {
   doc,
   room,
@@ -167,20 +168,24 @@ export function useMultiplayerState(roomId: string) {
       id: string,
     ): Promise<string | false> => {
       if (!envs!.TLDRAW__ASSETS_ENABLED) {
-        //show some kind of notification to the user?
+        toast.info("Asset uploading is disabled");
         return false;
       }
       if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
-        //show some kind of notification to the user?
+        toast.info(
+          `Asset is too big - max. ${
+            envs!.TLDRAW__ASSETS_MAX_SIZE / 1000000
+          }MB`,
+        );
         return false;
       }
 
       const fileExtension = file.name.split(".").pop()!;
       if (
-        envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
+        !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
         !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST.includes(fileExtension)
       ) {
-        //show some kind of notification to the user?
+        toast.info("Asset with this extension is not allowed");
         return false;
       }
 
