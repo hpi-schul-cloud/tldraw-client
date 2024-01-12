@@ -6,17 +6,23 @@ import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
+import { redirectToErrorPage } from "../utils/redirectUtils";
+import { setErrorData } from "../utils/setErrorData";
 
-let connect = true;
-
-const [connectionOptions, envsResponse, userResponse] = await Promise.all([
+const [connectionOptions, envs, user] = await Promise.all([
   getConnectionOptions(),
   getEnvs(),
   getUserData(),
 ]);
 
-if (!envsResponse.envs || !userResponse.user) {
-  connect = false;
+if (!envs || !user) {
+  setErrorData(500, "tldraw.error.500");
+  redirectToErrorPage();
+}
+
+if (!envs!.FEATURE_TLDRAW_ENABLED) {
+  setErrorData(403, "tldraw.error.403");
+  redirectToErrorPage();
 }
 
 const roomId = connectionOptions.roomName;
@@ -26,7 +32,7 @@ const provider = new WebsocketProvider(
   roomId,
   doc,
   {
-    connect,
+    connect: true,
   },
 );
 
@@ -37,8 +43,8 @@ const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 export {
-  envsResponse,
-  userResponse,
+  envs,
+  user,
   roomId,
   doc,
   provider,

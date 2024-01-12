@@ -19,9 +19,10 @@ import {
   yAssets,
   yBindings,
   yShapes,
-  userResponse,
-} from "../stores/yProvider";
+  user,
+} from "../stores/setup";
 import { getUserSettings, STORAGE_SETTINGS_KEY } from "../utils/userSettings";
+import { Utils } from "@tldraw/core";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -159,7 +160,51 @@ export function useMultiplayerState(roomId: string) {
     [onOpenProject],
   );
 
-  const saveUserSettings = useCallback(
+  const onAssetCreate = useCallback(
+    async (
+      _app: TldrawApp,
+      file: File,
+      id: string,
+    ): Promise<string | false> => {
+      console.log(file);
+      console.log(id);
+      return false;
+      // const filename = encodeURIComponent((id ?? Utils.uniqueId()) + file.name);
+      //
+      // const fileType = encodeURIComponent(file.type);
+      //
+      // const res = await fetch(
+      //   `/api/upload?file=${filename}&fileType=${fileType}`,
+      // );
+      //
+      // const { url, fields } = await res.json();
+      //
+      // const formData = new FormData();
+      //
+      // Object.entries({ ...fields, file }).forEach(([key, value]) => {
+      //   formData.append(key, value as any);
+      // });
+      //
+      // const upload = await fetch(url, {
+      //   method: "POST",
+      //   body: formData,
+      // });
+      //
+      // if (!upload.ok) return false;
+      //
+      // return url + "/" + filename;
+    },
+    [],
+  );
+
+  const onAssetDelete = useCallback(
+    async (_app: TldrawApp, id: string): Promise<boolean> => {
+      return false;
+    },
+    [],
+  );
+
+  const onPatch = useCallback(
     (app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
       if (reason?.includes("settings")) {
         localStorage.setItem(
@@ -210,8 +255,8 @@ export function useMultiplayerState(roomId: string) {
   const onChangePresence = useCallback((app: TldrawApp, tdUser: TDUser) => {
     if (!app.room) return;
     tdUser.metadata = {
-      id: userResponse.user?.id,
-      displayName: userResponse.user?.firstName,
+      id: user?.id,
+      displayName: user?.firstName,
     };
     room.updatePresence({ tdUser });
   }, []);
@@ -300,6 +345,8 @@ export function useMultiplayerState(roomId: string) {
     onChangePage,
     onChangePresence,
     loading,
-    saveUserSettings,
+    onPatch,
+    onAssetCreate,
+    onAssetDelete,
   };
 }

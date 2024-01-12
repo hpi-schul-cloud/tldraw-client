@@ -1,16 +1,18 @@
-import { User, UserResponse } from "../types/User";
+import { User } from "../types/User";
+import { Cookies } from "react-cookie";
 
-export const getUserData = async (): Promise<UserResponse> => {
-  const userResponse: UserResponse = {
-    code: 500,
-    user: undefined,
-  };
-
+export const getUserData = async (): Promise<User | undefined> => {
   try {
     const response = await fetch(`/api/v3/user/me`);
 
     if (!response.ok) {
-      userResponse.code = response.status;
+      if (response.status === 401) {
+        // this means jwt is expired
+        // remove it to perform redirect to login page
+        const cookies = new Cookies();
+        cookies.remove("jwt");
+      }
+
       throw new Error(`${response.status} - ${response.statusText}`);
     }
 
@@ -18,11 +20,9 @@ export const getUserData = async (): Promise<UserResponse> => {
     data.initials =
       data.firstName.charAt(0).toUpperCase() +
       data.lastName.charAt(0).toUpperCase();
-    userResponse.user = data;
-    userResponse.code = 200;
+
+    return data;
   } catch (error) {
     console.error("Error fetching user data:", error);
   }
-
-  return userResponse;
 };

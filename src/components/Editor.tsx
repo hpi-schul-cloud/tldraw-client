@@ -3,16 +3,19 @@ import { useMultiplayerState } from "../hooks/useMultiplayerState";
 import { useButtonRemover } from "../hooks/useButtonRemover";
 import { getDarkModeSetting } from "../utils/userSettings";
 import CustomCursor from "./CustomCursor";
+import { useWebsocketErrorHandler } from "../hooks/useWebsocketErrorHandler";
 
 function Editor({ roomId }: { roomId: string }) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
-  const { onMount, onOpen, saveUserSettings, ...events } =
+  const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
     useMultiplayerState(roomId);
   const buttonsRef = useButtonRemover();
 
   const components = {
     Cursor: CustomCursor,
   };
+
+  useWebsocketErrorHandler();
 
   return (
     <div ref={buttonsRef}>
@@ -23,13 +26,15 @@ function Editor({ roomId }: { roomId: string }) {
         showMultiplayerMenu={false}
         disableAssets={false}
         onMount={onMount}
-        onPatch={saveUserSettings}
+        onPatch={onPatch}
         darkMode={getDarkModeSetting()}
         {...events}
         onOpenProject={onOpen}
         onSaveProject={onSaveProject}
         onSaveProjectAs={onSaveProjectAs}
         onOpenMedia={onOpenMedia}
+        onAssetCreate={onAssetCreate}
+        onAssetDelete={onAssetDelete}
       />
     </div>
   );

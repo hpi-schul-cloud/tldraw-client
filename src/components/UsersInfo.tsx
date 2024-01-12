@@ -4,7 +4,6 @@ import { useUsersCount } from "../hooks/useUsersCount";
 
 function UsersInfo() {
   const usersCount = useUsersCount();
-  const hasUsers = usersCount > 0;
 
   return (
     <div className="user-display">
@@ -16,11 +15,9 @@ function UsersInfo() {
           color="#54616E"
         />
       </div>
-      {hasUsers && (
-        <div className="user-indicator">
-          <span className="user-indicator-span">{usersCount}</span>
-        </div>
-      )}
+      <div className="user-indicator">
+        <span className="user-indicator-span">{usersCount}</span>
+      </div>
     </div>
   );
 }

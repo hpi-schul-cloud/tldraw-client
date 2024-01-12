@@ -4,8 +4,3 @@ export type Envs = {
   TLDRAW__ASSETS_MAX_SIZE: number;
   TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST: string;
 };
-
-export interface EnvsResponse {
-  code: number;
-  envs: Envs | undefined;
-}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { room } from "../stores/yProvider";
+import { room } from "../stores/setup";
 
 export function useUsersCount() {
   const [usersCount, setUsersCount] = useState(0);

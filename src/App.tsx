@@ -1,32 +1,20 @@
-import { useEffect } from "react";
-import { useCookies } from "react-cookie";
-import { roomId } from "./stores/yProvider";
 import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
-import ErrorModal from "./components/ErrorModal";
-import { redirectToLogin } from "./utils/redirectToLogin";
+import { useJwtHandler } from "./hooks/useJwtHandler";
+import { roomId } from "./stores/setup";
 
 function App() {
-  const [cookies] = useCookies(["jwt"]);
-  const token = cookies.jwt;
-
-  useEffect(() => {
-    if (!token) {
-      redirectToLogin();
-    }
-  }, [token]);
+  useJwtHandler();
 
   return (
     <div>
-      {token && (
-        <div className="tldraw-content">
-          <UsersInfo />
-          <div className="tldraw">
-            <Editor roomId={roomId} />
-          </div>
-          <ErrorModal />
+      <div className="tldraw-content">
+        <UsersInfo />
+        <div className="tldraw">
+          <Editor roomId={roomId} />
         </div>
-      )}
+      </div>
+      )
     </div>
   );
 }
