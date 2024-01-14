@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { provider } from "../stores/setup";
 import { redirectToErrorPage } from "../utils/redirectUtils";
-import { setErrorData } from "../utils/setErrorData";
+import { setErrorData } from "../utils/errorData";
 
 // the message keys are defined in vue client
 const websocketErrors = [

@@ -7,13 +7,15 @@ import { getConnectionOptions } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
 import { redirectToErrorPage } from "../utils/redirectUtils";
-import { setErrorData } from "../utils/setErrorData";
+import { clearErrorData, setErrorData } from "../utils/errorData";
 
 const [connectionOptions, envs, user] = await Promise.all([
   getConnectionOptions(),
   getEnvs(),
   getUserData(),
 ]);
+
+clearErrorData();
 
 if (!envs || !user) {
   setErrorData(500, "tldraw.error.500");

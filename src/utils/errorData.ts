@@ -7,3 +7,9 @@ export const setErrorData = (code: number, messageTranslationKey: string) => {
     console.error(`Error code '${code}' - message '${messageTranslationKey}'`);
   }
 };
+
+export const clearErrorData = () => {
+  localStorage.removeItem("applicationErrorStatusCode");
+  localStorage.removeItem("applicationErrorTranslationKey");
+  localStorage.removeItem("applicationErrorTldraw");
+};
