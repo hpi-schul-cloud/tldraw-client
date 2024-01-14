@@ -213,11 +213,12 @@ export function useMultiplayerState(roomId: string) {
         return data.url;
       } catch (error) {
         console.error("Error while uploading asset:", error);
+        toast.error("An error occured while uploading asset");
       }
 
       return false;
     },
-    [],
+    [roomId],
   );
 
   const onAssetDelete = useCallback(
@@ -237,6 +238,7 @@ export function useMultiplayerState(roomId: string) {
         return true;
       } catch (error) {
         console.error("Error while deleting asset:", error);
+        toast.error("An error occured while deleting asset");
       }
 
       return false;
@@ -364,7 +366,7 @@ export function useMultiplayerState(roomId: string) {
           if (app.zoom > 1) {
             app.resetZoom();
           }
-        }, 100);
+        }, 150);
       }
       setLoading(false);
     }
