@@ -24,6 +24,8 @@ import {
   envs,
 } from "../stores/setup";
 import { getUserSettings, STORAGE_SETTINGS_KEY } from "../utils/userSettings";
+import { UserPresence } from "../types/UserPresence";
+import { User } from "@y-presence/client";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -309,7 +311,7 @@ export function useMultiplayerState(roomId: string) {
   useEffect(() => {
     if (!app || !room) return;
 
-    const unsubOthers = room.subscribe("others", (users) => {
+    const handleUsersChange = (users: User<UserPresence>[]) => {
       if (!app.room) return;
 
       const ids = users
@@ -329,36 +331,32 @@ export function useMultiplayerState(roomId: string) {
           .map((other) => other.presence!.tdUser!)
           .filter(Boolean),
       );
-    });
+    };
+
+    room.subscribe("others", handleUsersChange);
 
     return () => {
-      unsubOthers();
+      room.unsubscribe("others", handleUsersChange);
     };
   }, [app]);
 
   useEffect(() => {
-    if (!app) return;
+    const handleChanges = () => {
+      if (!app) return;
 
-    function handleDisconnect() {
-      provider.disconnect();
-    }
-
-    window.addEventListener("beforeunload", handleDisconnect);
-
-    function handleChanges() {
-      app?.replacePageContent(
+      app.replacePageContent(
         Object.fromEntries(yShapes.entries()),
         Object.fromEntries(yBindings.entries()),
         Object.fromEntries(yAssets.entries()),
       );
-    }
+    };
 
-    function setup() {
+    const setup = () => {
       yShapes.observeDeep(handleChanges);
       handleChanges();
 
       if (app) {
-        // hacky, but without small delay this function
+        // hacky, but without small delay zoom function
         // does not work despite tldraw state being loaded
         setTimeout(() => {
           app.zoomToContent();
@@ -369,15 +367,26 @@ export function useMultiplayerState(roomId: string) {
         }, 150);
       }
       setLoading(false);
-    }
+    };
 
     setup();
 
     return () => {
-      window.removeEventListener("beforeunload", handleDisconnect);
       yShapes.unobserveDeep(handleChanges);
     };
   }, [app]);
+
+  useEffect(() => {
+    const handleDisconnect = () => {
+      provider.disconnect();
+    };
+
+    window.addEventListener("beforeunload", handleDisconnect);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleDisconnect);
+    };
+  }, []);
 
   return {
     onUndo,
