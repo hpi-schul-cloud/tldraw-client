@@ -8,6 +8,7 @@ import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
 import { redirectToErrorPage } from "../utils/redirectUtils";
 import { clearErrorData, setErrorData } from "../utils/errorData";
+import { setDefaultState } from "../utils/userSettings";
 
 const [connectionOptions, envs, user] = await Promise.all([
   getConnectionOptions(),
@@ -26,6 +27,8 @@ if (!envs!.FEATURE_TLDRAW_ENABLED) {
   setErrorData(403, "tldraw.error.403");
   redirectToErrorPage();
 }
+
+setDefaultState();
 
 const roomId = connectionOptions.roomName;
 const doc = new Doc();
