@@ -1,14 +1,14 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 
-export function useButtonRemover() {
-  const buttonsRef = useRef<HTMLDivElement | null>(null);
-
+export function useHtmlRemover(
+  containerRef: React.MutableRefObject<HTMLDivElement | null>,
+) {
   useEffect(() => {
     const regex = /^TD-Link-/;
 
     const observer = new MutationObserver(() => {
-      if (buttonsRef.current) {
-        const buttons = buttonsRef.current.querySelectorAll("button");
+      if (containerRef.current) {
+        const buttons = containerRef.current.querySelectorAll("button");
         buttons.forEach((button) => {
           if (regex.test(button.id)) {
             button.style.display = "none";
@@ -27,7 +27,5 @@ export function useButtonRemover() {
     return () => {
       observer.disconnect();
     };
-  }, []);
-
-  return buttonsRef;
+  }, [containerRef]);
 }
