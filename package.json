@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "test": "vitest",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "prettier": "prettier . --check",
     "prettier-fix": "prettier . --write",
@@ -26,6 +27,9 @@
     "yjs": "^13.6.10"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.2.0",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.2",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
@@ -36,10 +40,12 @@
     "eslint-plugin-prettier": "^5.1.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "jsdom": "^23.2.0",
     "prettier": "^3.1.1",
     "sass": "^1.69.7",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
-    "vite-plugin-top-level-await": "^1.4.1"
+    "vite-plugin-top-level-await": "^1.4.1",
+    "vitest": "^1.2.1"
   }
 }

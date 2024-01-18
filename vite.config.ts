@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import topLevelAwait from "vite-plugin-top-level-await";
@@ -35,5 +36,10 @@ export default defineConfig({
         secure: false,
       },
     },
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/__tests__/vitest.setup.ts"],
   },
 });
