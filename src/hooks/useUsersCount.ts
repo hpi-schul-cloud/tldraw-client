@@ -6,11 +6,11 @@ import { room } from "../stores/setup";
 export function useUsersCount() {
   const [usersCount, setUsersCount] = useState(0);
 
-  const handleUsersChange = (users: User<UserPresence>[]) => {
-    setUsersCount(users.length);
-  };
-
   useEffect(() => {
+    const handleUsersChange = (users: User<UserPresence>[]) => {
+      setUsersCount(users.length);
+    };
+
     room.subscribe("users", handleUsersChange);
 
     return () => {
