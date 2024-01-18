@@ -23,22 +23,11 @@ import {
   user,
   envs,
 } from "../stores/setup";
-import { getUserSettings, STORAGE_SETTINGS_KEY } from "../utils/userSettings";
+import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
 import { User } from "@y-presence/client";
 
 declare const window: Window & { app: TldrawApp };
-
-const setDefaultState = () => {
-  const userSettings = getUserSettings();
-  if (userSettings) {
-    TldrawApp.defaultState.settings = userSettings;
-  } else {
-    TldrawApp.defaultState.settings.language = "de";
-  }
-};
-
-setDefaultState();
 
 export function useMultiplayerState(roomId: string) {
   const [app, setApp] = useState<TldrawApp>();
