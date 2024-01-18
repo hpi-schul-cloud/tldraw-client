@@ -254,11 +254,12 @@ export function useMultiplayerState(roomId: string) {
     [],
   );
 
-  // Put the state into the window, for debugging.
   const onMount = useCallback(
     (app: TldrawApp) => {
       app.loadRoom(roomId);
-      app.pause(); // Turn off the app's own undo / redo stack
+      // Turn off the app's own undo / redo stack
+      app.pause();
+      // Put the state into the window, for debugging
       window.app = app;
       setApp(app);
     },
@@ -273,7 +274,7 @@ export function useMultiplayerState(roomId: string) {
     undoManager.redo();
   }, []);
 
-  // Update the live shapes when the app's shapes change.
+  // Update the yjs doc shapes when the app's shapes change
   const onChangePage = useCallback(
     (
       _app: TldrawApp,
@@ -312,7 +313,7 @@ export function useMultiplayerState(roomId: string) {
         .filter((user) => user.presence && user.presence.tdUser)
         .map((user) => user.presence!.tdUser!.id);
 
-      // remove any user that is not connected in the room
+      // Remove any user that is not connected in the room
       Object.values(app.room.users).forEach((user) => {
         if (user && !ids.includes(user.id) && user.id !== app.room?.userId) {
           app.removeUser(user.id);
@@ -334,6 +335,7 @@ export function useMultiplayerState(roomId: string) {
     };
   }, [app]);
 
+  // Update the app's shapes when the yjs doc's shapes change
   useEffect(() => {
     const handleChanges = () => {
       if (!app) return;
@@ -350,7 +352,7 @@ export function useMultiplayerState(roomId: string) {
       handleChanges();
 
       if (app) {
-        // hacky, but without small delay
+        // Hacky, but without small delay
         // zoom function does not work
         // despite tldraw state being loaded
         setTimeout(() => {
