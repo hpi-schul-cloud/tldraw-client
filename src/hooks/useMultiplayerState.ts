@@ -62,7 +62,10 @@ export function useMultiplayerState(roomId: string) {
     const file: TDFile = JSON.parse(json);
     if ("tldrawFileFormatVersion" in file) {
       console.error(
-        "This file was created in a newer version of tldraw and it cannot be opened.",
+        "This file was created in a newer version of tldraw and it cannot be opened",
+      );
+      toast.info(
+        "This file was created in a newer version of tldraw and it cannot be opened",
       );
       return null;
     }
@@ -126,6 +129,7 @@ export function useMultiplayerState(roomId: string) {
           const result = await openFromFileSystem();
           if (!result) {
             console.error("Error while opening file");
+            toast.error("An error occured while opening file");
             return;
           }
 
@@ -145,7 +149,8 @@ export function useMultiplayerState(roomId: string) {
           app.zoomToContent();
           app.zoomToFit();
         } catch (e) {
-          console.error(e);
+          console.error("Error while opening project", e);
+          toast.error("An error occured while opening project");
         }
       };
     },
@@ -345,15 +350,16 @@ export function useMultiplayerState(roomId: string) {
       handleChanges();
 
       if (app) {
-        // hacky, but without small delay zoom function
-        // does not work despite tldraw state being loaded
+        // hacky, but without small delay
+        // zoom function does not work
+        // despite tldraw state being loaded
         setTimeout(() => {
           app.zoomToContent();
           app.zoomToFit();
           if (app.zoom > 1) {
             app.resetZoom();
           }
-        }, 150);
+        }, 200);
       }
       setLoading(false);
     };

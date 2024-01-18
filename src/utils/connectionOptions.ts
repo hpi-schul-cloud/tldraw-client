@@ -1,4 +1,6 @@
 import { ConnectionOptions } from "../types/ConnectionOptions";
+import { setErrorData } from "./errorData";
+import { redirectToErrorPage } from "./redirectUtils";
 
 export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -20,6 +22,8 @@ export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
       connectionOptions.websocketUrl = data.tldrawServerURL;
     } catch (error) {
       console.error("Error fetching tldrawServerURL:", error);
+      setErrorData(500, "tldraw.error.500");
+      redirectToErrorPage();
     }
   }
 
