@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-export function useHtmlRemover(
+export function useTldrawUiSanitizer(
   containerRef: React.MutableRefObject<HTMLDivElement | null>,
 ) {
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Tldraw, useFileSystem } from "@tldraw/tldraw";
 import { useMultiplayerState } from "../hooks/useMultiplayerState";
-import { useHtmlRemover } from "../hooks/useHtmlRemover";
+import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
 import { getDarkModeSetting } from "../utils/userSettings";
 import CustomCursor from "./CustomCursor";
 import { useWebsocketErrorHandler } from "../hooks/useWebsocketErrorHandler";
@@ -11,7 +11,7 @@ function Editor({ roomId }: { roomId: string }) {
   const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
     useMultiplayerState(roomId);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  useHtmlRemover(containerRef);
+  useTldrawUiSanitizer(containerRef);
 
   const components = {
     Cursor: CustomCursor,

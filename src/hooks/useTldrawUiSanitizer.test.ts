@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { useHtmlRemover } from "./useHtmlRemover";
+import { useTldrawUiSanitizer } from "./useTldrawUiSanitizer";
 
 const mutationObserverMock = vi.fn(function MutationObserver(
   this: MutationObserver,
@@ -11,10 +11,10 @@ const mutationObserverMock = vi.fn(function MutationObserver(
 // @ts-expect-error mock window object
 window.MutationObserver = mutationObserverMock;
 
-describe("useHtmlRemover hook", () => {
+describe("useTldrawUiSanitizer hook", () => {
   it("should call observe on mount and disconnect on unmount", () => {
     const containerRef = { current: document.createElement("div") };
-    const { unmount } = renderHook(() => useHtmlRemover(containerRef));
+    const { unmount } = renderHook(() => useTldrawUiSanitizer(containerRef));
     const [instance] = mutationObserverMock.mock
       .instances as unknown as MutationObserver[];
 
