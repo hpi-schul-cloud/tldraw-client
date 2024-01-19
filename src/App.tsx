@@ -1,8 +1,8 @@
+import { ToastContainer } from "react-toastify";
 import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
 import { useJwtHandler } from "./hooks/useJwtHandler";
 import { roomId } from "./stores/setup";
-import { ToastContainer } from "react-toastify";
 import { getDarkModeSetting } from "./utils/userSettings";
 
 function App() {

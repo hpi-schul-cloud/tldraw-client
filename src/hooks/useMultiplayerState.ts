@@ -9,6 +9,7 @@ import {
   TldrawPatch,
   useFileSystem,
 } from "@tldraw/tldraw";
+import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
@@ -25,7 +26,6 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
-import { User } from "@y-presence/client";
 
 declare const window: Window & { app: TldrawApp };
 

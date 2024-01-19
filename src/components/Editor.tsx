@@ -3,8 +3,8 @@ import { Tldraw, useFileSystem } from "@tldraw/tldraw";
 import { useMultiplayerState } from "../hooks/useMultiplayerState";
 import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
 import { getDarkModeSetting } from "../utils/userSettings";
-import CustomCursor from "./CustomCursor";
 import { useWebsocketErrorHandler } from "../hooks/useWebsocketErrorHandler";
+import CustomCursor from "./CustomCursor";
 
 function Editor({ roomId }: { roomId: string }) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
