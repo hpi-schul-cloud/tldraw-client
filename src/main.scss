@@ -167,9 +167,12 @@ a {
   margin: 15px 0 0 14px;
 
   .tldraw-username-container {
+    display: flex;
     margin-top: -4px;
 
     .tldraw-username {
+      display: flex;
+      flex: 1 0 auto;
       font-family: PT Sans Narrow, sans-serif;
       font-weight: 700;
       font-size: 14px;

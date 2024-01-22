@@ -19,14 +19,14 @@ const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
         />
       </svg>
       <div className={"tldraw-username-container"}>
-        <span
+        <div
           className={"tldraw-username"}
           style={{
             borderColor: color,
             backgroundColor: hexToRgba(color, 0.2),
           }}>
           {metadata!.displayName}
-        </span>
+        </div>
       </div>
     </div>
   );
