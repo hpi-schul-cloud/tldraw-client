@@ -194,7 +194,7 @@ export function useMultiplayerState(roomId: string) {
         formData.append("file", fileToUpload);
 
         const response = await fetch(
-          `/api/v3/file/upload/${user!.schoolId}/boardnodes/${roomId}`,
+          `/api/v3/file/upload/${user!.schoolId}/drawingassets/${roomId}`,
           {
             method: "POST",
             body: formData,
