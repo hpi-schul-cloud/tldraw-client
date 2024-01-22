@@ -295,7 +295,7 @@ export function useMultiplayerState(roomId: string) {
     if (!app.room) return;
     tdUser.metadata = {
       id: user!.id,
-      displayName: user!.firstName,
+      displayName: `${user!.firstName} ${user!.lastName}`,
     };
     room.updatePresence({ tdUser });
   }, []);
