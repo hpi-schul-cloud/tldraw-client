@@ -6,10 +6,16 @@ import { getDarkModeSetting } from "../utils/userSettings";
 import { useWebsocketErrorHandler } from "../hooks/useWebsocketErrorHandler";
 import CustomCursor from "./CustomCursor";
 
-function Editor({ roomId }: { roomId: string }) {
+function Editor({
+  roomId,
+  setIsFocusMode,
+}: {
+  roomId: string;
+  setIsFocusMode: any;
+}) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
   const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
-    useMultiplayerState(roomId);
+    useMultiplayerState(roomId, setIsFocusMode);
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
 

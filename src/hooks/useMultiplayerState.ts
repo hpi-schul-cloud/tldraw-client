@@ -29,7 +29,10 @@ import { UserPresence } from "../types/UserPresence";
 
 declare const window: Window & { app: TldrawApp };
 
-export function useMultiplayerState(roomId: string) {
+export function useMultiplayerState(
+  roomId: string,
+  setIsFocusMode: (isFocusMode: boolean) => void,
+) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
   const { onOpenProject } = useFileSystem();
@@ -244,6 +247,12 @@ export function useMultiplayerState(roomId: string) {
 
   const onPatch = useCallback(
     (app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
+      const { settings } = _patch;
+
+      if (settings?.isFocusMode !== undefined) {
+        setIsFocusMode(settings.isFocusMode);
+      }
+
       if (reason?.includes("settings")) {
         localStorage.setItem(
           STORAGE_SETTINGS_KEY,
@@ -251,7 +260,7 @@ export function useMultiplayerState(roomId: string) {
         );
       }
     },
-    [],
+    [setIsFocusMode],
   );
 
   const onMount = useCallback(

@@ -4,17 +4,19 @@ import Editor from "./components/Editor";
 import { useJwtHandler } from "./hooks/useJwtHandler";
 import { roomId } from "./stores/setup";
 import { getDarkModeSetting } from "./utils/userSettings";
+import { useState } from "react";
 
 function App() {
   useJwtHandler();
   const isDarkMode = getDarkModeSetting();
+  const [isFocusMode, setIsFocusMode] = useState(false);
 
   return (
     <div>
       <div className="tldraw-content">
-        <UsersInfo />
+        <UsersInfo isFocusMode={isFocusMode} />
         <div className="tldraw">
-          <Editor roomId={roomId} />
+          <Editor roomId={roomId} setIsFocusMode={setIsFocusMode} />
         </div>
       </div>
       <ToastContainer
