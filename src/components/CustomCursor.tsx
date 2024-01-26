@@ -3,12 +3,25 @@ import { UserMetadata } from "../types/UserPresence";
 import { hexToRgba } from "../utils/hexToRgba";
 
 const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
+  const cursorSize = 14;
+  const usernameSize = 20;
+
+  const zoom = window.devicePixelRatio;
+
+  const cursorWidth = cursorSize * zoom;
+  const cursorHeight = cursorSize * zoom;
+
+  const usernameWidth = usernameSize;
+  const usernameHeight = usernameSize;
+
   return (
-    <div className={"tldraw-cursor-container"}>
+    <div
+      className={"tldraw-cursor-container"}
+      style={{ transform: `scale(${1 / zoom})` }}>
       <svg
-        width="14"
-        height="16"
-        viewBox="0 0 14 16"
+        width={cursorWidth}
+        height={cursorHeight}
+        viewBox={`0 0 ${cursorWidth} ${cursorHeight}`}
         fill="none"
         xmlns="http://www.w3.org/2000/svg">
         <path
@@ -24,6 +37,8 @@ const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
           style={{
             borderColor: color,
             backgroundColor: hexToRgba(color, 0.2),
+            width: usernameWidth,
+            height: usernameHeight,
           }}>
           {metadata!.displayName}
         </div>
