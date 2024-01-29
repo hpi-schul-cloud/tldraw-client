@@ -29,7 +29,10 @@ import { UserPresence } from "../types/UserPresence";
 
 declare const window: Window & { app: TldrawApp };
 
-export function useMultiplayerState(roomId: string) {
+export function useMultiplayerState(
+  roomId: string,
+  setIsDarkMode: (isDarkMode: boolean) => void,
+) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
   const { onOpenProject } = useFileSystem();
@@ -249,9 +252,11 @@ export function useMultiplayerState(roomId: string) {
           STORAGE_SETTINGS_KEY,
           JSON.stringify(app.settings),
         );
+
+        setIsDarkMode(app.settings.isDarkMode);
       }
     },
-    [],
+    [setIsDarkMode],
   );
 
   const onMount = useCallback(

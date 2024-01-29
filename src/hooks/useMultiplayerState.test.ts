@@ -134,7 +134,9 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onMount correctly", () => {
     const { app, loadRoomSpy, pauseSpy } = setup();
-    const { result } = renderHook(() => useMultiplayerState("testRoom"));
+    const { result } = renderHook(() =>
+      useMultiplayerState("testRoom", () => {}),
+    );
 
     act(() => {
       result.current.onMount(app);
@@ -145,7 +147,9 @@ describe("useMultiplayerState hook", () => {
   });
 
   it("should handle onUndo correctly", () => {
-    const { result } = renderHook(() => useMultiplayerState("testRoom"));
+    const { result } = renderHook(() =>
+      useMultiplayerState("testRoom", () => {}),
+    );
 
     act(() => {
       result.current.onUndo();
@@ -155,7 +159,9 @@ describe("useMultiplayerState hook", () => {
   });
 
   it("should handle onRedo correctly", () => {
-    const { result } = renderHook(() => useMultiplayerState("testRoom"));
+    const { result } = renderHook(() =>
+      useMultiplayerState("testRoom", () => {}),
+    );
 
     act(() => {
       result.current.onRedo();
@@ -166,7 +172,9 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onChangePage correctly", () => {
     const { app } = setup();
-    const { result } = renderHook(() => useMultiplayerState("testRoom"));
+    const { result } = renderHook(() =>
+      useMultiplayerState("testRoom", () => {}),
+    );
     const shapes: Record<string, TDShape | undefined> = {
       shape1: undefined,
     };
@@ -186,7 +194,9 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onChangePresence correctly", () => {
     const { app, user } = setup();
-    const { result } = renderHook(() => useMultiplayerState("testRoom"));
+    const { result } = renderHook(() =>
+      useMultiplayerState("testRoom", () => {}),
+    );
 
     act(() => {
       app.loadRoom("testRoom");
@@ -200,7 +210,9 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onOpen correctly", () => {
     const { app, mockOpenDialog, mockOpenProject } = setup();
-    const { result } = renderHook(() => useMultiplayerState("testRoom"));
+    const { result } = renderHook(() =>
+      useMultiplayerState("testRoom", () => {}),
+    );
 
     act(() => {
       result.current.onOpen(app, mockOpenDialog);

@@ -3,18 +3,18 @@ import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
 import { useJwtHandler } from "./hooks/useJwtHandler";
 import { roomId } from "./stores/setup";
-import { getDarkModeSetting } from "./utils/userSettings";
+import { useTldrawSettings } from "./hooks/useTldrawSettings";
 
 function App() {
   useJwtHandler();
-  const isDarkMode = getDarkModeSetting();
+  const { isDarkMode, handleDarkModeChange } = useTldrawSettings();
 
   return (
     <div>
       <div className="tldraw-content">
         <UsersInfo />
         <div className="tldraw">
-          <Editor roomId={roomId} />
+          <Editor roomId={roomId} darkModeHandler={handleDarkModeChange} />
         </div>
       </div>
       <ToastContainer
