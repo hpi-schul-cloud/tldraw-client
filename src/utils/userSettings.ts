@@ -14,6 +14,12 @@ const getDarkModeSetting = (): boolean | undefined => {
   return settings ? settings.isDarkMode : undefined;
 };
 
+const getFocusModeSetting = (): boolean => {
+  const settings = getUserSettings();
+
+  return settings ? settings.isFocusMode : false;
+};
+
 const setDefaultState = () => {
   const userSettings = getUserSettings();
   if (userSettings) {
@@ -21,6 +27,12 @@ const setDefaultState = () => {
   } else {
     TldrawApp.defaultState.settings.language = "de";
   }
+  TldrawApp.assetSrc = "assets/tldraw-assets.json";
 };
 
-export { STORAGE_SETTINGS_KEY, setDefaultState, getDarkModeSetting };
+export {
+  STORAGE_SETTINGS_KEY,
+  setDefaultState,
+  getDarkModeSetting,
+  getFocusModeSetting,
+};

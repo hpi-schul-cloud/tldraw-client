@@ -31,7 +31,7 @@ declare const window: Window & { app: TldrawApp };
 
 export function useMultiplayerState(
   roomId: string,
-  setIsFocusMode: (isFocusMode: boolean) => void,
+  setIsDarkMode: (isDarkMode: boolean) => void,
 ) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
@@ -247,20 +247,16 @@ export function useMultiplayerState(
 
   const onPatch = useCallback(
     (app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
-      const { settings } = _patch;
-
-      if (settings?.isFocusMode !== undefined) {
-        setIsFocusMode(settings.isFocusMode);
-      }
-
       if (reason?.includes("settings")) {
         localStorage.setItem(
           STORAGE_SETTINGS_KEY,
           JSON.stringify(app.settings),
         );
+
+        setIsDarkMode(app.settings.isDarkMode);
       }
     },
-    [setIsFocusMode],
+    [setIsDarkMode],
   );
 
   const onMount = useCallback(
