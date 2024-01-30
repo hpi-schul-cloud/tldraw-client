@@ -27,6 +27,7 @@ const setDefaultState = () => {
   } else {
     TldrawApp.defaultState.settings.language = "de";
   }
+  TldrawApp.assetSrc = "assets/tldraw-assets.json";
 };
 
 export {

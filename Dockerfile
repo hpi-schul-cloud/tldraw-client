@@ -20,7 +20,6 @@ RUN mkdir /etc/nginx/templates
 
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY --from=build-stage /app/dist/favicon.png /usr/share/nginx/html/assets
 
 EXPOSE 3046
 
