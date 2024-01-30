@@ -8,19 +8,19 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY babel.config.js .eslintrc.js craco.config.js LICENSE.md tsconfig.json .prettierrc.js ./
+COPY LICENSE.md .eslintrc.cjs .prettierrc.cjs vite.config.ts tsconfig.json tsconfig.node.json index.html ./
 COPY public ./public
 COPY src ./src
 RUN NODE_ENV=production npm run build
 
 # runtime image stage
-FROM docker.io/nginx:1.25
+FROM docker.io/nginx:1.25-alpine
 
 RUN mkdir /etc/nginx/templates
 
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=build-stage /app/build /usr/share/nginx/html
-COPY --from=build-stage /app/build/favicon.ico /usr/share/nginx/html/static/media
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage /app/dist/favicon.png /app/dist/tldraw-assets.json /usr/share/nginx/html/assets/
 
 EXPOSE 3046
 
