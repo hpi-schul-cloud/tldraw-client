@@ -234,6 +234,7 @@ export function useMultiplayerState(
           throw new Error(`${response.status} - ${response.statusText}`);
         }
 
+        undoManager.undoStack.pop();
         return true;
       } catch (error) {
         console.error("Error while deleting asset:", error);
