@@ -7,14 +7,23 @@ import { useTldrawSettings } from "./hooks/useTldrawSettings";
 
 function App() {
   useJwtHandler();
-  const { isDarkMode, handleDarkModeChange } = useTldrawSettings();
+  const {
+    isDarkMode,
+    isFocusMode,
+    handleDarkModeChange,
+    handleFocusModeChange,
+  } = useTldrawSettings();
 
   return (
     <div>
       <div className="tldraw-content">
-        <UsersInfo />
+        <UsersInfo isFocusMode={isFocusMode} />
         <div className="tldraw">
-          <Editor roomId={roomId} darkModeHandler={handleDarkModeChange} />
+          <Editor
+            roomId={roomId}
+            darkModeHandler={handleDarkModeChange}
+            focusModeHandler={handleFocusModeChange}
+          />
         </div>
       </div>
       <ToastContainer

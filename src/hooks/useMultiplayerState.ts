@@ -32,6 +32,7 @@ declare const window: Window & { app: TldrawApp };
 export function useMultiplayerState(
   roomId: string,
   setIsDarkMode: (isDarkMode: boolean) => void,
+  setIsFocusMode: (isFocusMode: boolean) => void,
 ) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
@@ -254,6 +255,7 @@ export function useMultiplayerState(
         );
 
         setIsDarkMode(app.settings.isDarkMode);
+        setIsFocusMode(app.settings.isFocusMode);
       }
     },
     [setIsDarkMode],
