@@ -14,7 +14,7 @@ export const ContextProvider = ({ children, value }: ContextProps) => {
 export const useNewContext = () => {
   const contextValue = useContext(Context);
   if (contextValue === undefined) {
-    throw new Error("useContext must be used within a ContextProvider");
+    throw new Error("useNewContext must be used within a ContextProvider");
   }
   return contextValue;
 };
