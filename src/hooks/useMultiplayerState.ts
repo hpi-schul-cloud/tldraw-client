@@ -179,6 +179,7 @@ export function useMultiplayerState(
         return false;
       }
 
+      undoManager.stopCapturing();
       const fileExtension = file.name.split(".").pop()!;
       if (
         envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
@@ -222,6 +223,8 @@ export function useMultiplayerState(
 
   const onAssetDelete = useCallback(
     async (_app: TldrawApp, id: string): Promise<boolean> => {
+      undoManager.stopCapturing();
+      console.log("deleting asset", id);
       try {
         const assets = Object.fromEntries(yAssets.entries());
         const srcArr = assets[id].src.split("/");
@@ -234,6 +237,7 @@ export function useMultiplayerState(
           throw new Error(`${response.status} - ${response.statusText}`);
         }
 
+        undoManager.undoStack.pop();
         return true;
       } catch (error) {
         console.error("Error while deleting asset:", error);
