@@ -7,11 +7,7 @@ const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
   const { zoom } = useNewContext();
 
   return (
-    <div
-      className={"tldraw-cursor-container"}
-      style={{
-        transform: `scale(${1 / zoom})`,
-      }}>
+    <div className={"tldraw-cursor-container"}>
       <svg
         width="14"
         height="16"
