@@ -138,7 +138,6 @@ describe("useMultiplayerState hook", () => {
       useMultiplayerState(
         "testRoom",
         () => {},
-        () => {},
       ),
     );
 
@@ -155,7 +154,6 @@ describe("useMultiplayerState hook", () => {
       useMultiplayerState(
         "testRoom",
         () => {},
-        () => {},
       ),
     );
 
@@ -170,7 +168,6 @@ describe("useMultiplayerState hook", () => {
     const { result } = renderHook(() =>
       useMultiplayerState(
         "testRoom",
-        () => {},
         () => {},
       ),
     );
@@ -187,7 +184,6 @@ describe("useMultiplayerState hook", () => {
     const { result } = renderHook(() =>
       useMultiplayerState(
         "testRoom",
-        () => {},
         () => {},
       ),
     );
@@ -214,7 +210,6 @@ describe("useMultiplayerState hook", () => {
       useMultiplayerState(
         "testRoom",
         () => {},
-        () => {},
       ),
     );
 
@@ -233,7 +228,6 @@ describe("useMultiplayerState hook", () => {
     const { result } = renderHook(() =>
       useMultiplayerState(
         "testRoom",
-        () => {},
         () => {},
       ),
     );

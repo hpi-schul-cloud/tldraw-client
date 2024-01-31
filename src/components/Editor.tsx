@@ -9,15 +9,13 @@ import { useTldrawSettings } from "../hooks/useTldrawSettings";
 function Editor({
   roomId,
   darkModeHandler,
-  setZoom,
 }: {
   roomId: string;
   darkModeHandler: (isDarkMode: boolean) => void;
-  setZoom: (setZoom: number) => void;
 }) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
   const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
-    useMultiplayerState(roomId, darkModeHandler, setZoom);
+    useMultiplayerState(roomId, darkModeHandler);
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
