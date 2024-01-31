@@ -47,12 +47,12 @@ const yBindings: Map<TDBinding> = doc.getMap("bindings");
 const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
-undoManager.on("stack-item-added", (event) => {
+undoManager.on("stack-item-added", (event: any) => {
   console.log("stack-item-added");
   console.log(event);
 });
 
-undoManager.on("stack-item-popped", (event) => {
+undoManager.on("stack-item-popped", (event: any) => {
   console.log("stack-item-popped");
   console.log(event);
 });
