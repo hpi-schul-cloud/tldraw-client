@@ -32,6 +32,7 @@ declare const window: Window & { app: TldrawApp };
 export function useMultiplayerState(
   roomId: string,
   setIsDarkMode: (isDarkMode: boolean) => void,
+  setZoom: (setZoom: number) => void,
 ) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
@@ -255,8 +256,11 @@ export function useMultiplayerState(
 
         setIsDarkMode(app.settings.isDarkMode);
       }
+      if (reason === "zoomed_camera") {
+        setZoom(app.zoom);
+      }
     },
-    [setIsDarkMode],
+    [setIsDarkMode, setZoom],
   );
 
   const onMount = useCallback(

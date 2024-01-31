@@ -1,10 +1,17 @@
 import { CursorComponent } from "@tldraw/core";
 import { UserMetadata } from "../types/UserPresence";
 import { hexToRgba } from "../utils/hexToRgba";
+import { useNewContext } from "./Context";
 
 const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
+  const { zoom } = useNewContext();
+
   return (
-    <div className={"tldraw-cursor-container"}>
+    <div
+      className={"tldraw-cursor-container"}
+      style={{
+        transform: `scale(${1 / zoom})`,
+      }}>
       <svg
         width="14"
         height="16"
@@ -18,7 +25,9 @@ const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
           stroke={color}
         />
       </svg>
-      <div className={"tldraw-username-container"}>
+      <div
+        className={"tldraw-username-container"}
+        style={{ width: "fit-content" }}>
         <div
           className={"tldraw-username"}
           style={{

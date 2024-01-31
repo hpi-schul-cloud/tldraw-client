@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Tldraw, useFileSystem } from "@tldraw/tldraw";
 import { useMultiplayerState } from "../hooks/useMultiplayerState";
 import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
@@ -9,13 +9,15 @@ import { useTldrawSettings } from "../hooks/useTldrawSettings";
 function Editor({
   roomId,
   darkModeHandler,
+  setZoom,
 }: {
   roomId: string;
   darkModeHandler: (isDarkMode: boolean) => void;
+  setZoom: (setZoom: number) => void;
 }) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
   const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
-    useMultiplayerState(roomId, darkModeHandler);
+    useMultiplayerState(roomId, darkModeHandler, setZoom);
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
