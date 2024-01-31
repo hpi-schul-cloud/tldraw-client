@@ -4,7 +4,6 @@ import Editor from "./components/Editor";
 import { useJwtHandler } from "./hooks/useJwtHandler";
 import { roomId } from "./stores/setup";
 import { useTldrawSettings } from "./hooks/useTldrawSettings";
-import { useState } from "react";
 
 function App() {
   useJwtHandler();

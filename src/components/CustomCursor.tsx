@@ -18,9 +18,7 @@ const CustomCursor: CursorComponent<UserMetadata> = ({ color, metadata }) => {
           stroke={color}
         />
       </svg>
-      <div
-        className={"tldraw-username-container"}
-        style={{ width: "fit-content" }}>
+      <div className={"tldraw-username-container"}>
         <div
           className={"tldraw-username"}
           style={{

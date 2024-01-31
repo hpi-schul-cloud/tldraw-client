@@ -135,10 +135,7 @@ describe("useMultiplayerState hook", () => {
   it("should handle onMount correctly", () => {
     const { app, loadRoomSpy, pauseSpy } = setup();
     const { result } = renderHook(() =>
-      useMultiplayerState(
-        "testRoom",
-        () => {},
-      ),
+      useMultiplayerState("testRoom", () => {}),
     );
 
     act(() => {
@@ -151,10 +148,7 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onUndo correctly", () => {
     const { result } = renderHook(() =>
-      useMultiplayerState(
-        "testRoom",
-        () => {},
-      ),
+      useMultiplayerState("testRoom", () => {}),
     );
 
     act(() => {
@@ -166,10 +160,7 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onRedo correctly", () => {
     const { result } = renderHook(() =>
-      useMultiplayerState(
-        "testRoom",
-        () => {},
-      ),
+      useMultiplayerState("testRoom", () => {}),
     );
 
     act(() => {
@@ -182,10 +173,7 @@ describe("useMultiplayerState hook", () => {
   it("should handle onChangePage correctly", () => {
     const { app } = setup();
     const { result } = renderHook(() =>
-      useMultiplayerState(
-        "testRoom",
-        () => {},
-      ),
+      useMultiplayerState("testRoom", () => {}),
     );
     const shapes: Record<string, TDShape | undefined> = {
       shape1: undefined,
@@ -207,10 +195,7 @@ describe("useMultiplayerState hook", () => {
   it("should handle onChangePresence correctly", () => {
     const { app, user } = setup();
     const { result } = renderHook(() =>
-      useMultiplayerState(
-        "testRoom",
-        () => {},
-      ),
+      useMultiplayerState("testRoom", () => {}),
     );
 
     act(() => {
@@ -226,10 +211,7 @@ describe("useMultiplayerState hook", () => {
   it("should handle onOpen correctly", () => {
     const { app, mockOpenDialog, mockOpenProject } = setup();
     const { result } = renderHook(() =>
-      useMultiplayerState(
-        "testRoom",
-        () => {},
-      ),
+      useMultiplayerState("testRoom", () => {}),
     );
 
     act(() => {
