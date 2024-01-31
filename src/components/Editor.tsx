@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Tldraw, useFileSystem } from "@tldraw/tldraw";
 import { useMultiplayerState } from "../hooks/useMultiplayerState";
 import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
