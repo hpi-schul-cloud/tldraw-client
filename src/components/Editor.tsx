@@ -17,7 +17,11 @@ function Editor({
 }) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
   const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
-    useMultiplayerState(roomId, darkModeHandler, focusModeHandler);
+    useMultiplayerState({
+      roomId,
+      setIsDarkMode: darkModeHandler,
+      setIsFocusMode: focusModeHandler,
+    });
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
