@@ -224,7 +224,6 @@ export function useMultiplayerState(
   const onAssetDelete = useCallback(
     async (_app: TldrawApp, id: string): Promise<boolean> => {
       undoManager.stopCapturing();
-      console.log("deleting asset", id);
       try {
         const assets = Object.fromEntries(yAssets.entries());
         const srcArr = assets[id].src.split("/");
@@ -237,6 +236,9 @@ export function useMultiplayerState(
           throw new Error(`${response.status} - ${response.statusText}`);
         }
 
+        // remove last operation from undo stack
+        // so that user won't be able to undo the deletion of asset
+        // which has already been deleted from external storage
         undoManager.undoStack.pop();
         return true;
       } catch (error) {
