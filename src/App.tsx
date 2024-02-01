@@ -14,7 +14,10 @@ function App() {
       <div className="tldraw-content">
         <UsersInfo />
         <div className="tldraw">
-          <Editor roomId={roomId} darkModeHandler={handleDarkModeChange} />
+          <Editor
+            roomId={roomId}
+            darkModeHandler={handleDarkModeChange}
+          />
         </div>
       </div>
       <ToastContainer
