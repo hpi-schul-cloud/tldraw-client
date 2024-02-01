@@ -5,7 +5,11 @@ import { useUsersCount } from "../hooks/useUsersCount";
 function UsersInfo({ isFocusMode }: { isFocusMode: boolean }) {
   const usersCount = useUsersCount();
 
-  return isFocusMode ? null : (
+  if (isFocusMode) {
+    return null;
+  }
+
+  return (
     <div className="user-display">
       <div className="user-count">
         <Icon
