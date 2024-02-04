@@ -152,36 +152,6 @@ export function useMultiplayerState({
     [roomId],
   );
 
-  const onAssetDelete = useCallback(
-    async (_app: TldrawApp, id: string): Promise<boolean> => {
-      undoManager.stopCapturing();
-      try {
-        const assets = Object.fromEntries(yAssets.entries());
-        const srcArr = assets[id].src.split("/");
-        const fileId = srcArr[srcArr.length - 2];
-        const response = await fetch(`/api/v3/file/delete/${fileId}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-
-        // remove last operation from undo stack
-        // so that user won't be able to undo the deletion of asset
-        // which has already been deleted from external storage
-        undoManager.undoStack.pop();
-        return true;
-      } catch (error) {
-        console.error("Error while deleting asset:", error);
-        toast.error("An error occured while deleting asset");
-      }
-
-      return false;
-    },
-    [],
-  );
-
   const onPatch = useCallback(
     (app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
       if (reason?.includes("settings")) {
@@ -194,12 +164,13 @@ export function useMultiplayerState({
         setIsFocusMode(app.settings.isFocusMode);
       }
     },
-    [setIsDarkMode],
+    [setIsDarkMode, setIsFocusMode],
   );
 
   const onMount = useCallback(
     (app: TldrawApp) => {
       app.loadRoom(roomId);
+      app.document.name = `room_${roomId}`;
       // Turn off the app's own undo / redo stack
       app.pause();
       // Put the state into the window, for debugging
@@ -338,7 +309,6 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
-    onAssetDelete,
   };
 }
 
