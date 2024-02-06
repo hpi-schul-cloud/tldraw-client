@@ -3,7 +3,7 @@ import { Doc, Map, UndoManager } from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { Room } from "@y-presence/client";
 import { UserPresence } from "../types/UserPresence";
-import { getConnectionOptions } from "../utils/connectionOptions";
+import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
 import { redirectToErrorPage } from "../utils/redirectUtils";
@@ -30,7 +30,7 @@ if (!envs!.FEATURE_TLDRAW_ENABLED) {
 
 setDefaultState();
 
-const roomId = connectionOptions.roomName;
+const roomId = getRoomId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
   connectionOptions.websocketUrl,
