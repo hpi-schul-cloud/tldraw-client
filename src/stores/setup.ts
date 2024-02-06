@@ -20,13 +20,11 @@ const [connectionOptions, envs, user] = await Promise.all([
 
 if (!envs || !user) {
   setErrorData(500, "tldraw.error.500");
-  console.log("redirected from setup on error envs user");
   redirectToErrorPage();
 }
 
 if (!envs!.FEATURE_TLDRAW_ENABLED) {
   setErrorData(403, "tldraw.error.403");
-  console.log("redirected from setup on error feature");
   redirectToErrorPage();
 }
 

@@ -1,5 +1,6 @@
 import { User } from "../types/User";
 import { Cookies } from "react-cookie";
+import { redirectToLoginPage } from "./redirectUtils";
 
 export const getUserData = async (): Promise<User | undefined> => {
   try {
@@ -8,9 +9,10 @@ export const getUserData = async (): Promise<User | undefined> => {
     if (!response.ok) {
       if (response.status === 401) {
         // this means jwt is expired
-        // remove it to perform redirect to login page
+        // remove it and perform redirect to login page
         const cookies = new Cookies();
         cookies.remove("jwt");
+        redirectToLoginPage();
       }
 
       throw new Error(`${response.status} - ${response.statusText}`);
