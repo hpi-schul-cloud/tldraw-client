@@ -6,9 +6,19 @@ import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
-import { redirectToErrorPage } from "../utils/redirectUtils";
+import {
+  redirectToErrorPage,
+  redirectToLoginPage,
+} from "../utils/redirectUtils";
 import { clearErrorData, setErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
+import { Cookies } from "react-cookie";
+
+const cookies = new Cookies();
+const token = cookies.get("jwt");
+if (!token) {
+  redirectToLoginPage();
+}
 
 const [connectionOptions, envs, user] = await Promise.all([
   getConnectionOptions(),
