@@ -8,11 +8,13 @@ export function useJwtHandler() {
   const token = cookies.jwt;
   const roomId = getRoomId();
 
+  console.log("token", token);
   useEffect(() => {
     if (!token) {
+      console.log("redirected from useJwtHandler");
       redirectToLoginPage(roomId);
     }
-  }, [token]);
+  }, [roomId, token]);
 
   return;
 }

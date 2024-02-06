@@ -10,21 +10,23 @@ import { redirectToErrorPage } from "../utils/redirectUtils";
 import { clearErrorData, setErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
 
+clearErrorData();
+
 const [connectionOptions, envs, user] = await Promise.all([
   getConnectionOptions(),
   getEnvs(),
   getUserData(),
 ]);
 
-clearErrorData();
-
 if (!envs || !user) {
   setErrorData(500, "tldraw.error.500");
+  console.log("redirected from setup on error envs user");
   redirectToErrorPage();
 }
 
 if (!envs!.FEATURE_TLDRAW_ENABLED) {
   setErrorData(403, "tldraw.error.403");
+  console.log("redirected from setup on error feature");
   redirectToErrorPage();
 }
 
