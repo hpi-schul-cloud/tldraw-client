@@ -1,10 +1,12 @@
+import { ConnectionOptions } from "../types/ConnectionOptions";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 
-export const getConnectionOptions = async (): Promise<{
-  websocketUrl: string;
-}> => {
+export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
+  const urlParams = new URLSearchParams(window.location.search);
+
   const connectionOptions = {
+    roomName: urlParams.get("roomName") ?? "",
     websocketUrl: "ws://localhost:3345",
   };
 
@@ -26,11 +28,4 @@ export const getConnectionOptions = async (): Promise<{
   }
 
   return connectionOptions;
-};
-
-export const getRoomId = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("roomName") ?? "";
-
-  return roomId;
 };
