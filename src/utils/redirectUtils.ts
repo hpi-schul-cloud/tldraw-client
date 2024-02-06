@@ -1,6 +1,4 @@
-import { roomId } from "../stores/setup";
-
-export const redirectToLoginPage = () => {
+export const redirectToLoginPage = (roomId: string) => {
   if (import.meta.env.PROD) {
     window.location.assign(`/login?redirect=/tldraw?roomName=${roomId}`);
   } else {

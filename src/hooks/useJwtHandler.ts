@@ -1,5 +1,6 @@
 import { useCookies } from "react-cookie";
 import { useEffect } from "react";
+import { roomId } from "../stores/setup";
 import { redirectToLoginPage } from "../utils/redirectUtils";
 
 export function useJwtHandler() {
@@ -8,7 +9,7 @@ export function useJwtHandler() {
 
   useEffect(() => {
     if (!token) {
-      redirectToLoginPage();
+      redirectToLoginPage(roomId);
     }
   }, [token]);
 

@@ -19,7 +19,7 @@ const roomId = getRoomId();
 const cookies = new Cookies();
 const token = cookies.get("jwt");
 if (!token) {
-  redirectToLoginPage();
+  redirectToLoginPage(roomId);
 }
 
 const [connectionOptions, envs, user] = await Promise.all([
