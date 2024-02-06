@@ -6,30 +6,23 @@ import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
-import { redirectToErrorPage } from "../utils/redirectUtils";
-import { clearErrorData, setErrorData } from "../utils/errorData";
+import { handleRedirectIfNotValid } from "../utils/redirectUtils";
+import { clearErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
 
 clearErrorData();
 
-const [connectionOptions, envs, user] = await Promise.all([
+const [connectionOptions, envs, userResult] = await Promise.all([
   getConnectionOptions(),
   getEnvs(),
   getUserData(),
 ]);
 
-if (!envs || !user) {
-  setErrorData(500, "tldraw.error.500");
-  redirectToErrorPage();
-}
-
-if (!envs!.FEATURE_TLDRAW_ENABLED) {
-  setErrorData(403, "tldraw.error.403");
-  redirectToErrorPage();
-}
+handleRedirectIfNotValid(userResult, envs);
 
 setDefaultState();
 
+const user = userResult.user;
 const roomId = getRoomId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
