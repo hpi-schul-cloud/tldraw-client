@@ -25,10 +25,10 @@ function Editor({
     onExport,
     ...events
   } = useMultiplayerState({
-      roomId,
-      setIsDarkMode: darkModeHandler,
-      setIsFocusMode: focusModeHandler,
-    });
+    roomId,
+    setIsDarkMode: darkModeHandler,
+    setIsFocusMode: focusModeHandler,
+  });
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
