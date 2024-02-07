@@ -101,7 +101,7 @@ const addShapeToSvg = (
       return;
     }
 
-    // Just add the shape's element to the
+    // Just add the shape's element to the svg
     const elm = getSvgElementForShape(shape, commonBounds, app);
 
     if (elm) {
