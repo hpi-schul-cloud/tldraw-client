@@ -27,7 +27,7 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
-import { getBlob } from "../utils/exportUtils";
+import { getImageBlob } from "../utils/imageExportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -242,7 +242,7 @@ export function useMultiplayerState({
 
   const onExport = useCallback(
     async (app: TldrawApp, info: TDExport) => {
-      const blob = await getBlob(app, info.type);
+      const blob = await getImageBlob(app, info.type);
       if (!blob) return;
 
       const url = URL.createObjectURL(blob);
