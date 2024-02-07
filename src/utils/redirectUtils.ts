@@ -3,6 +3,7 @@ import { getRoomId } from "./connectionOptions";
 import { UserResult } from "../types/User";
 import { Envs } from "../types/Envs";
 import { setErrorData } from "./errorData";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
 
 export const redirectToLoginPage = () => {
   const roomId = getRoomId();
@@ -27,7 +28,7 @@ export const handleRedirectIfNotValid = (
   userResult: UserResult,
   envs?: Envs,
 ) => {
-  if (userResult.statusCode === 401) {
+  if (userResult.statusCode === HttpStatusCode.Unauthorized) {
     // this means jwt is expired
     // remove it to perform redirect to login page
     const cookies = new Cookies();
@@ -36,13 +37,13 @@ export const handleRedirectIfNotValid = (
   }
 
   if (!envs || !userResult.user) {
-    setErrorData(500, "tldraw.error.500");
+    setErrorData(HttpStatusCode.InternalServerError, "tldraw.error.500");
     redirectToErrorPage();
     return;
   }
 
   if (!envs!.FEATURE_TLDRAW_ENABLED) {
-    setErrorData(403, "tldraw.error.403");
+    setErrorData(HttpStatusCode.Forbidden, "tldraw.error.403");
     redirectToErrorPage();
     return;
   }

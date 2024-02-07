@@ -1,9 +1,10 @@
 import { User, UserResult } from "../types/User";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
 
 export const getUserData = async (): Promise<UserResult> => {
   const userResult: UserResult = {
     user: undefined,
-    statusCode: 500,
+    statusCode: HttpStatusCode.InternalServerError,
   };
 
   try {
