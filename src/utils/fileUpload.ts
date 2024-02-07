@@ -1,3 +1,5 @@
+import { FILE_API_BOARDNODES, FILE_API_UPLOAD } from "../configuration/api";
+
 export const uploadFileToStorage = async (
   file: File,
   fileExtension: string,
@@ -13,7 +15,7 @@ export const uploadFileToStorage = async (
   formData.append("file", fileToUpload);
 
   const response = await fetch(
-    `/api/v3/file/upload/${schoolId}/boardnodes/${roomId}`,
+    `${FILE_API_UPLOAD}${schoolId}/${FILE_API_BOARDNODES}/${roomId}`,
     {
       method: "POST",
       body: formData,

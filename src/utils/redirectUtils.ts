@@ -3,11 +3,12 @@ import { UserResult } from "../types/User";
 import { Envs } from "../types/Envs";
 import { setErrorData } from "./errorData";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
+import { LOGIN_REDIRECT_API } from "../configuration/api";
 
 const redirectToLoginPage = () => {
   const roomId = getRoomId();
   if (import.meta.env.PROD) {
-    window.location.assign(`/login?redirect=/tldraw?roomName=${roomId}`);
+    window.location.assign(`${LOGIN_REDIRECT_API}${roomId}`);
   } else {
     window.location.assign(
       `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`,

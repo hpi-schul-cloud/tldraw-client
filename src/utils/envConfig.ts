@@ -1,8 +1,9 @@
 import { Envs } from "../types/Envs";
+import { ENV_CONFIG_API } from "../configuration/api";
 
 export const getEnvs = async (): Promise<Envs | undefined> => {
   try {
-    const response = await fetch(`/api/v1/config/app/public`);
+    const response = await fetch(ENV_CONFIG_API);
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);
