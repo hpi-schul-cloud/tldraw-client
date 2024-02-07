@@ -1,4 +1,3 @@
-import { Cookies } from "react-cookie";
 import { getRoomId } from "./connectionOptions";
 import { UserResult } from "../types/User";
 import { Envs } from "../types/Envs";
@@ -26,10 +25,7 @@ const redirectToErrorPage = () => {
 
 const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
   if (userResult.statusCode === HttpStatusCode.Unauthorized) {
-    // this means jwt is expired
-    // remove it to perform redirect to login page
-    const cookies = new Cookies();
-    cookies.remove("jwt");
+    redirectToLoginPage();
     return;
   }
 
