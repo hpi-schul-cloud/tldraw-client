@@ -1,3 +1,4 @@
+import * as lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
@@ -26,6 +27,7 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
+import { saveToFileSystem } from "../utils/boardExportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -82,14 +84,50 @@ export function useMultiplayerState({
 
           app.zoomToContent();
           app.zoomToFit();
-        } catch (e) {
-          console.error("Error while opening project", e);
+        } catch (error) {
+          console.error("Error while opening project", error);
           toast.error("An error occured while opening project");
         }
       };
     },
     [onOpenProject],
   );
+
+  const onSave = useCallback(async (app: TldrawApp) => {
+    try {
+      const copiedDocument = lodash.cloneDeep(app.document);
+      const handle = await saveToFileSystem(
+        copiedDocument,
+        app.fileSystemHandle,
+        app.document.name,
+      );
+
+      if (handle) {
+        app.fileSystemHandle = handle;
+      }
+    } catch (error) {
+      console.error("Error while exporting project");
+      toast.error("An error occured while exporting project");
+    }
+  }, []);
+
+  const onSaveAs = useCallback(async (app: TldrawApp) => {
+    try {
+      const copiedDocument = lodash.cloneDeep(app.document);
+      const handle = await saveToFileSystem(
+        copiedDocument,
+        app.fileSystemHandle,
+        app.document.name,
+      );
+
+      if (handle) {
+        app.fileSystemHandle = handle;
+      }
+    } catch (error) {
+      console.error("Error while exporting project");
+      toast.error("An error occured while exporting project");
+    }
+  }, []);
 
   const onAssetCreate = useCallback(
     async (
@@ -327,6 +365,8 @@ export function useMultiplayerState({
     onRedo,
     onMount,
     onOpen,
+    onSave,
+    onSaveAs,
     onChangePage,
     onChangePresence,
     loading,
