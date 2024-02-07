@@ -26,6 +26,7 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
+import { uploadFileToStorage } from "../utils/fileUpload";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -110,7 +111,6 @@ export function useMultiplayerState({
         return false;
       }
 
-      undoManager.stopCapturing();
       const fileExtension = file.name.split(".").pop()!;
       if (
         envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
@@ -120,28 +120,18 @@ export function useMultiplayerState({
         return false;
       }
 
+      undoManager.stopCapturing();
+
       try {
-        const fileToUpload = new File([file], `${id}.${fileExtension}`, {
-          type: file.type,
-        });
-
-        const formData = new FormData();
-        formData.append("file", fileToUpload);
-
-        const response = await fetch(
-          `/api/v3/file/upload/${user!.schoolId}/boardnodes/${roomId}`,
-          {
-            method: "POST",
-            body: formData,
-          },
+        const url = await uploadFileToStorage(
+          file,
+          fileExtension,
+          id,
+          user!.schoolId,
+          roomId,
         );
 
-        if (!response.ok) {
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.url;
+        return url;
       } catch (error) {
         console.error("Error while uploading asset:", error);
         toast.error("An error occured while uploading asset");

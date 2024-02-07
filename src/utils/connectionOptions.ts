@@ -2,7 +2,7 @@ import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
 
-export const getConnectionOptions = async (): Promise<{
+const getConnectionOptions = async (): Promise<{
   websocketUrl: string;
 }> => {
   const connectionOptions = {
@@ -29,9 +29,11 @@ export const getConnectionOptions = async (): Promise<{
   return connectionOptions;
 };
 
-export const getRoomId = () => {
+const getRoomId = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("roomName") ?? "";
 
   return roomId;
 };
+
+export { getConnectionOptions, getRoomId };

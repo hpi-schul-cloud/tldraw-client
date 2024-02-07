@@ -5,7 +5,7 @@ import { Envs } from "../types/Envs";
 import { setErrorData } from "./errorData";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
 
-export const redirectToLoginPage = () => {
+const redirectToLoginPage = () => {
   const roomId = getRoomId();
   if (import.meta.env.PROD) {
     window.location.assign(`/login?redirect=/tldraw?roomName=${roomId}`);
@@ -16,7 +16,7 @@ export const redirectToLoginPage = () => {
   }
 };
 
-export const redirectToErrorPage = () => {
+const redirectToErrorPage = () => {
   if (import.meta.env.PROD) {
     window.location.assign("/error");
   } else {
@@ -24,10 +24,7 @@ export const redirectToErrorPage = () => {
   }
 };
 
-export const handleRedirectIfNotValid = (
-  userResult: UserResult,
-  envs?: Envs,
-) => {
+const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
   if (userResult.statusCode === HttpStatusCode.Unauthorized) {
     // this means jwt is expired
     // remove it to perform redirect to login page
@@ -48,3 +45,5 @@ export const handleRedirectIfNotValid = (
     return;
   }
 };
+
+export { redirectToLoginPage, redirectToErrorPage, handleRedirectIfNotValid };
