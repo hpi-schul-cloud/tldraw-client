@@ -5,7 +5,6 @@ import {
   TDUser,
   TldrawApp,
   TldrawPatch,
-  useFileSystem,
 } from "@tldraw/tldraw";
 import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
@@ -26,7 +25,7 @@ import { UserPresence } from "../types/UserPresence";
 import {
   importAssetsToS3,
   openFromFileSystem,
-} from "../utils/imageImportUtils";
+} from "../utils/boardImportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -43,57 +42,8 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const { onOpenProject } = useFileSystem();
 
   // Callbacks --------------
-
-  const onOpen = useCallback(
-    async (
-      app: TldrawApp,
-      openDialog: (
-        dialogState: "saveFirstTime" | "saveAgain",
-        onYes: () => Promise<void>,
-        onNo: () => Promise<void>,
-        onCancel: () => Promise<void>,
-      ) => void,
-    ) => {
-      undoManager.stopCapturing();
-      await onOpenProject(app, openDialog);
-      app.openProject = async () => {
-        try {
-          app.setIsLoading(true);
-          const result = await openFromFileSystem();
-
-          if (!result) {
-            console.error("Error while opening file");
-            toast.error("An error occured while opening file");
-            return;
-          }
-
-          const { document } = result;
-          await importAssetsToS3(document, roomId, user!.schoolId);
-
-          yShapes.clear();
-          yBindings.clear();
-          yAssets.clear();
-          undoManager.clear();
-          updateDoc(
-            document.pages.page.shapes,
-            document.pages.page.bindings,
-            document.assets,
-          );
-
-          app.zoomToContent();
-          app.zoomToFit();
-        } catch (e) {
-          console.error("Error while opening project", e);
-          toast.error("An error occured while opening project");
-        }
-        app.setIsLoading(false);
-      };
-    },
-    [onOpenProject],
-  );
 
   const onAssetCreate = useCallback(
     async (
@@ -203,6 +153,40 @@ export function useMultiplayerState({
       // Put the state into the window, for debugging
       window.app = app;
       setApp(app);
+
+      app.openProject = async () => {
+        try {
+          app.setIsLoading(true);
+          const result = await openFromFileSystem();
+
+          if (!result) {
+            console.error("Error while opening file");
+            toast.error("An error occured while opening file");
+            return;
+          }
+
+          const { document, fileHandle } = result;
+          await importAssetsToS3(document, roomId, user!.schoolId);
+
+          yShapes.clear();
+          yBindings.clear();
+          yAssets.clear();
+          undoManager.clear();
+          updateDoc(
+            document.pages.page.shapes,
+            document.pages.page.bindings,
+            document.assets,
+          );
+
+          app.fileSystemHandle = fileHandle;
+          app.zoomToContent();
+          app.zoomToFit();
+        } catch (e) {
+          console.error("Error while opening project", e);
+          toast.error("An error occured while opening project");
+        }
+        app.setIsLoading(false);
+      };
     },
     [roomId],
   );
@@ -330,7 +314,6 @@ export function useMultiplayerState({
     onUndo,
     onRedo,
     onMount,
-    onOpen,
     onChangePage,
     onChangePresence,
     loading,

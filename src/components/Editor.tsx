@@ -15,8 +15,9 @@ function Editor({
   darkModeHandler: (isDarkMode: boolean) => void;
   focusModeHandler: (isFocusMode: boolean) => void;
 }) {
-  const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
-  const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
+  const { onSaveProjectAs, onSaveProject, onOpenMedia, onOpenProject } =
+    useFileSystem();
+  const { onMount, onAssetCreate, onAssetDelete, onPatch, ...events } =
     useMultiplayerState({
       roomId,
       setIsDarkMode: darkModeHandler,
@@ -44,7 +45,7 @@ function Editor({
         onPatch={onPatch}
         darkMode={isDarkMode}
         {...events}
-        onOpenProject={onOpen}
+        onOpenProject={onOpenProject}
         onSaveProject={onSaveProject}
         onSaveProjectAs={onSaveProjectAs}
         onOpenMedia={onOpenMedia}

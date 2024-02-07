@@ -2,7 +2,7 @@ import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
 
-export const openFromFileSystem = async (): Promise<null | {
+const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
   document: TDDocument;
 }> => {
@@ -46,45 +46,17 @@ export const openFromFileSystem = async (): Promise<null | {
   };
 };
 
-export const base64ToBlob = (base64: string): Promise<Blob> => {
-  const blob = fetch(base64).then((res) => res.blob());
-
-  return blob;
-};
-
-export const uploadAction = (
-  blob: Blob,
-  roomId: string,
-  schoolId: string,
-  asset: TDAsset,
-): Promise<{ url: string }> => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const extension = asset.name.split(".").pop()!;
-  const fileToUpload = new File([blob], `${asset.id}.${extension}`, {
-    type: blob.type,
-  });
-  const formData = new FormData();
-  formData.append("file", fileToUpload);
-  const response = fetch(
-    `/api/v3/file/upload/${schoolId}/boardnodes/${roomId}`,
-    {
-      method: "POST",
-      body: formData,
-    },
-  ).then((res) => res.json());
-
-  return response;
-};
-
-export const importAssetsToS3 = async (
+const importAssetsToS3 = async (
   document: TDDocument,
   roomId: string,
   schoolId: string,
 ): Promise<void> => {
   const assets = Object.values(document.assets);
-  const blobActions = assets.map(async (asset) => base64ToBlob(asset.src));
+  const blobActions = assets.map(async (asset) =>
+    base64ToBlobAction(asset.src),
+  );
   const blobsForUpload = await Promise.all(blobActions);
+
   const uploadActions = blobsForUpload.map((blob, index) =>
     uploadAction(blob, roomId, schoolId, assets[index]),
   );
@@ -94,3 +66,39 @@ export const importAssetsToS3 = async (
     assets[index].src = uploadBlobResult.url;
   });
 };
+
+const base64ToBlobAction = (base64: string): Promise<Blob> => {
+  const promise = fetch(base64).then((res) => res.blob());
+
+  return promise;
+};
+
+const uploadAction = (
+  blob: Blob,
+  roomId: string,
+  schoolId: string,
+  asset: TDAsset,
+): Promise<{ url: string }> => {
+  // needed because of a tldraw bug in the TDAsset type
+  // property is defined as fileName but is actually stored as name
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const extension = asset.name.split(".").pop();
+  const fileToUpload = new File([blob], `${asset.id}.${extension}`, {
+    type: blob.type,
+  });
+  const formData = new FormData();
+  formData.append("file", fileToUpload);
+
+  const promise: Promise<{ url: string }> = fetch(
+    `/api/v3/file/upload/${schoolId}/boardnodes/${roomId}`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  ).then((res) => res.json());
+
+  return promise;
+};
+
+export { openFromFileSystem, importAssetsToS3 };
