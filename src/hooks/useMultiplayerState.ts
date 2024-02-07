@@ -2,6 +2,7 @@ import {
   TDAsset,
   TDBinding,
   TDDocument,
+  TDExport,
   TDFile,
   TDShape,
   TDUser,
@@ -26,6 +27,7 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
+import { getBlob } from "../utils/exportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -262,6 +264,7 @@ export function useMultiplayerState(
   const onMount = useCallback(
     (app: TldrawApp) => {
       app.loadRoom(roomId);
+      app.document.name = `room-${roomId}`;
       // Turn off the app's own undo / redo stack
       app.pause();
       // Put the state into the window, for debugging
@@ -304,6 +307,20 @@ export function useMultiplayerState(
     };
     room.updatePresence({ tdUser });
   }, []);
+
+  const onExport = useCallback(
+    async (app: TldrawApp, info: TDExport) => {
+      const blob = await getBlob(app, info.type);
+      if (!blob) return;
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${roomId}_export.${info.type}`;
+      link.click();
+    },
+    [roomId],
+  );
 
   // Document Changes --------
 
@@ -395,6 +412,7 @@ export function useMultiplayerState(
     onRedo,
     onMount,
     onOpen,
+    onExport,
     onChangePage,
     onChangePresence,
     loading,
