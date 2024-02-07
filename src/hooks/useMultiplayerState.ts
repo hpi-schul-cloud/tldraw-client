@@ -57,30 +57,26 @@ export function useMultiplayerState({
         onCancel: () => Promise<void>,
       ) => void,
     ) => {
-      console.log("start on open");
       undoManager.stopCapturing();
       await onOpenProject(app, openDialog);
       app.openProject = async () => {
         try {
-          console.log("start on open project");
+          app.setIsLoading(true);
           const result = await openFromFileSystem();
+
           if (!result) {
             console.error("Error while opening file");
             toast.error("An error occured while opening file");
             return;
           }
 
-          console.log("2");
           const { document } = result;
-          setLoading(true);
-          await importAssetsToS3(document, roomId);
+          await importAssetsToS3(document, roomId, user!.schoolId);
 
           yShapes.clear();
           yBindings.clear();
           yAssets.clear();
           undoManager.clear();
-
-          console.log("3");
           updateDoc(
             document.pages.page.shapes,
             document.pages.page.bindings,
@@ -89,11 +85,11 @@ export function useMultiplayerState({
 
           app.zoomToContent();
           app.zoomToFit();
-          setLoading(false);
         } catch (e) {
           console.error("Error while opening project", e);
           toast.error("An error occured while opening project");
         }
+        app.setIsLoading(false);
       };
     },
     [onOpenProject],

@@ -1,7 +1,6 @@
-import { TDDocument, TDFile } from "@tldraw/tldraw";
+import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
-import { user } from "../stores/setup";
 
 export const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
@@ -47,44 +46,51 @@ export const openFromFileSystem = async (): Promise<null | {
   };
 };
 
-export const base64ToFile = (base64: string, name: string): File => {
-  const byteString = atob(base64.split(",")[1]);
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  return new File([ab], name, { type: "image/png" });
+export const base64ToBlob = (base64: string): Promise<Blob> => {
+  const blob = fetch(base64).then((res) => res.blob());
+
+  return blob;
+};
+
+export const uploadAction = (
+  blob: Blob,
+  roomId: string,
+  schoolId: string,
+  asset: TDAsset,
+): Promise<{ url: string }> => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const extension = asset.name.split(".").pop()!;
+  const fileToUpload = new File([blob], `${asset.id}.${extension}`, {
+    type: blob.type,
+  });
+  const formData = new FormData();
+  formData.append("file", fileToUpload);
+  const response = fetch(
+    `/api/v3/file/upload/${schoolId}/boardnodes/${roomId}`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  ).then((res) => res.json());
+
+  return response;
 };
 
 export const importAssetsToS3 = async (
   document: TDDocument,
   roomId: string,
+  schoolId: string,
 ): Promise<void> => {
-  const assetsForUpload: Promise<Response>[] = [];
+  const assets = Object.values(document.assets);
+  const blobActions = assets.map(async (asset) => base64ToBlob(asset.src));
+  const blobsForUpload = await Promise.all(blobActions);
+  const uploadActions = blobsForUpload.map((blob, index) =>
+    uploadAction(blob, roomId, schoolId, assets[index]),
+  );
+  const uploadBlobResults = await Promise.all(uploadActions);
 
-  Object.values(document.assets).forEach((asset) => {
-    const fileToUpload = base64ToFile(asset.src, asset.fileName);
-
-    const formData = new FormData();
-    formData.append("file", fileToUpload);
-
-    const blobUploadPromise = fetch(
-      `/api/v3/file/upload/${user!.schoolId}/boardnodes/${roomId}`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-    assetsForUpload.push(blobUploadPromise);
-  });
-
-  const filesUploadedResponses = await Promise.allSettled(assetsForUpload);
-
-  filesUploadedResponses.forEach((uploadedFileResponse) => {
-    if (uploadedFileResponse.status === "rejected") {
-      //todo: error handling
-      console.log("USUN REFERENCJE");
-    }
+  uploadBlobResults.forEach((uploadBlobResult, index) => {
+    assets[index].src = uploadBlobResult.url;
   });
 };
