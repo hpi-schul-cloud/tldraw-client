@@ -64,8 +64,6 @@ export const importAssetsToS3 = async (
   const assetsForUpload: Promise<Response>[] = [];
 
   Object.values(document.assets).forEach((asset) => {
-    asset.src = "base64";
-
     const fileToUpload = base64ToFile(asset.src, asset.fileName);
 
     const formData = new FormData();
