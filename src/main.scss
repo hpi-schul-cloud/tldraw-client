@@ -3,17 +3,18 @@
   font-style: normal;
   font-weight: 400;
   src: url("assets/fonts/PT_Sans-Web-Regular.eot"); /* IE9 Compat Modes */
-  src: local("PT Sans"), local("PTSans-Regular"),
-  url("assets/fonts/PT_Sans-Web-Regular.eot?#iefix")
-  format("embedded-opentype"),
-    /* IE6-IE8 */ url("assets/fonts/PT_Sans-Web-Regular.woff2")
-  format("woff2"),
+  src:
+    local("PT Sans"),
+    local("PTSans-Regular"),
+    url("assets/fonts/PT_Sans-Web-Regular.eot?#iefix")
+      format("embedded-opentype"),
+    /* IE6-IE8 */ url("assets/fonts/PT_Sans-Web-Regular.woff2") format("woff2"),
     /* Super Modern Browsers */ url("assets/fonts/PT_Sans-Web-Regular.woff")
-  format("woff"),
+      format("woff"),
     /* Modern Browsers */ url("assets/fonts/PT_Sans-Web-Regular.ttf")
-  format("truetype"),
+      format("truetype"),
     /* Safari, Android, iOS */
-  url("assets/fonts/PT_Sans-Web-Regular.svg#PTSans") format("svg"); /* Legacy iOS */
+      url("assets/fonts/PT_Sans-Web-Regular.svg#PTSans") format("svg"); /* Legacy iOS */
 }
 
 @font-face {
@@ -21,16 +22,17 @@
   font-style: normal;
   font-weight: 700;
   src: url("assets/fonts/PT_Sans-Web-Bold.eot"); /* IE9 Compat Modes */
-  src: local("PT Sans Bold"), local("PTSans-Bold"),
-  url("assets/fonts/PT_Sans-Web-Bold.eot?#iefix")
-  format("embedded-opentype"),
+  src:
+    local("PT Sans Bold"),
+    local("PTSans-Bold"),
+    url("assets/fonts/PT_Sans-Web-Bold.eot?#iefix") format("embedded-opentype"),
     /* IE6-IE8 */ url("assets/fonts/PT_Sans-Web-Bold.woff2") format("woff2"),
     /* Super Modern Browsers */ url("assets/fonts/PT_Sans-Web-Bold.woff")
-  format("woff"),
+      format("woff"),
     /* Modern Browsers */ url("assets/fonts/PT_Sans-Web-Bold.ttf")
-  format("truetype"),
+      format("truetype"),
     /* Safari, Android, iOS */ url("assets/fonts/PT_Sans-Web-Bold.svg#PTSans")
-  format("svg"); /* Legacy iOS */
+      format("svg"); /* Legacy iOS */
 }
 
 @font-face {
@@ -38,18 +40,20 @@
   font-style: normal;
   font-weight: 400;
   src: url("assets/fonts/PT_Sans-Narrow-Web-Regular.eot"); /* IE9 Compat Modes */
-  src: local("PT Sans Narrow"), local("PTSans-Narrow"),
-  url("assets/fonts/PT_Sans-Narrow-Web-Regular.eot?#iefix")
-  format("embedded-opentype"),
+  src:
+    local("PT Sans Narrow"),
+    local("PTSans-Narrow"),
+    url("assets/fonts/PT_Sans-Narrow-Web-Regular.eot?#iefix")
+      format("embedded-opentype"),
     /* IE6-IE8 */ url("assets/fonts/PT_Sans-Narrow-Web-Regular.woff2")
-  format("woff2"),
+      format("woff2"),
     /* Super Modern Browsers */
-  url("assets/fonts/PT_Sans-Narrow-Web-Regular.woff") format("woff"),
+      url("assets/fonts/PT_Sans-Narrow-Web-Regular.woff") format("woff"),
     /* Modern Browsers */ url("assets/fonts/PT_Sans-Narrow-Web-Regular.ttf")
-  format("truetype"),
+      format("truetype"),
     /* Safari, Android, iOS */
-  url("assets/fonts/PT_Sans-Narrow-Web-Regular.svg#PTSansNarrow")
-  format("svg"); /* Legacy iOS */
+      url("assets/fonts/PT_Sans-Narrow-Web-Regular.svg#PTSansNarrow")
+      format("svg"); /* Legacy iOS */
 }
 
 @font-face {
@@ -57,18 +61,19 @@
   font-style: normal;
   font-weight: 700;
   src: url("assets/fonts/PT_Sans-Narrow-Web-Bold.eot"); /* IE9 Compat Modes */
-  src: local("PT Sans Narrow Bold"), local("PTSans-NarrowBold"),
-  url("assets/fonts/PT_Sans-Narrow-Web-Bold.eot?#iefix")
-  format("embedded-opentype"),
+  src:
+    local("PT Sans Narrow Bold"),
+    local("PTSans-NarrowBold"),
+    url("assets/fonts/PT_Sans-Narrow-Web-Bold.eot?#iefix")
+      format("embedded-opentype"),
     /* IE6-IE8 */ url("assets/fonts/PT_Sans-Narrow-Web-Bold.woff2")
-  format("woff2"),
-    /* Super Modern Browsers */
-  url("assets/fonts/PT_Sans-Narrow-Web-Bold.woff") format("woff"),
+      format("woff2"),
+    /* Super Modern Browsers */ url("assets/fonts/PT_Sans-Narrow-Web-Bold.woff")
+      format("woff"),
     /* Modern Browsers */ url("assets/fonts/PT_Sans-Narrow-Web-Bold.ttf")
-  format("truetype"),
+      format("truetype"),
     /* Safari, Android, iOS */
-  url("assets/fonts/PT_Sans-Narrow-Web-Bold.svg#PTSansNarrow")
-  format("svg"); /* Legacy iOS */
+      url("assets/fonts/PT_Sans-Narrow-Web-Bold.svg#PTSansNarrow") format("svg"); /* Legacy iOS */
 }
 
 $primary-padding: 20px;
@@ -93,7 +98,9 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: PT Sans, sans-serif;
+  font-family:
+    PT Sans,
+    sans-serif;
 }
 
 a {
@@ -165,6 +172,8 @@ a {
 
 .tldraw-cursor-container {
   margin: 15px 0 0 14px;
+  transform: scale(var(--tl-scale));
+  width: fit-content;
 
   .tldraw-username-container {
     display: flex;
@@ -173,7 +182,9 @@ a {
     .tldraw-username {
       display: flex;
       flex: 1 0 auto;
-      font-family: PT Sans Narrow, sans-serif;
+      font-family:
+        PT Sans Narrow,
+        sans-serif;
       font-weight: 700;
       font-size: 14px;
       line-height: 20px;

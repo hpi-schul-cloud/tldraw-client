@@ -102,6 +102,9 @@ describe("useMultiplayerState hook", () => {
     const mockOpenDialog = vi.fn();
     const mockOpenProject = vi.fn();
 
+    const setIsDarkMode = vi.fn();
+    const setIsFocusMode = vi.fn();
+
     const useFileSystemSpy = vi.spyOn(Tldraw, "useFileSystem").mockReturnValue({
       onOpenProject: mockOpenProject,
       onNewProject: vi.fn(),
@@ -128,15 +131,21 @@ describe("useMultiplayerState hook", () => {
       user,
       useFileSystemSpy,
       mockOpenDialog,
+      setIsDarkMode,
+      setIsFocusMode,
       mockOpenProject,
     };
   };
 
+  const multiPlayerProps = {
+    roomId: "testRoom",
+    setIsDarkMode: vi.fn(),
+    setIsFocusMode: vi.fn(),
+  };
+
   it("should handle onMount correctly", () => {
     const { app, loadRoomSpy, pauseSpy } = setup();
-    const { result } = renderHook(() =>
-      useMultiplayerState("testRoom", () => {}),
-    );
+    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
       result.current.onMount(app);
@@ -146,10 +155,26 @@ describe("useMultiplayerState hook", () => {
     expect(pauseSpy).toHaveBeenCalled();
   });
 
-  it("should handle onUndo correctly", () => {
+  it("should handle setIsDarkMode and setIsFocusMode correctly", () => {
+    const { app, setIsDarkMode, setIsFocusMode } = setup();
     const { result } = renderHook(() =>
-      useMultiplayerState("testRoom", () => {}),
+      useMultiplayerState({
+        ...multiPlayerProps,
+        setIsDarkMode,
+        setIsFocusMode,
+      }),
     );
+
+    act(() => {
+      result.current.onPatch(app, {}, "settings");
+
+      expect(setIsDarkMode).toHaveBeenCalledWith(app.settings.isDarkMode);
+      expect(setIsFocusMode).toHaveBeenCalledWith(app.settings.isFocusMode);
+    });
+  });
+
+  it("should handle onUndo correctly", () => {
+    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
       result.current.onUndo();
@@ -159,9 +184,7 @@ describe("useMultiplayerState hook", () => {
   });
 
   it("should handle onRedo correctly", () => {
-    const { result } = renderHook(() =>
-      useMultiplayerState("testRoom", () => {}),
-    );
+    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
       result.current.onRedo();
@@ -172,9 +195,7 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onChangePage correctly", () => {
     const { app } = setup();
-    const { result } = renderHook(() =>
-      useMultiplayerState("testRoom", () => {}),
-    );
+    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
     const shapes: Record<string, TDShape | undefined> = {
       shape1: undefined,
     };
@@ -194,9 +215,7 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onChangePresence correctly", () => {
     const { app, user } = setup();
-    const { result } = renderHook(() =>
-      useMultiplayerState("testRoom", () => {}),
-    );
+    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
       app.loadRoom("testRoom");
@@ -210,9 +229,7 @@ describe("useMultiplayerState hook", () => {
 
   it("should handle onOpen correctly", () => {
     const { app, mockOpenDialog, mockOpenProject } = setup();
-    const { result } = renderHook(() =>
-      useMultiplayerState("testRoom", () => {}),
-    );
+    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
       result.current.onOpen(app, mockOpenDialog);

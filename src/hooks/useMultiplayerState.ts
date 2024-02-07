@@ -31,89 +31,20 @@ import { getBlob } from "../utils/exportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
-export function useMultiplayerState(
-  roomId: string,
-  setIsDarkMode: (isDarkMode: boolean) => void,
-) {
+interface MultiplayerStateProps {
+  roomId: string;
+  setIsDarkMode: (isDarkMode: boolean) => void;
+  setIsFocusMode: (isFocusMode: boolean) => void;
+}
+
+export function useMultiplayerState({
+  roomId,
+  setIsDarkMode,
+  setIsFocusMode,
+}: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
   const { onOpenProject } = useFileSystem();
-
-  const openFromFileSystem = async (): Promise<null | {
-    fileHandle: FileSystemFileHandle | null;
-    document: TDDocument;
-  }> => {
-    // Get the blob
-    const blob = await fileOpen({
-      description: "Tldraw File",
-      extensions: [".tldr"],
-      multiple: false,
-    });
-
-    if (!blob) return null;
-
-    // Get JSON from blob
-    const json: string = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.readyState === FileReader.DONE) {
-          resolve(reader.result as string);
-        }
-      };
-      reader.readAsText(blob, "utf8");
-    });
-
-    // Parse
-    const file: TDFile = JSON.parse(json);
-    if ("tldrawFileFormatVersion" in file) {
-      console.error(
-        "This file was created in a newer version of tldraw and it cannot be opened",
-      );
-      toast.info(
-        "This file was created in a newer version of tldraw and it cannot be opened",
-      );
-      return null;
-    }
-
-    const fileHandle = blob.handle ?? null;
-
-    return {
-      fileHandle,
-      document: file.document,
-    };
-  };
-
-  const updateDoc = (
-    shapes: Record<string, TDShape | undefined>,
-    bindings: Record<string, TDBinding | undefined>,
-    assets: Record<string, TDAsset | undefined>,
-  ) => {
-    doc.transact(() => {
-      Object.entries(shapes).forEach(([id, shape]) => {
-        if (!shape) {
-          yShapes.delete(id);
-        } else {
-          yShapes.set(shape.id, shape);
-        }
-      });
-
-      Object.entries(bindings).forEach(([id, binding]) => {
-        if (!binding) {
-          yBindings.delete(id);
-        } else {
-          yBindings.set(binding.id, binding);
-        }
-      });
-
-      Object.entries(assets).forEach(([id, asset]) => {
-        if (!asset) {
-          yAssets.delete(id);
-        } else {
-          yAssets.set(asset.id, asset);
-        }
-      });
-    });
-  };
 
   // Callbacks --------------
 
@@ -256,6 +187,7 @@ export function useMultiplayerState(
         );
 
         setIsDarkMode(app.settings.isDarkMode);
+        setIsFocusMode(app.settings.isFocusMode);
       }
     },
     [setIsDarkMode],
@@ -421,3 +353,79 @@ export function useMultiplayerState(
     onAssetDelete,
   };
 }
+
+const openFromFileSystem = async (): Promise<null | {
+  fileHandle: FileSystemFileHandle | null;
+  document: TDDocument;
+}> => {
+  // Get the blob
+  const blob = await fileOpen({
+    description: "Tldraw File",
+    extensions: [".tldr"],
+    multiple: false,
+  });
+
+  if (!blob) return null;
+
+  // Get JSON from blob
+  const json: string = await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (reader.readyState === FileReader.DONE) {
+        resolve(reader.result as string);
+      }
+    };
+    reader.readAsText(blob, "utf8");
+  });
+
+  // Parse
+  const file: TDFile = JSON.parse(json);
+  if ("tldrawFileFormatVersion" in file) {
+    console.error(
+      "This file was created in a newer version of tldraw and it cannot be opened",
+    );
+    toast.info(
+      "This file was created in a newer version of tldraw and it cannot be opened",
+    );
+    return null;
+  }
+
+  const fileHandle = blob.handle ?? null;
+
+  return {
+    fileHandle,
+    document: file.document,
+  };
+};
+
+const updateDoc = (
+  shapes: Record<string, TDShape | undefined>,
+  bindings: Record<string, TDBinding | undefined>,
+  assets: Record<string, TDAsset | undefined>,
+) => {
+  doc.transact(() => {
+    Object.entries(shapes).forEach(([id, shape]) => {
+      if (!shape) {
+        yShapes.delete(id);
+      } else {
+        yShapes.set(shape.id, shape);
+      }
+    });
+
+    Object.entries(bindings).forEach(([id, binding]) => {
+      if (!binding) {
+        yBindings.delete(id);
+      } else {
+        yBindings.set(binding.id, binding);
+      }
+    });
+
+    Object.entries(assets).forEach(([id, asset]) => {
+      if (!asset) {
+        yAssets.delete(id);
+      } else {
+        yAssets.set(asset.id, asset);
+      }
+    });
+  });
+};

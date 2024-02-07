@@ -2,8 +2,12 @@ import Icon from "@mdi/react";
 import { mdiAccountMultipleOutline } from "@mdi/js";
 import { useUsersCount } from "../hooks/useUsersCount";
 
-function UsersInfo() {
+function UsersInfo({ isFocusMode }: { isFocusMode: boolean }) {
   const usersCount = useUsersCount();
+
+  if (isFocusMode) {
+    return null;
+  }
 
   return (
     <div className="user-display">

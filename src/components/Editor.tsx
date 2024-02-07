@@ -9,9 +9,11 @@ import { useTldrawSettings } from "../hooks/useTldrawSettings";
 function Editor({
   roomId,
   darkModeHandler,
+  focusModeHandler,
 }: {
   roomId: string;
   darkModeHandler: (isDarkMode: boolean) => void;
+  focusModeHandler: (isFocusMode: boolean) => void;
 }) {
   const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
   const {
@@ -22,7 +24,11 @@ function Editor({
     onPatch,
     onExport,
     ...events
-  } = useMultiplayerState(roomId, darkModeHandler);
+  } = useMultiplayerState({
+      roomId,
+      setIsDarkMode: darkModeHandler,
+      setIsFocusMode: focusModeHandler,
+    });
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
