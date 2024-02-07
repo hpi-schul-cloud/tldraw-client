@@ -1,4 +1,4 @@
-import * as lodash from "lodash";
+import lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
@@ -48,6 +48,23 @@ export function useMultiplayerState({
 
   // Callbacks --------------
 
+  const onMount = useCallback(
+    (app: TldrawApp) => {
+      app.loadRoom(roomId);
+      // Turn off the app's own undo / redo stack
+      app.pause();
+      // Put the state into the window, for debugging
+      window.app = app;
+      setApp(app);
+
+      app.saveProjectAs = async (_filename) => {
+        await onSaveAs(app);
+        return app;
+      };
+    },
+    [roomId],
+  );
+
   const onOpen = useCallback(
     async (
       app: TldrawApp,
@@ -94,6 +111,7 @@ export function useMultiplayerState({
   );
 
   const onSave = useCallback(async (app: TldrawApp) => {
+    app.setIsLoading(true);
     try {
       const copiedDocument = lodash.cloneDeep(app.document);
       const handle = await saveToFileSystem(
@@ -109,14 +127,16 @@ export function useMultiplayerState({
       console.error("Error while exporting project");
       toast.error("An error occured while exporting project");
     }
+    app.setIsLoading(false);
   }, []);
 
   const onSaveAs = useCallback(async (app: TldrawApp) => {
+    app.setIsLoading(true);
     try {
       const copiedDocument = lodash.cloneDeep(app.document);
       const handle = await saveToFileSystem(
         copiedDocument,
-        app.fileSystemHandle,
+        null,
         app.document.name,
       );
 
@@ -127,6 +147,7 @@ export function useMultiplayerState({
       console.error("Error while exporting project");
       toast.error("An error occured while exporting project");
     }
+    app.setIsLoading(false);
   }, []);
 
   const onAssetCreate = useCallback(
@@ -227,18 +248,6 @@ export function useMultiplayerState({
       }
     },
     [setIsDarkMode],
-  );
-
-  const onMount = useCallback(
-    (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      // Turn off the app's own undo / redo stack
-      app.pause();
-      // Put the state into the window, for debugging
-      window.app = app;
-      setApp(app);
-    },
-    [roomId],
   );
 
   const onUndo = useCallback(() => {
