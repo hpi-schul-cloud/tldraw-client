@@ -45,10 +45,10 @@ const getSvg = async (
   const ids = app.selectedIds.length
     ? app.selectedIds
     : Object.keys(app.page.shapes);
-  const includeLocalFonts = format !== TDExportType.SVG;
 
   if (ids.length === 0) return;
 
+  const includeLocalFonts = format !== TDExportType.SVG;
   const svg = await createInitialSvg(includeLocalFonts);
 
   // Get the shapes in order
