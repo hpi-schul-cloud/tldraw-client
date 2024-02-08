@@ -1,6 +1,7 @@
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
+import { validateId } from "./validator";
 
 const getConnectionOptions = async (): Promise<{
   websocketUrl: string;
@@ -32,6 +33,8 @@ const getConnectionOptions = async (): Promise<{
 const getRoomId = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const roomId = urlParams.get("roomName") ?? "";
+
+  validateId(roomId);
 
   return roomId;
 };
