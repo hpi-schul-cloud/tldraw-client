@@ -47,57 +47,6 @@ export function useMultiplayerState({
 
   // Callbacks --------------
 
-  const onMount = useCallback(
-    (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      // Turn off the app's own undo / redo stack
-      app.pause();
-      // Put the state into the window, for debugging
-      window.app = app;
-      setApp(app);
-
-      app.saveProjectAs = async (_filename) => {
-        await onSaveAs(app);
-        return app;
-      };
-
-      app.openProject = async () => {
-        try {
-          app.setIsLoading(true);
-          const result = await openFromFileSystem();
-
-          if (!result) {
-            console.error("Error while opening file");
-            toast.error("An error occured while opening file");
-            return;
-          }
-
-          const { document, fileHandle } = result;
-          await importAssetsToS3(document, roomId, user!.schoolId);
-
-          yShapes.clear();
-          yBindings.clear();
-          yAssets.clear();
-          undoManager.clear();
-          updateDoc(
-            document.pages.page.shapes,
-            document.pages.page.bindings,
-            document.assets,
-          );
-
-          app.fileSystemHandle = fileHandle;
-          app.zoomToContent();
-          app.zoomToFit();
-        } catch (e) {
-          console.error("Error while opening project", e);
-          toast.error("An error occured while opening project");
-        }
-        app.setIsLoading(false);
-      };
-    },
-    [roomId],
-  );
-
   const onSave = useCallback(async (app: TldrawApp) => {
     app.setIsLoading(true);
     try {
@@ -113,7 +62,7 @@ export function useMultiplayerState({
       }
     } catch (error) {
       console.error("Error while exporting project");
-      toast.error("An error occured while exporting project");
+      toast.error("An error occurred while exporting project");
     }
     app.setIsLoading(false);
   }, []);
@@ -133,10 +82,59 @@ export function useMultiplayerState({
       }
     } catch (error) {
       console.error("Error while exporting project");
-      toast.error("An error occured while exporting project");
+      toast.error("An error occurred while exporting project");
     }
     app.setIsLoading(false);
   }, []);
+
+  const onMount = useCallback(
+    (app: TldrawApp) => {
+      app.loadRoom(roomId);
+      // Turn off the app's own undo / redo stack
+      app.pause();
+      // Put the state into the window, for debugging
+      window.app = app;
+      setApp(app);
+
+      app.saveProjectAs = async () => {
+        await onSaveAs(app);
+        return app;
+      };
+
+      app.openProject = async () => {
+        try {
+          app.setIsLoading(true);
+          const result = await openFromFileSystem();
+
+          if (!result) {
+            throw new Error("Could not open file");
+          }
+
+          const { document, fileHandle } = result;
+          await importAssetsToS3(document, roomId, user!.schoolId);
+
+          yShapes.clear();
+          yBindings.clear();
+          yAssets.clear();
+          undoManager.clear();
+          updateDoc(
+            document.pages.page.shapes,
+            document.pages.page.bindings,
+            document.assets,
+          );
+
+          app.fileSystemHandle = fileHandle;
+          app.zoomToContent();
+          app.zoomToFit();
+        } catch (error) {
+          console.error("Error while opening project", error);
+          toast.error("An error occurred while opening project");
+        }
+        app.setIsLoading(false);
+      };
+    },
+    [onSaveAs, roomId],
+  );
 
   const onAssetCreate = useCallback(
     async (
@@ -190,7 +188,7 @@ export function useMultiplayerState({
         return data.url;
       } catch (error) {
         console.error("Error while uploading asset:", error);
-        toast.error("An error occured while uploading asset");
+        toast.error("An error occurred while uploading asset");
       }
 
       return false;
@@ -215,7 +213,7 @@ export function useMultiplayerState({
         return true;
       } catch (error) {
         console.error("Error while deleting asset:", error);
-        toast.error("An error occured while deleting asset");
+        toast.error("An error occurred while deleting asset");
       }
 
       return false;
@@ -235,7 +233,7 @@ export function useMultiplayerState({
         setIsFocusMode(app.settings.isFocusMode);
       }
     },
-    [setIsDarkMode],
+    [setIsDarkMode, setIsFocusMode],
   );
 
   const onUndo = useCallback(() => {

@@ -90,7 +90,7 @@ const uploadAction = (
   const formData = new FormData();
   formData.append("file", fileToUpload);
 
-  const promise: Promise<{ url: string }> = fetch(
+  const promise = fetch(
     `/api/v3/file/upload/${schoolId}/boardnodes/${roomId}`,
     {
       method: "POST",
