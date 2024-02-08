@@ -8,7 +8,8 @@ import { API } from "../configuration/api";
 const redirectToLoginPage = () => {
   const roomId = getRoomId();
   if (import.meta.env.PROD) {
-    window.location.assign(API.LOGIN_REDIRECT.replace("ROOMID", roomId));
+    const redirectUrl = API.LOGIN_REDIRECT.replace("ROOMID", roomId);
+    window.location.assign(redirectUrl);
   } else {
     window.location.assign(
       `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`,
