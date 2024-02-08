@@ -27,7 +27,7 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
-import { getImageBlob } from "../utils/imageExportUtils";
+import { getImageBlob } from "../utils/tldrawImageExportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
