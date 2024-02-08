@@ -1,3 +1,4 @@
+import lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
@@ -26,6 +27,7 @@ import {
   importAssetsToS3,
   openFromFileSystem,
 } from "../utils/boardImportUtils";
+import { saveToFileSystem } from "../utils/boardExportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -44,6 +46,97 @@ export function useMultiplayerState({
   const [loading, setLoading] = useState(true);
 
   // Callbacks --------------
+
+  const onMount = useCallback(
+    (app: TldrawApp) => {
+      app.loadRoom(roomId);
+      // Turn off the app's own undo / redo stack
+      app.pause();
+      // Put the state into the window, for debugging
+      window.app = app;
+      setApp(app);
+
+      app.saveProjectAs = async (_filename) => {
+        await onSaveAs(app);
+        return app;
+      };
+
+      app.openProject = async () => {
+        try {
+          app.setIsLoading(true);
+          const result = await openFromFileSystem();
+
+          if (!result) {
+            console.error("Error while opening file");
+            toast.error("An error occured while opening file");
+            return;
+          }
+
+          const { document, fileHandle } = result;
+          await importAssetsToS3(document, roomId, user!.schoolId);
+
+          yShapes.clear();
+          yBindings.clear();
+          yAssets.clear();
+          undoManager.clear();
+          updateDoc(
+            document.pages.page.shapes,
+            document.pages.page.bindings,
+            document.assets,
+          );
+
+          app.fileSystemHandle = fileHandle;
+          app.zoomToContent();
+          app.zoomToFit();
+        } catch (e) {
+          console.error("Error while opening project", e);
+          toast.error("An error occured while opening project");
+        }
+        app.setIsLoading(false);
+      };
+    },
+    [roomId],
+  );
+
+  const onSave = useCallback(async (app: TldrawApp) => {
+    app.setIsLoading(true);
+    try {
+      const copiedDocument = lodash.cloneDeep(app.document);
+      const handle = await saveToFileSystem(
+        copiedDocument,
+        app.fileSystemHandle,
+        app.document.name,
+      );
+
+      if (handle) {
+        app.fileSystemHandle = handle;
+      }
+    } catch (error) {
+      console.error("Error while exporting project");
+      toast.error("An error occured while exporting project");
+    }
+    app.setIsLoading(false);
+  }, []);
+
+  const onSaveAs = useCallback(async (app: TldrawApp) => {
+    app.setIsLoading(true);
+    try {
+      const copiedDocument = lodash.cloneDeep(app.document);
+      const handle = await saveToFileSystem(
+        copiedDocument,
+        null,
+        app.document.name,
+      );
+
+      if (handle) {
+        app.fileSystemHandle = handle;
+      }
+    } catch (error) {
+      console.error("Error while exporting project");
+      toast.error("An error occured while exporting project");
+    }
+    app.setIsLoading(false);
+  }, []);
 
   const onAssetCreate = useCallback(
     async (
@@ -143,52 +236,6 @@ export function useMultiplayerState({
       }
     },
     [setIsDarkMode],
-  );
-
-  const onMount = useCallback(
-    (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      // Turn off the app's own undo / redo stack
-      app.pause();
-      // Put the state into the window, for debugging
-      window.app = app;
-      setApp(app);
-
-      app.openProject = async () => {
-        try {
-          app.setIsLoading(true);
-          const result = await openFromFileSystem();
-
-          if (!result) {
-            console.error("Error while opening file");
-            toast.error("An error occured while opening file");
-            return;
-          }
-
-          const { document, fileHandle } = result;
-          await importAssetsToS3(document, roomId, user!.schoolId);
-
-          yShapes.clear();
-          yBindings.clear();
-          yAssets.clear();
-          undoManager.clear();
-          updateDoc(
-            document.pages.page.shapes,
-            document.pages.page.bindings,
-            document.assets,
-          );
-
-          app.fileSystemHandle = fileHandle;
-          app.zoomToContent();
-          app.zoomToFit();
-        } catch (e) {
-          console.error("Error while opening project", e);
-          toast.error("An error occured while opening project");
-        }
-        app.setIsLoading(false);
-      };
-    },
-    [roomId],
   );
 
   const onUndo = useCallback(() => {
@@ -314,6 +361,8 @@ export function useMultiplayerState({
     onUndo,
     onRedo,
     onMount,
+    onSave,
+    onSaveAs,
     onChangePage,
     onChangePresence,
     loading,
