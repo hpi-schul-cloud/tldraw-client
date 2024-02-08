@@ -1,4 +1,4 @@
-import { FILE_API_BOARDNODES, FILE_API_UPLOAD } from "../configuration/api";
+import { API } from "../configuration/api";
 
 export const uploadFileToStorage = async (
   file: File,
@@ -13,14 +13,15 @@ export const uploadFileToStorage = async (
 
   const formData = new FormData();
   formData.append("file", fileToUpload);
-
-  const response = await fetch(
-    `${FILE_API_UPLOAD}${schoolId}/${FILE_API_BOARDNODES}/${roomId}`,
-    {
-      method: "POST",
-      body: formData,
-    },
+  const fileUploadUrl = API.FILE_UPLOAD.replace("SCHOOLID", schoolId).replace(
+    "CONTEXTID",
+    roomId,
   );
+
+  const response = await fetch(fileUploadUrl, {
+    method: "POST",
+    body: formData,
+  });
 
   if (!response.ok) {
     throw new Error(`${response.status} - ${response.statusText}`);

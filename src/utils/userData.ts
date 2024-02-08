@@ -1,6 +1,6 @@
 import { User, UserResult } from "../types/User";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
-import { USER_DATA_API } from "../configuration/api";
+import { API } from "../configuration/api";
 
 export const getUserData = async (): Promise<UserResult> => {
   const userResult: UserResult = {
@@ -9,7 +9,7 @@ export const getUserData = async (): Promise<UserResult> => {
   };
 
   try {
-    const response = await fetch(USER_DATA_API);
+    const response = await fetch(API.USER_DATA);
     userResult.statusCode = response.status;
 
     if (!response.ok) {
