@@ -67,14 +67,14 @@ export function useMultiplayerState({
     app.setIsLoading(false);
   }, []);
 
-  const onSaveAs = useCallback(async (app: TldrawApp) => {
+  const onSaveAs = useCallback(async (app: TldrawApp, fileName?: string) => {
     app.setIsLoading(true);
     try {
       const copiedDocument = lodash.cloneDeep(app.document);
       const handle = await saveToFileSystem(
         copiedDocument,
         null,
-        app.document.name,
+        fileName ?? app.document.name,
       );
 
       if (handle) {
@@ -90,14 +90,15 @@ export function useMultiplayerState({
   const onMount = useCallback(
     (app: TldrawApp) => {
       app.loadRoom(roomId);
+      app.document.name = `board-${roomId}`;
       // Turn off the app's own undo / redo stack
       app.pause();
       // Put the state into the window, for debugging
       window.app = app;
       setApp(app);
 
-      app.saveProjectAs = async () => {
-        await onSaveAs(app);
+      app.saveProjectAs = async (filename) => {
+        await onSaveAs(app, filename);
         return app;
       };
 

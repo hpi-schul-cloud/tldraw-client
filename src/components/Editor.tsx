@@ -53,7 +53,7 @@ function Editor({
         {...events}
         onOpenProject={onOpenProject}
         onSaveProject={onSave}
-        onSaveProjectAs={onSaveAs}
+        onSaveProjectAs={onSave}
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
         onAssetDelete={onAssetDelete}
