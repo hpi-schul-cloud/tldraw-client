@@ -2,17 +2,13 @@ import lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
-  TDDocument,
-  TDFile,
   TDShape,
   TDUser,
   TldrawApp,
   TldrawPatch,
-  useFileSystem,
 } from "@tldraw/tldraw";
 import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
-import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
 import {
   doc,
@@ -27,6 +23,10 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
+import {
+  importAssetsToS3,
+  openFromFileSystem,
+} from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 
 declare const window: Window & { app: TldrawApp };
@@ -44,7 +44,6 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const { onOpenProject } = useFileSystem();
 
   // Callbacks --------------
 
@@ -61,53 +60,42 @@ export function useMultiplayerState({
         await onSaveAs(app);
         return app;
       };
-    },
-    [roomId],
-  );
 
-  const onOpen = useCallback(
-    async (
-      app: TldrawApp,
-      openDialog: (
-        dialogState: "saveFirstTime" | "saveAgain",
-        onYes: () => Promise<void>,
-        onNo: () => Promise<void>,
-        onCancel: () => Promise<void>,
-      ) => void,
-    ) => {
-      undoManager.stopCapturing();
-      await onOpenProject(app, openDialog);
       app.openProject = async () => {
         try {
+          app.setIsLoading(true);
           const result = await openFromFileSystem();
+
           if (!result) {
             console.error("Error while opening file");
             toast.error("An error occured while opening file");
             return;
           }
 
-          const { document } = result;
+          const { document, fileHandle } = result;
+          await importAssetsToS3(document, roomId, user!.schoolId);
 
           yShapes.clear();
           yBindings.clear();
           yAssets.clear();
           undoManager.clear();
-
           updateDoc(
             document.pages.page.shapes,
             document.pages.page.bindings,
             document.assets,
           );
 
+          app.fileSystemHandle = fileHandle;
           app.zoomToContent();
           app.zoomToFit();
-        } catch (error) {
-          console.error("Error while opening project", error);
+        } catch (e) {
+          console.error("Error while opening project", e);
           toast.error("An error occured while opening project");
         }
+        app.setIsLoading(false);
       };
     },
-    [onOpenProject],
+    [roomId],
   );
 
   const onSave = useCallback(async (app: TldrawApp) => {
@@ -373,7 +361,6 @@ export function useMultiplayerState({
     onUndo,
     onRedo,
     onMount,
-    onOpen,
     onSave,
     onSaveAs,
     onChangePage,
@@ -384,50 +371,6 @@ export function useMultiplayerState({
     onAssetDelete,
   };
 }
-
-const openFromFileSystem = async (): Promise<null | {
-  fileHandle: FileSystemFileHandle | null;
-  document: TDDocument;
-}> => {
-  // Get the blob
-  const blob = await fileOpen({
-    description: "Tldraw File",
-    extensions: [".tldr"],
-    multiple: false,
-  });
-
-  if (!blob) return null;
-
-  // Get JSON from blob
-  const json: string = await new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (reader.readyState === FileReader.DONE) {
-        resolve(reader.result as string);
-      }
-    };
-    reader.readAsText(blob, "utf8");
-  });
-
-  // Parse
-  const file: TDFile = JSON.parse(json);
-  if ("tldrawFileFormatVersion" in file) {
-    console.error(
-      "This file was created in a newer version of tldraw and it cannot be opened",
-    );
-    toast.info(
-      "This file was created in a newer version of tldraw and it cannot be opened",
-    );
-    return null;
-  }
-
-  const fileHandle = blob.handle ?? null;
-
-  return {
-    fileHandle,
-    document: file.document,
-  };
-};
 
 const updateDoc = (
   shapes: Record<string, TDShape | undefined>,
