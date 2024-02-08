@@ -68,7 +68,7 @@ const importAssetsToS3 = async (
 };
 
 const base64ToBlobAction = (base64: string): Promise<Blob> => {
-  const promise = fetch(base64, { mode: "no-cors" }).then((res) => res.blob());
+  const promise = fetch(base64).then((res) => res.blob());
 
   return promise;
 };
