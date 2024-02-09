@@ -1,17 +1,14 @@
+import lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
-  TDDocument,
-  TDFile,
   TDShape,
   TDUser,
   TldrawApp,
   TldrawPatch,
-  useFileSystem,
 } from "@tldraw/tldraw";
 import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
-import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
 import {
   doc,
@@ -26,6 +23,11 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
+import {
+  importAssetsToS3,
+  openFromFileSystem,
+} from "../utils/boardImportUtils";
+import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
 
 declare const window: Window & { app: TldrawApp };
@@ -43,53 +45,101 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const { onOpenProject } = useFileSystem();
 
   // Callbacks --------------
 
-  const onOpen = useCallback(
-    async (
-      app: TldrawApp,
-      openDialog: (
-        dialogState: "saveFirstTime" | "saveAgain",
-        onYes: () => Promise<void>,
-        onNo: () => Promise<void>,
-        onCancel: () => Promise<void>,
-      ) => void,
-    ) => {
-      undoManager.stopCapturing();
-      await onOpenProject(app, openDialog);
+  const onSave = useCallback(async (app: TldrawApp) => {
+    app.setIsLoading(true);
+    undoManager.stopCapturing();
+    syncAssets(app);
+    try {
+      const copiedDocument = lodash.cloneDeep(app.document);
+      const handle = await saveToFileSystem(
+        copiedDocument,
+        app.fileSystemHandle,
+        app.document.name,
+      );
+
+      if (handle) {
+        app.fileSystemHandle = handle;
+      }
+    } catch (error) {
+      console.error("Error while exporting project");
+      toast.error("An error occurred while exporting project");
+    }
+    app.setIsLoading(false);
+  }, []);
+
+  const onSaveAs = useCallback(async (app: TldrawApp, fileName?: string) => {
+    app.setIsLoading(true);
+    undoManager.stopCapturing();
+    syncAssets(app);
+    try {
+      const copiedDocument = lodash.cloneDeep(app.document);
+      const handle = await saveToFileSystem(
+        copiedDocument,
+        null,
+        fileName ?? app.document.name,
+      );
+
+      if (handle) {
+        app.fileSystemHandle = handle;
+      }
+    } catch (error) {
+      console.error("Error while exporting project");
+      toast.error("An error occurred while exporting project");
+    }
+    app.setIsLoading(false);
+  }, []);
+
+  const onMount = useCallback(
+    (app: TldrawApp) => {
+      app.loadRoom(roomId);
+      app.document.name = `board-${roomId}`;
+      // Turn off the app's own undo / redo stack
+      app.pause();
+      // Put the state into the window, for debugging
+      window.app = app;
+      setApp(app);
+
+      app.saveProjectAs = async (filename) => {
+        await onSaveAs(app, filename);
+        return app;
+      };
+
       app.openProject = async () => {
         try {
+          app.setIsLoading(true);
           const result = await openFromFileSystem();
+
           if (!result) {
-            console.error("Error while opening file");
-            toast.error("An error occured while opening file");
-            return;
+            throw new Error("Could not open file");
           }
 
-          const { document } = result;
+          const { document, fileHandle } = result;
+          await importAssetsToS3(document, roomId, user!.schoolId);
 
           yShapes.clear();
           yBindings.clear();
           yAssets.clear();
           undoManager.clear();
-
           updateDoc(
             document.pages.page.shapes,
             document.pages.page.bindings,
             document.assets,
           );
 
+          app.fileSystemHandle = fileHandle;
           app.zoomToContent();
           app.zoomToFit();
-        } catch (e) {
-          console.error("Error while opening project", e);
-          toast.error("An error occured while opening project");
+        } catch (error) {
+          console.error("Error while opening project", error);
+          toast.error("An error occurred while opening project");
         }
+        app.setIsLoading(false);
       };
     },
-    [onOpenProject],
+    [onSaveAs, roomId],
   );
 
   const onAssetCreate = useCallback(
@@ -134,7 +184,7 @@ export function useMultiplayerState({
         return url;
       } catch (error) {
         console.error("Error while uploading asset:", error);
-        toast.error("An error occured while uploading asset");
+        toast.error("An error occurred while uploading asset");
       }
 
       return false;
@@ -155,19 +205,6 @@ export function useMultiplayerState({
       }
     },
     [setIsDarkMode, setIsFocusMode],
-  );
-
-  const onMount = useCallback(
-    (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      app.document.name = `room_${roomId}`;
-      // Turn off the app's own undo / redo stack
-      app.pause();
-      // Put the state into the window, for debugging
-      window.app = app;
-      setApp(app);
-    },
-    [roomId],
   );
 
   const onUndo = useCallback(() => {
@@ -293,7 +330,8 @@ export function useMultiplayerState({
     onUndo,
     onRedo,
     onMount,
-    onOpen,
+    onSave,
+    onSaveAs,
     onChangePage,
     onChangePresence,
     loading,
@@ -301,50 +339,6 @@ export function useMultiplayerState({
     onAssetCreate,
   };
 }
-
-const openFromFileSystem = async (): Promise<null | {
-  fileHandle: FileSystemFileHandle | null;
-  document: TDDocument;
-}> => {
-  // Get the blob
-  const blob = await fileOpen({
-    description: "Tldraw File",
-    extensions: [".tldr"],
-    multiple: false,
-  });
-
-  if (!blob) return null;
-
-  // Get JSON from blob
-  const json: string = await new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (reader.readyState === FileReader.DONE) {
-        resolve(reader.result as string);
-      }
-    };
-    reader.readAsText(blob, "utf8");
-  });
-
-  // Parse
-  const file: TDFile = JSON.parse(json);
-  if ("tldrawFileFormatVersion" in file) {
-    console.error(
-      "This file was created in a newer version of tldraw and it cannot be opened",
-    );
-    toast.info(
-      "This file was created in a newer version of tldraw and it cannot be opened",
-    );
-    return null;
-  }
-
-  const fileHandle = blob.handle ?? null;
-
-  return {
-    fileHandle,
-    document: file.document,
-  };
-};
 
 const updateDoc = (
   shapes: Record<string, TDShape | undefined>,
@@ -376,4 +370,32 @@ const updateDoc = (
       }
     });
   });
+};
+
+const syncAssets = (app: TldrawApp) => {
+  const usedShapesAsAssets: TDShape[] = [];
+
+  yShapes.forEach((shape) => {
+    if (shape.assetId) {
+      usedShapesAsAssets.push(shape);
+    }
+  });
+
+  doc.transact(() => {
+    yAssets.forEach((asset) => {
+      const foundAsset = usedShapesAsAssets.find(
+        (shape) => shape.assetId === asset.id,
+      );
+
+      if (!foundAsset) {
+        yAssets.delete(asset.id);
+      }
+    });
+  });
+
+  app.replacePageContent(
+    Object.fromEntries(yShapes.entries()),
+    Object.fromEntries(yBindings.entries()),
+    Object.fromEntries(yAssets.entries()),
+  );
 };

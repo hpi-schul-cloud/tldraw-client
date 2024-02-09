@@ -226,16 +226,4 @@ describe("useMultiplayerState hook", () => {
       tdUser: user,
     });
   });
-
-  it("should handle onOpen correctly", () => {
-    const { app, mockOpenDialog, mockOpenProject } = setup();
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
-
-    act(() => {
-      result.current.onOpen(app, mockOpenDialog);
-    });
-
-    expect(mockOpenProject).toHaveBeenCalled();
-    expect(app.openProject).toBeDefined();
-  });
 });
