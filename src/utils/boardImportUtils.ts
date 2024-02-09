@@ -1,6 +1,7 @@
 import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
+import { API } from "../configuration/api/api.configuration";
 
 const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
@@ -90,13 +91,14 @@ const uploadAction = (
   const formData = new FormData();
   formData.append("file", fileToUpload);
 
-  const promise = fetch(
-    `/api/v3/file/upload/${schoolId}/boardnodes/${roomId}`,
-    {
-      method: "POST",
-      body: formData,
-    },
-  ).then((res) => res.json());
+  const fileUploadUrl = API.FILE_UPLOAD.replace("SCHOOLID", schoolId).replace(
+    "CONTEXTID",
+    roomId,
+  );
+  const promise = fetch(fileUploadUrl, {
+    method: "POST",
+    body: formData,
+  }).then((res) => res.json());
 
   return promise;
 };

@@ -1,5 +1,5 @@
 import { Envs } from "../types/Envs";
-import { API } from "../configuration/api";
+import { API } from "../configuration/api/api.configuration";
 
 export const getEnvs = async (): Promise<Envs | undefined> => {
   try {

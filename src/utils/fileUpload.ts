@@ -1,4 +1,4 @@
-import { API } from "../configuration/api";
+import { API } from "../configuration/api/api.configuration";
 
 export const uploadFileToStorage = async (
   file: File,

@@ -1,6 +1,6 @@
 import { User, UserResult } from "../types/User";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
-import { API } from "../configuration/api";
+import { API } from "../configuration/api/api.configuration";
 
 export const getUserData = async (): Promise<UserResult> => {
   const userResult: UserResult = {

@@ -3,7 +3,7 @@ import { UserResult } from "../types/User";
 import { Envs } from "../types/Envs";
 import { setErrorData } from "./errorData";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
-import { API } from "../configuration/api";
+import { API } from "../configuration/api/api.configuration";
 
 const redirectToLoginPage = () => {
   const roomId = getRoomId();
