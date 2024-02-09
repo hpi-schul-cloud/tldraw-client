@@ -15,13 +15,20 @@ function Editor({
   darkModeHandler: (isDarkMode: boolean) => void;
   focusModeHandler: (isFocusMode: boolean) => void;
 }) {
-  const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
-  const { onMount, onOpen, onAssetCreate, onAssetDelete, onPatch, ...events } =
-    useMultiplayerState({
-      roomId,
-      setIsDarkMode: darkModeHandler,
-      setIsFocusMode: focusModeHandler,
-    });
+  const { onOpenMedia, onOpenProject } = useFileSystem();
+  const {
+    onMount,
+    onSave,
+    onSaveAs,
+    onAssetCreate,
+    onAssetDelete,
+    onPatch,
+    ...events
+  } = useMultiplayerState({
+    roomId,
+    setIsDarkMode: darkModeHandler,
+    setIsFocusMode: focusModeHandler,
+  });
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
@@ -44,9 +51,9 @@ function Editor({
         onPatch={onPatch}
         darkMode={isDarkMode}
         {...events}
-        onOpenProject={onOpen}
-        onSaveProject={onSaveProject}
-        onSaveProjectAs={onSaveProjectAs}
+        onOpenProject={onOpenProject}
+        onSaveProject={onSave}
+        onSaveProjectAs={onSave}
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
         onAssetDelete={onAssetDelete}
