@@ -2,9 +2,7 @@ import lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
-  TDDocument,
   TDExport,
-  TDFile,
   TDShape,
   TDUser,
   TldrawApp,

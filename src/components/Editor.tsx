@@ -19,7 +19,6 @@ function Editor({
   const {
     onMount,
     onSave,
-    onSaveAs,
     onAssetCreate,
     onAssetDelete,
     onPatch,
