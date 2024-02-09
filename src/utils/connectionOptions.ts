@@ -1,12 +1,12 @@
-import { ConnectionOptions } from "../types/ConnectionOptions";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
+import { validateId } from "./validator";
 
-export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
-  const urlParams = new URLSearchParams(window.location.search);
-
+const getConnectionOptions = async (): Promise<{
+  websocketUrl: string;
+}> => {
   const connectionOptions = {
-    roomName: urlParams.get("roomName") ?? "",
     websocketUrl: "ws://localhost:3345",
   };
 
@@ -22,10 +22,21 @@ export const getConnectionOptions = async (): Promise<ConnectionOptions> => {
       connectionOptions.websocketUrl = data.tldrawServerURL;
     } catch (error) {
       console.error("Error fetching tldrawServerURL:", error);
-      setErrorData(500, "tldraw.error.500");
+      setErrorData(HttpStatusCode.InternalServerError, "tldraw.error.500");
       redirectToErrorPage();
     }
   }
 
   return connectionOptions;
 };
+
+const getRoomId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("roomName") ?? "";
+
+  validateId(roomId);
+
+  return roomId;
+};
+
+export { getConnectionOptions, getRoomId };

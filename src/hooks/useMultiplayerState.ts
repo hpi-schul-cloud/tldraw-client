@@ -29,6 +29,7 @@ import {
   openFromFileSystem,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
+import { uploadFileToStorage } from "../utils/fileUpload";
 import { getImageBlob } from "../utils/tldrawImageExportUtils";
 
 declare const window: Window & { app: TldrawApp };
@@ -171,28 +172,18 @@ export function useMultiplayerState({
         return false;
       }
 
+      undoManager.stopCapturing();
+
       try {
-        const fileToUpload = new File([file], `${id}.${fileExtension}`, {
-          type: file.type,
-        });
-
-        const formData = new FormData();
-        formData.append("file", fileToUpload);
-
-        const response = await fetch(
-          `/api/v3/file/upload/${user!.schoolId}/boardnodes/${roomId}`,
-          {
-            method: "POST",
-            body: formData,
-          },
+        const url = await uploadFileToStorage(
+          file,
+          fileExtension,
+          id,
+          user!.schoolId,
+          roomId,
         );
 
-        if (!response.ok) {
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.url;
+        return url;
       } catch (error) {
         console.error("Error while uploading asset:", error);
         toast.error("An error occurred while uploading asset");
@@ -201,31 +192,6 @@ export function useMultiplayerState({
       return false;
     },
     [roomId],
-  );
-
-  const onAssetDelete = useCallback(
-    async (_app: TldrawApp, id: string): Promise<boolean> => {
-      try {
-        const assets = Object.fromEntries(yAssets.entries());
-        const srcArr = assets[id].src.split("/");
-        const fileId = srcArr[srcArr.length - 2];
-        const response = await fetch(`/api/v3/file/delete/${fileId}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error(`${response.status} - ${response.statusText}`);
-        }
-
-        return true;
-      } catch (error) {
-        console.error("Error while deleting asset:", error);
-        toast.error("An error occurred while deleting asset");
-      }
-
-      return false;
-    },
-    [],
   );
 
   const onPatch = useCallback(
@@ -388,7 +354,6 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
-    onAssetDelete,
   };
 }
 
