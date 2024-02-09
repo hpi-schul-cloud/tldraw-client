@@ -1,5 +1,5 @@
 /**
- *  Custom function for exporting images stored in external storage correctly
+ *  Custom function for exporting images stored in external storage correctly.
  **/
 
 export const serializeImage = (id: string): string => {
