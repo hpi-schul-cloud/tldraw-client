@@ -3,6 +3,7 @@ import { useWebsocketErrorHandler } from "./useWebsocketErrorHandler";
 import { provider } from "../stores/setup";
 import { redirectToErrorPage } from "../utils/redirectUtils";
 import { setErrorData } from "../utils/errorData";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
 
 vi.mock("../stores/setup", () => {
   return {
@@ -43,7 +44,10 @@ describe("useWebsocketErrorHandler hook", () => {
       mockWs.dispatchEvent(closeEvent);
     });
 
-    expect(setErrorData).toHaveBeenCalledWith(500, "tldraw.error.ws.4500");
+    expect(setErrorData).toHaveBeenCalledWith(
+      HttpStatusCode.InternalServerError,
+      "tldraw.error.ws.4500",
+    );
     expect(redirectToErrorPage).toHaveBeenCalled();
   });
 });
