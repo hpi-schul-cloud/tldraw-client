@@ -15,10 +15,11 @@ function Editor({
   darkModeHandler: (isDarkMode: boolean) => void;
   focusModeHandler: (isFocusMode: boolean) => void;
 }) {
-  const { onSaveProjectAs, onSaveProject, onOpenMedia } = useFileSystem();
+  const { onOpenMedia, onOpenProject } = useFileSystem();
   const {
     onMount,
-    onOpen,
+    onSave,
+    onSaveAs,
     onAssetCreate,
     onAssetDelete,
     onPatch,
@@ -52,9 +53,9 @@ function Editor({
         onExport={onExport}
         darkMode={isDarkMode}
         {...events}
-        onOpenProject={onOpen}
-        onSaveProject={onSaveProject}
-        onSaveProjectAs={onSaveProjectAs}
+        onOpenProject={onOpenProject}
+        onSaveProject={onSave}
+        onSaveProjectAs={onSave}
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
         onAssetDelete={onAssetDelete}
