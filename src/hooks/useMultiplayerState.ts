@@ -49,6 +49,8 @@ export function useMultiplayerState({
 
   const onSave = useCallback(async (app: TldrawApp) => {
     app.setIsLoading(true);
+    undoManager.stopCapturing();
+    syncAssets(app);
     try {
       const copiedDocument = lodash.cloneDeep(app.document);
       const handle = await saveToFileSystem(
@@ -69,6 +71,8 @@ export function useMultiplayerState({
 
   const onSaveAs = useCallback(async (app: TldrawApp, fileName?: string) => {
     app.setIsLoading(true);
+    undoManager.stopCapturing();
+    syncAssets(app);
     try {
       const copiedDocument = lodash.cloneDeep(app.document);
       const handle = await saveToFileSystem(
@@ -401,4 +405,32 @@ const updateDoc = (
       }
     });
   });
+};
+
+const syncAssets = (app: TldrawApp) => {
+  const usedShapesAsAssets: TDShape[] = [];
+
+  yShapes.forEach((shape) => {
+    if (shape.assetId) {
+      usedShapesAsAssets.push(shape);
+    }
+  });
+
+  doc.transact(() => {
+    yAssets.forEach((asset) => {
+      const foundAsset = usedShapesAsAssets.find(
+        (shape) => shape.assetId === asset.id,
+      );
+
+      if (!foundAsset) {
+        yAssets.delete(asset.id);
+      }
+    });
+  });
+
+  app.replacePageContent(
+    Object.fromEntries(yShapes.entries()),
+    Object.fromEntries(yBindings.entries()),
+    Object.fromEntries(yAssets.entries()),
+  );
 };
