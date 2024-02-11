@@ -157,7 +157,7 @@ export function useMultiplayerState({
       if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
         toast.info(
           `Asset is too big - max. ${
-            envs!.TLDRAW__ASSETS_MAX_SIZE / 1000000
+            envs!.TLDRAW__ASSETS_MAX_SIZE / 1048576
           }MB`,
         );
         return false;
