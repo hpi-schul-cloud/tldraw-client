@@ -66,7 +66,7 @@ export function useMultiplayerState({
         app.fileSystemHandle = handle;
       }
     } catch (error) {
-      console.error("Error while exporting project");
+      console.error("Error while exporting project", error);
       toast.error("An error occurred while exporting project");
     }
     app.setIsLoading(false);
@@ -88,7 +88,7 @@ export function useMultiplayerState({
         app.fileSystemHandle = handle;
       }
     } catch (error) {
-      console.error("Error while exporting project");
+      console.error("Error while exporting project", error);
       toast.error("An error occurred while exporting project");
     }
     app.setIsLoading(false);
@@ -245,14 +245,27 @@ export function useMultiplayerState({
 
   const onExport = useCallback(
     async (app: TldrawApp, info: TDExport) => {
-      const blob = await getImageBlob(app, info.type);
-      if (!blob) return;
+      app.setIsLoading(true);
+      undoManager.stopCapturing();
+      syncAssets(app);
+      try {
+        const blob = await getImageBlob(app, info.type);
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${roomId}_export.${info.type}`;
-      link.click();
+        if (!blob) {
+          app.setIsLoading(false);
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${roomId}_export.${info.type}`;
+        link.click();
+      } catch (error) {
+        console.error("Error while exporting project as image", error);
+        toast.error("An error occurred while exporting project as image");
+      }
+      app.setIsLoading(false);
     },
     [roomId],
   );

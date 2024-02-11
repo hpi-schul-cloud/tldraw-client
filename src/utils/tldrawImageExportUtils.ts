@@ -35,7 +35,7 @@ const getImageBlob = async (
     return blob;
   }
 
-  const imageBlob = await TLDR.getImageForSvg(svg, format, {
+  const imageBlob = await getImageForSvg(svg, format, {
     scale: 2,
     quality: 1,
   });
@@ -282,6 +282,58 @@ const includeTldrawFonts = async (
   } catch (e) {
     TLDR.warn("Could not find tldraw-assets.json file.");
   }
+};
+
+const getImageForSvg = async (
+  svg: SVGElement,
+  type: Exclude<TDExportType, TDExportType.JSON> = TDExportType.PNG,
+  opts = {} as Partial<{
+    scale: number;
+    quality: number;
+  }>,
+) => {
+  const { scale = 2, quality = 1 } = opts;
+
+  const svgString = TLDR.getSvgString(svg, scale);
+  if (!svgString) return;
+
+  const canvas = await new Promise<HTMLCanvasElement>((resolve, reject) => {
+    const image = new Image();
+
+    image.crossOrigin = "anonymous";
+
+    const base64SVG = window.btoa(unescape(encodeURIComponent(svgString)));
+
+    const dataUrl = `data:image/svg+xml;base64,${base64SVG}`;
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas") as HTMLCanvasElement;
+      const context = canvas.getContext("2d")!;
+
+      const imageWidth = image.width;
+      const imageHeight = image.height;
+
+      canvas.width = imageWidth;
+      canvas.height = imageHeight;
+      context.drawImage(image, 0, 0, imageWidth, imageHeight);
+
+      URL.revokeObjectURL(dataUrl);
+
+      resolve(canvas);
+    };
+
+    image.onerror = () => {
+      reject("Could not convert that SVG to an image.");
+    };
+
+    image.src = dataUrl;
+  });
+
+  const blob = await new Promise<Blob>((resolve) =>
+    canvas.toBlob((blob) => resolve(blob!), "image/" + type, quality),
+  );
+
+  return blob;
 };
 
 export { getImageBlob };
