@@ -2,6 +2,7 @@ import lodash from "lodash";
 import {
   TDAsset,
   TDBinding,
+  TDExport,
   TDShape,
   TDUser,
   TldrawApp,
@@ -29,6 +30,7 @@ import {
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
+import { getImageBlob } from "../utils/tldrawImageExportUtils";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -64,7 +66,7 @@ export function useMultiplayerState({
         app.fileSystemHandle = handle;
       }
     } catch (error) {
-      console.error("Error while exporting project");
+      console.error("Error while exporting project", error);
       toast.error("An error occurred while exporting project");
     }
     app.setIsLoading(false);
@@ -86,7 +88,7 @@ export function useMultiplayerState({
         app.fileSystemHandle = handle;
       }
     } catch (error) {
-      console.error("Error while exporting project");
+      console.error("Error while exporting project", error);
       toast.error("An error occurred while exporting project");
     }
     app.setIsLoading(false);
@@ -155,7 +157,7 @@ export function useMultiplayerState({
       if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
         toast.info(
           `Asset is too big - max. ${
-            envs!.TLDRAW__ASSETS_MAX_SIZE / 1000000
+            envs!.TLDRAW__ASSETS_MAX_SIZE / 1048576
           }MB`,
         );
         return false;
@@ -240,6 +242,33 @@ export function useMultiplayerState({
     };
     room.updatePresence({ tdUser });
   }, []);
+
+  const onExport = useCallback(
+    async (app: TldrawApp, info: TDExport) => {
+      app.setIsLoading(true);
+      undoManager.stopCapturing();
+      syncAssets(app);
+      try {
+        const blob = await getImageBlob(app, info.type);
+
+        if (!blob) {
+          app.setIsLoading(false);
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${roomId}_export.${info.type}`;
+        link.click();
+      } catch (error) {
+        console.error("Error while exporting project as image", error);
+        toast.error("An error occurred while exporting project as image");
+      }
+      app.setIsLoading(false);
+    },
+    [roomId],
+  );
 
   // Document Changes --------
 
@@ -332,6 +361,7 @@ export function useMultiplayerState({
     onMount,
     onSave,
     onSaveAs,
+    onExport,
     onChangePage,
     onChangePresence,
     loading,
