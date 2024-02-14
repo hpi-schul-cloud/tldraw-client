@@ -102,6 +102,8 @@ export function useMultiplayerState({
       window.app = app;
       setApp(app);
 
+      // below functions are overwriting the original tldraw implementations
+      // some of them had to be changed/fixed to support additional functionality
       app.saveProjectAs = async (filename) => {
         await onSaveAs(app, filename);
         return app;
@@ -159,19 +161,19 @@ export function useMultiplayerState({
         return false;
       }
 
-      const fileExtension = file.name.split(".").pop()!;
-      const isExtensionDisallowed =
-        envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
-        !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST.includes(fileExtension);
+      const isMimeTypeDisallowed =
+        envs!.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST &&
+        !envs!.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST.includes(file.type);
 
-      if (isExtensionDisallowed) {
-        toast.info("Asset with this extension is not allowed");
+      if (isMimeTypeDisallowed) {
+        toast.info("Asset of this type is not allowed");
         return false;
       }
 
       undoManager.stopCapturing();
 
       try {
+        const fileExtension = file.name.split(".").pop()!;
         const url = await uploadFileToStorage(
           file,
           fileExtension,
@@ -258,10 +260,7 @@ export function useMultiplayerState({
         link.download = `${roomId}_export.${info.type}`;
         link.click();
       } catch (error) {
-        handleError(
-          "An error occurred while exporting project as image",
-          error,
-        );
+        handleError("An error occurred while exporting to image", error);
       }
       app.setIsLoading(false);
     },
