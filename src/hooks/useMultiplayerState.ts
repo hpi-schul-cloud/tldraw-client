@@ -66,8 +66,7 @@ export function useMultiplayerState({
         app.fileSystemHandle = handle;
       }
     } catch (error) {
-      console.error("Error while exporting project", error);
-      toast.error("An error occurred while exporting project");
+      handleError("An error occurred while exporting project", error);
     }
     app.setIsLoading(false);
   }, []);
@@ -88,8 +87,7 @@ export function useMultiplayerState({
         app.fileSystemHandle = handle;
       }
     } catch (error) {
-      console.error("Error while exporting project", error);
-      toast.error("An error occurred while exporting project");
+      handleError("An error occurred while exporting project", error);
     }
     app.setIsLoading(false);
   }, []);
@@ -135,8 +133,7 @@ export function useMultiplayerState({
           app.zoomToContent();
           app.zoomToFit();
         } catch (error) {
-          console.error("Error while opening project", error);
-          toast.error("An error occurred while opening project");
+          handleError("An error occurred while opening project", error);
         }
         app.setIsLoading(false);
       };
@@ -154,20 +151,20 @@ export function useMultiplayerState({
         toast.info("Asset uploading is disabled");
         return false;
       }
+
       if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
-        toast.info(
-          `Asset is too big - max. ${
-            envs!.TLDRAW__ASSETS_MAX_SIZE / 1048576
-          }MB`,
-        );
+        const bytesInMb = 1048576;
+        const sizeInMb = envs!.TLDRAW__ASSETS_MAX_SIZE / bytesInMb;
+        toast.info(`Asset is too big - max. ${sizeInMb}MB`);
         return false;
       }
 
       const fileExtension = file.name.split(".").pop()!;
-      if (
+      const isExtensionDisallowed =
         envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST &&
-        !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST.includes(fileExtension)
-      ) {
+        !envs!.TLDRAW__ASSETS_ALLOWED_EXTENSIONS_LIST.includes(fileExtension);
+
+      if (isExtensionDisallowed) {
         toast.info("Asset with this extension is not allowed");
         return false;
       }
@@ -185,8 +182,7 @@ export function useMultiplayerState({
 
         return url;
       } catch (error) {
-        console.error("Error while uploading asset:", error);
-        toast.error("An error occurred while uploading asset");
+        handleError("An error occurred while uploading asset", error);
       }
 
       return false;
@@ -262,8 +258,10 @@ export function useMultiplayerState({
         link.download = `${roomId}_export.${info.type}`;
         link.click();
       } catch (error) {
-        console.error("Error while exporting project as image", error);
-        toast.error("An error occurred while exporting project as image");
+        handleError(
+          "An error occurred while exporting project as image",
+          error,
+        );
       }
       app.setIsLoading(false);
     },
@@ -428,4 +426,17 @@ const syncAssets = (app: TldrawApp) => {
     Object.fromEntries(yBindings.entries()),
     Object.fromEntries(yAssets.entries()),
   );
+};
+
+const handleError = (toastMessage: string, error: unknown) => {
+  if (error instanceof Error) {
+    if (error.message === "The user aborted a request.") {
+      // a case when user cancels some action, like opening project
+      // should not really be treated as an error
+      return;
+    }
+
+    console.error(toastMessage, error);
+    toast.error(toastMessage);
+  }
 };
