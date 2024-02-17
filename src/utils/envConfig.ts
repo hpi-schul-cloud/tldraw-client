@@ -9,6 +9,7 @@ export const getEnvs = async (): Promise<Envs | undefined> => {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
 
+    // TODO: Add mapper
     return await response.json();
   } catch (error) {
     console.error("Error fetching env config:", error);
