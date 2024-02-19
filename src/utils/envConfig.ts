@@ -5,6 +5,7 @@ import { HttpGuard } from "../guards";
 
 // the try catch should not part of getEnvs, the place that use it must handle the errors
 // should be part of a store
+// Without loading the config the Promise.all should not be finished and proceed.
 export const getEnvs = async (): Promise<Envs|undefined> => {
   try {
     // TODO: check order..
