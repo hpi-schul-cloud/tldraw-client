@@ -10,12 +10,14 @@ export const getEnvs = async (): Promise<Envs|undefined> => {
     // TODO: check order..
     const response = await fetch(API.ENV_CONFIG);
     HttpGuard.checkStatusOk(response);
-    const json = await response.json();
+    const responseData = await response.json();
    
-    const configuration = ConfigurationMapper.mapToConfigurationFromResponse(json);
+    const configuration = ConfigurationMapper.mapToConfigurationFromResponse(responseData);
 
     return configuration;
   } catch (error) {
+    // It should exists one place that execute the console.error in the application. A errorHandler.
+    // If we want to collect this informations to send it back to us, then we have currently no possibility to implement it.
     console.error("Error fetching env config:", error);
   }
 };

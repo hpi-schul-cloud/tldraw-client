@@ -1,24 +1,27 @@
 import { Envs } from "../types";
 import { TypeGuard } from "../guards";
 
-const castToEnvs = (json: Record<string, unknown>): Envs => {
-	TypeGuard.checkKeyAndValueExists(json, 'FEATURE_TLDRAW_ENABLED');
-	TypeGuard.checkKeyAndValueExists(json, 'TLDRAW__ASSETS_ENABLED');
-	TypeGuard.checkKeyAndValueExists(json, 'TLDRAW__ASSETS_MAX_SIZE');
-	TypeGuard.checkKeyAndValueExists(json, 'TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST');
-	TypeGuard.checkBoolean(json.FEATURE_TLDRAW_ENABLED);
-	TypeGuard.checkBoolean(json.FEATURE_TLDRAW_ENABLED);
-	TypeGuard.checkNumber(json.TLDRAW__ASSETS_MAX_SIZE);
-	TypeGuard.checkString(json.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST);
+const checkEnvType = (obj: Record<string, unknown>): void => {
+	TypeGuard.checkKeyAndValueExists(obj, 'FEATURE_TLDRAW_ENABLED');
+	TypeGuard.checkKeyAndValueExists(obj, 'TLDRAW__ASSETS_ENABLED');
+	TypeGuard.checkKeyAndValueExists(obj, 'TLDRAW__ASSETS_MAX_SIZE');
+	TypeGuard.checkKeyAndValueExists(obj, 'TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST');
+	TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
+	TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
+	TypeGuard.checkNumber(obj.TLDRAW__ASSETS_MAX_SIZE);
+	TypeGuard.checkString(obj.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST);
+}
 
-	const configuration = json as Envs;
+const castToEnv = (obj: Record<string, unknown>): Envs => {
+	checkEnvType(obj);
+	const configuration = obj as Envs;
 
 	return configuration;
 }
 
 export class ConfigurationMapper {
-    static mapToConfigurationFromResponse(json: Record<string, unknown>): Envs {
-		const configuration = castToEnvs(json);
+    static mapToConfigurationFromResponse(obj: Record<string, unknown>): Envs {
+		const configuration = castToEnv(obj);
 
 		const mappedConfiguration: Envs = {
 			FEATURE_TLDRAW_ENABLED: configuration.FEATURE_TLDRAW_ENABLED,
