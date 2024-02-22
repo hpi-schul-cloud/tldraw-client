@@ -17,7 +17,7 @@ function App() {
   return (
     <div>
       <div className="tldraw-content">
-        <UsersInfo isFocusMode={isFocusMode} />
+        <UsersInfo isFocusMode={isFocusMode} isDarkMode={isDarkMode}/>
         <div className="tldraw">
           <Editor
             roomId={roomId}
