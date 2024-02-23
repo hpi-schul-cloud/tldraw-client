@@ -202,7 +202,7 @@ a {
 
 .list-of-users-container {
   width: 280px;
-  height: 600px;
+  max-height: 550px;
   position: relative;
   float: right;
   background-color: $list-background-color;
@@ -225,7 +225,7 @@ a {
     border-left-color: $border-left-color;
     border-radius: 50%;
     width: 60px;
-    max-height: 550px;
+    height: 600px;
     animation: spin 1s linear infinite;
     margin-right: 10px;
     font-family: "Recursive", sans-serif;
