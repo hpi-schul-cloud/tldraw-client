@@ -225,7 +225,7 @@ a {
     border-left-color: $border-left-color;
     border-radius: 50%;
     width: 60px;
-    height: 60px;
+    max-height: 550px;
     animation: spin 1s linear infinite;
     margin-right: 10px;
     font-family: "Recursive", sans-serif;
