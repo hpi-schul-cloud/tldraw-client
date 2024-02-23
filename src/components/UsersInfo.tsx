@@ -21,7 +21,9 @@ function UsersInfo({
 
   const background = isDarkMode ? "#363d44" : "#FFFFFF";
   const textColor = isDarkMode ? "#F8F9FA" : "#333333";
-  const boxShadow = isDarkMode ? "" : "10px 10px 15px 10px rgba(0, 0, 0.13, 0.13)";
+  const boxShadow = isDarkMode
+    ? ""
+    : "10px 10px 15px 10px rgba(0, 0, 0.13, 0.13)";
   const scrollColor = isDarkMode
     ? "rgba(255, 255, 255, 0.38)"
     : "rgba(0, 0, 0, 0.38)";

@@ -202,14 +202,13 @@ a {
 
 .list-of-users-container {
   width: 280px;
-  max-height: 550px;
+  max-height: 568px;
   position: relative;
   float: right;
   background-color: $list-background-color;
   margin: 10px 5px 0 0;
   border-radius: 15px;
   overflow: auto;
-  overflow-x: hidden;
   scrollbar-width: thin;
   padding: 5px;
 
@@ -217,18 +216,17 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 550px;
+    height: 100%;
   }
 
   .loading-spinner {
-    border: 8px solid $border-color;
+    border: 6px solid $border-color;
     border-left-color: $border-left-color;
     border-radius: 50%;
-    width: 60px;
-    height: 600px;
+    width: 45px;
+    height: 45px;
     animation: spin 1s linear infinite;
-    margin-right: 10px;
-    font-family: "Recursive", sans-serif;
+    margin: 5px 0;
   }
 
   @keyframes spin {
@@ -248,7 +246,7 @@ a {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin: 5px 0 10px 10px;
+    margin: 8px 0 8px 8px;
 
     .user-icon {
       width: 40px;
