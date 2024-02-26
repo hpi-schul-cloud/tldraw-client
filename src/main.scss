@@ -208,9 +208,7 @@ a {
   background-color: $list-background-color;
   margin: 10px 5px 0 0;
   border-radius: 15px;
-  overflow: auto;
-  scrollbar-width: thin;
-  padding: 5px;
+  padding-right: 5px;
 
   .loading-container {
     display: flex;
@@ -239,8 +237,12 @@ a {
 .users-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
+  overflow: auto;
+  scrollbar-width: thin;
+  max-height: 568px;
+  padding: 5px;
 
   .user-data {
     display: flex;
