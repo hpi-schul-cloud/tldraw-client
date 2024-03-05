@@ -22,6 +22,11 @@ const websocketErrors = [
     translationMessageKey: "tldraw.error.ws.4404",
   },
   {
+    websocketCode: WebsocketStatusCode.NotAcceptable,
+    httpCode: HttpStatusCode.NotAcceptable,
+    translationMessageKey: "tldraw.error.ws.4406",
+  },
+  {
     websocketCode: WebsocketStatusCode.InternalServerError,
     httpCode: HttpStatusCode.InternalServerError,
     translationMessageKey: "tldraw.error.ws.4500",
@@ -35,6 +40,9 @@ export function useWebsocketErrorHandler() {
         (element) => element.websocketCode === event.code,
       );
       if (!error) return;
+      // not acceptable means we have to wait for the server to accept us
+      // keep reconnecting
+      if (error.websocketCode === WebsocketStatusCode.NotAcceptable) return;
 
       setErrorData(error.httpCode, error.translationMessageKey);
       redirectToErrorPage();
