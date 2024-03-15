@@ -237,6 +237,7 @@ export function useMultiplayerState({
     tdUser.metadata = {
       id: user!.id,
       displayName: `${user!.firstName} ${user!.lastName}`,
+      initials: user!.initials,
     };
     room.updatePresence({ tdUser });
   }, []);

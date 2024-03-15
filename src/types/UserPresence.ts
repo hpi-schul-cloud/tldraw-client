@@ -7,4 +7,5 @@ export type UserPresence = {
 export type UserMetadata = {
   id: string;
   displayName: string;
+  initials: string;
 };
