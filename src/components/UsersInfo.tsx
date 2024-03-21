@@ -55,7 +55,7 @@ function UsersInfo({
               boxShadow: boxShadow,
               scrollbarColor: `${scrollColor} transparent`,
             }}>
-            <ListOfUsers />
+            <ListOfUsers users={users} />
           </div>,
           document.body,
         )}
