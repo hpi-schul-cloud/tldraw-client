@@ -79,6 +79,9 @@
 $primary-padding: 20px;
 $primary-font-weight: 500;
 $primary-font-size: x-large;
+$border-color: rgba(0, 0, 0, 0.1);
+$border-left-color: #797979;
+$list-background-color: #363d44;
 $icon-background-color: #54616e1a;
 $icon-border-radius: 50%;
 $icon-padding: 5px;
@@ -139,6 +142,7 @@ a {
 
 .user-display {
   position: relative;
+  cursor: pointer;
 }
 
 .user-icon,
@@ -182,9 +186,7 @@ a {
     .tldraw-username {
       display: flex;
       flex: 1 0 auto;
-      font-family:
-        PT Sans Narrow,
-        sans-serif;
+      font-family: "PT Sans Narrow", sans-serif;
       font-weight: 700;
       font-size: 14px;
       line-height: 20px;
@@ -194,6 +196,80 @@ a {
       margin-left: 4px;
       border: 1px solid;
       color: #000000;
+    }
+  }
+}
+
+.list-of-users-container {
+  width: 280px;
+  max-height: 580px;
+  position: relative;
+  float: right;
+  background-color: $list-background-color;
+  margin: 10px 5px 0 0;
+  border-radius: 15px;
+  padding: 10px;
+
+  .loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .loading-spinner {
+    border: 6px solid $border-color;
+    border-left-color: $border-left-color;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    animation: spin 1s linear infinite;
+    margin: 5px 0;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+.users-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: auto;
+  scrollbar-width: thin;
+  max-height: 560px;
+
+  .user-data {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 8px 0 8px 8px;
+
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+    }
+
+    .user-name {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: normal;
+      width: 190px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      font-size: 12px;
+      line-height: 16px;
+      font-family: "Recursive", sans-serif;
     }
   }
 }

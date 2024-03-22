@@ -3,12 +3,12 @@ import { User } from "@y-presence/client";
 import { UserPresence } from "../types/UserPresence";
 import { room } from "../stores/setup";
 
-export function useUsersCount() {
-  const [usersCount, setUsersCount] = useState(0);
+export function useUsers() {
+  const [users, setUsers] = useState<User<UserPresence>[]>([]);
 
   useEffect(() => {
-    const handleUsersChange = (users: User<UserPresence>[]) => {
-      setUsersCount(users.length);
+    const handleUsersChange = (updatedUsers: User<UserPresence>[]) => {
+      setUsers(updatedUsers);
     };
 
     room.subscribe("users", handleUsersChange);
@@ -18,5 +18,5 @@ export function useUsersCount() {
     };
   }, []);
 
-  return usersCount;
+  return users;
 }

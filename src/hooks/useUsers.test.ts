@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react";
-import { useUsersCount } from "./useUsersCount";
+import { useUsers } from "./useUsers";
 import { room } from "../stores/setup";
 
 vi.mock("../stores/setup", () => {
@@ -11,11 +11,11 @@ vi.mock("../stores/setup", () => {
   };
 });
 
-describe("useUsersCount hook", () => {
+describe("useUsers hook", () => {
   it("should subscribe to room on mount and unsubscribe on unmount", () => {
-    const { result, unmount } = renderHook(() => useUsersCount());
+    const { result, unmount } = renderHook(() => useUsers());
 
-    expect(result.current).toBe(0);
+    expect(result.current).toStrictEqual([]);
     expect(room.subscribe).toHaveBeenCalled();
     expect(room.unsubscribe).not.toHaveBeenCalled();
 
