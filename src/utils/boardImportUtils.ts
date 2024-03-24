@@ -103,8 +103,8 @@ const uploadAction = (
   return promise;
 };
 
-const openAssetsFromFileSystem = () => {
-  return fileOpen({
+const openAssetsFromFileSystem = async () => {
+  return await fileOpen({
     description: "Image",
     extensions: [".png", ".svg", ".jpg", ".jpeg", ".gif"],
     multiple: true,
