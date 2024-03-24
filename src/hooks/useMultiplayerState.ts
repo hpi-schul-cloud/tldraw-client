@@ -27,6 +27,7 @@ import { UserPresence } from "../types/UserPresence";
 import {
   importAssetsToS3,
   openFromFileSystem,
+  openAssetsFromFileSystem,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
@@ -106,6 +107,11 @@ export function useMultiplayerState({
       // some of them had to be changed/fixed to support additional functionality
       app.saveProjectAs = async (filename) => {
         await onSaveAs(app, filename);
+        return app;
+      };
+
+      app.openAsset = async () => {
+        await openAssetsFromFileSystem();
         return app;
       };
 

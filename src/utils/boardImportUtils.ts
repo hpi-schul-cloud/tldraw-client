@@ -103,4 +103,12 @@ const uploadAction = (
   return promise;
 };
 
-export { openFromFileSystem, importAssetsToS3 };
+const openAssetsFromFileSystem = () => {
+  return fileOpen({
+    description: "Image",
+    extensions: [".png", ".svg", ".jpg", ".jpeg", ".gif"],
+    multiple: true,
+  });
+};
+
+export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
