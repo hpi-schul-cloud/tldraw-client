@@ -110,8 +110,21 @@ export function useMultiplayerState({
         return app;
       };
 
-      app.openAsset = async () => {
-        await openAssetsFromFileSystem();
+      openAsset = async () => {
+        if (!this.disableAssets)
+          try {
+            const file = await openAssetsFromFileSystem();
+            if (Array.isArray(file)) {
+              this.addMediaFromFiles(file, this.centerPoint);
+            } else {
+              if (!file) return;
+              this.addMediaFromFiles([file]);
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            this.persist({});
+          }
       };
 
       app.openProject = async () => {
