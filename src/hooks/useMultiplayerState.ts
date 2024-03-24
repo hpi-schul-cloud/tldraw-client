@@ -122,8 +122,6 @@ export function useMultiplayerState({
             }
           } catch (e) {
             console.error(e);
-          } finally {
-            app.persist({});
           }
       };
 
