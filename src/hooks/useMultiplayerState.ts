@@ -112,7 +112,6 @@ export function useMultiplayerState({
 
       app.openAsset = async () => {
         await openAssetsFromFileSystem();
-        return app;
       };
 
       app.openProject = async () => {
