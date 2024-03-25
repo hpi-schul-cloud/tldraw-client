@@ -112,12 +112,12 @@ const fileMimeExtensions = {
 };
 
 const allowedMimeTypes =
-  envs.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST?.split(",") || [];
+  envs?.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST?.split(",") || [];
 
 const openAssetsFromFileSystem = async () => {
-  const extensions = allowedMimeTypes.flatMap(
-    (mimeType) => fileMimeExtensions[mimeType] || [],
-  );
+  const extensions = (
+    allowedMimeTypes as (keyof typeof fileMimeExtensions)[]
+  ).flatMap((mimeType) => fileMimeExtensions[mimeType] || []);
   return await fileOpen({
     description: "Image",
     extensions: extensions,
