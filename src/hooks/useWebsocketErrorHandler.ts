@@ -29,7 +29,7 @@ const websocketErrors = [
   {
     websocketCode: WebsocketStatusCode.InternalServerError,
     httpCode: HttpStatusCode.InternalServerError,
-    translationMessageKey: "tldraw.error.ws.4500",
+    translationMessageKey: "error.4500",
   },
 ];
 
