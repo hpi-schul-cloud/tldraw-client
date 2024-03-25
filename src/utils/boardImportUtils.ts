@@ -104,7 +104,7 @@ const uploadAction = (
   return promise;
 };
 
-const fileMimeExtensions = {
+const fileMimeExtensions: { [key: string]: string[] } = {
   "image/jpeg": [".jpg", ".jpeg"],
   "image/png": [".png"],
   "image/svg+xml": [".svg"],
