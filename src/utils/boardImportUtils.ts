@@ -2,6 +2,7 @@ import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
 import { API } from "../configuration/api/api.configuration";
+import { envs } from "../stores/setup";
 
 const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
@@ -103,10 +104,23 @@ const uploadAction = (
   return promise;
 };
 
+const fileMimeExtensions = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/svg+xml": [".svg"],
+  "image/gif": [".gif"],
+};
+
+const allowedMimeTypes =
+  envs.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST?.split(",") || [];
+
 const openAssetsFromFileSystem = async () => {
+  const extensions = allowedMimeTypes.flatMap(
+    (mimeType) => fileMimeExtensions[mimeType] || [],
+  );
   return await fileOpen({
     description: "Image",
-    extensions: [".png", ".svg", ".jpg", ".jpeg", ".gif"],
+    extensions: extensions,
     multiple: true,
   });
 };

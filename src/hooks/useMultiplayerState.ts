@@ -120,8 +120,8 @@ export function useMultiplayerState({
               if (!file) return;
               app.addMediaFromFiles([file]);
             }
-          } catch (e) {
-            console.error(e);
+          } catch (error) {
+            handleError("An error occurred while uploading asset", error);
           }
       };
 
