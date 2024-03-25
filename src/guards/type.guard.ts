@@ -10,10 +10,10 @@ export class TypeGuard {
 			throw new Error('Type is not a number');
 		}
 	}
-
-	static checkString(value: unknown): void {
-		if (typeof value !== 'string') {
-			throw new Error('Type is not a string');
+	
+	static checkArray(value: unknown): void {
+		if (!Array.isArray(value)) {
+			throw new Error('Type is not an array');
 		}
 	}
 

@@ -9,7 +9,7 @@ const checkEnvType = (obj: Record<string, unknown>): void => {
 	TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
 	TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
 	TypeGuard.checkNumber(obj.TLDRAW__ASSETS_MAX_SIZE);
-	TypeGuard.checkString(obj.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST);
+	TypeGuard.checkArray(obj.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST);
 }
 
 const castToEnv = (obj: Record<string, unknown>): Envs => {
