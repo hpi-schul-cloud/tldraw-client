@@ -111,8 +111,7 @@ const fileMimeExtensions: { [key: string]: string[] } = {
   "image/gif": [".gif"],
 };
 
-const allowedMimeTypes =
-  envs?.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST?.split(",") || [];
+const allowedMimeTypes = envs?.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST || [];
 
 const openAssetsFromFileSystem = async () => {
   const extensions = allowedMimeTypes.flatMap(
