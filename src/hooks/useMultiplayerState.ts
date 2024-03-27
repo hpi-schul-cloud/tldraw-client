@@ -111,18 +111,18 @@ export function useMultiplayerState({
       };
 
       app.openAsset = async () => {
-        if (!app.disableAssets)
-          try {
-            const file = await openAssetsFromFileSystem();
-            if (Array.isArray(file)) {
-              app.addMediaFromFiles(file, app.centerPoint);
-            } else {
-              if (!file) return;
-              app.addMediaFromFiles([file]);
-            }
-          } catch (error) {
-            handleError("An error occurred while uploading asset", error);
-          }
+        if (app.disableAssets) return;
+
+        try {
+          const files = await openAssetsFromFileSystem();
+
+          if (!files) return;
+
+          const filesToAdd = Array.isArray(files) ? files : [files];
+          app.addMediaFromFiles(filesToAdd, app.centerPoint);
+        } catch (error) {
+          handleError("An error occurred while uploading asset", error);
+        }
       };
 
       app.openProject = async () => {

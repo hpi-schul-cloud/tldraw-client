@@ -118,11 +118,15 @@ const openAssetsFromFileSystem = async () => {
   const extensions = allowedMimeTypes.flatMap(
     (mimeType) => fileMimeExtensions[mimeType] || [],
   );
-  return await fileOpen({
+  // NOTE: The extensions here are selected based on the MIME types allowed by TLDRAW,
+  //       taking into account additional extension checks performed internally by TLDRAW.
+
+  const result = await fileOpen({
     description: "Image",
     extensions: extensions,
     multiple: true,
   });
+  return result;
 };
 
 export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
