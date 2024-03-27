@@ -28,7 +28,6 @@ import {
   importAssetsToS3,
   openFromFileSystem,
   openAssetsFromFileSystem,
-  getFileExtension,
   hasDisallowedExtension,
   createDisallowedFilesErrorMessage,
   handleDisallowedFilesError,
