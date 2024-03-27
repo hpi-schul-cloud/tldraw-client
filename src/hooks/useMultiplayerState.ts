@@ -28,6 +28,10 @@ import {
   importAssetsToS3,
   openFromFileSystem,
   openAssetsFromFileSystem,
+  getFileExtension,
+  hasDisallowedExtension,
+  createDisallowedFilesErrorMessage,
+  handleDisallowedFilesError,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
@@ -114,12 +118,25 @@ export function useMultiplayerState({
         if (app.disableAssets) return;
 
         try {
-          const files = await openAssetsFromFileSystem();
+          const result = await openAssetsFromFileSystem();
 
-          if (!files) return;
+          if (!result) return;
 
-          const filesToAdd = Array.isArray(files) ? files : [files];
-          app.addMediaFromFiles(filesToAdd, app.centerPoint);
+          const files = Array.isArray(result) ? result : [result];
+          const disallowedExtensions = [".txt", ".pdf", ".doc", ".docx"];
+
+          const disallowedFiles = files.filter((file) =>
+            hasDisallowedExtension(file.name, disallowedExtensions),
+          );
+
+          if (disallowedFiles.length > 0) {
+            const errorMessage =
+              createDisallowedFilesErrorMessage(disallowedExtensions);
+            handleDisallowedFilesError(errorMessage);
+            return;
+          }
+
+          app.addMediaFromFiles(files, app.centerPoint);
         } catch (error) {
           handleError("An error occurred while uploading asset", error);
         }

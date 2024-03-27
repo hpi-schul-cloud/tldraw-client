@@ -128,4 +128,34 @@ const openAssetsFromFileSystem = async () => {
   return result;
 };
 
-export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
+const getFileExtension = (fileName: string): string | undefined => {
+  const dotIndex = fileName.lastIndexOf(".");
+  return dotIndex !== -1 ? fileName.substring(dotIndex) : undefined;
+};
+
+const hasDisallowedExtension = (
+  fileName: string,
+  extensions: string[],
+): boolean => {
+  const fileExtension = getFileExtension(fileName)?.toLowerCase();
+  return !!fileExtension && extensions.includes(fileExtension);
+};
+
+const createDisallowedFilesErrorMessage = (extensions: string[]): string => {
+  return `Error: Cannot load files with extensions: ${extensions.join(", ")}`;
+};
+
+const handleDisallowedFilesError = (errorMessage: string): void => {
+  console.error(errorMessage);
+  toast.error(errorMessage);
+};
+
+export {
+  openFromFileSystem,
+  importAssetsToS3,
+  openAssetsFromFileSystem,
+  getFileExtension,
+  hasDisallowedExtension,
+  createDisallowedFilesErrorMessage,
+  handleDisallowedFilesError,
+};
