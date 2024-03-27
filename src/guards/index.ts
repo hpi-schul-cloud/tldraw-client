@@ -1,2 +1,2 @@
-export * from './type.guard';
-export * from './http.guard';
+export * from "./type.guard";
+export * from "./http.guard";

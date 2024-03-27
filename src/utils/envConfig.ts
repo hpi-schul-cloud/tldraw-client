@@ -6,14 +6,15 @@ import { HttpGuard } from "../guards";
 // the try catch should not part of getEnvs, the place that use it must handle the errors
 // should be part of a store
 // Without loading the config the Promise.all should not be finished and proceed.
-export const getEnvs = async (): Promise<Envs|undefined> => {
+export const getEnvs = async (): Promise<Envs | undefined> => {
   try {
     // TODO: check order..
     const response = await fetch(API.ENV_CONFIG);
     HttpGuard.checkStatusOk(response);
     const responseData = await response.json();
-   
-    const configuration = ConfigurationMapper.mapToConfigurationFromResponse(responseData);
+
+    const configuration =
+      ConfigurationMapper.mapToConfigurationFromResponse(responseData);
 
     return configuration;
   } catch (error) {

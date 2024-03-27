@@ -25,7 +25,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      "/api/v3/user": {
+      "/api/v3": {
         target: "http://localhost:3030",
         changeOrigin: true,
         secure: false,
