@@ -159,4 +159,3 @@ export {
   createDisallowedFilesErrorMessage,
   handleDisallowedFilesError,
 };
-export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
