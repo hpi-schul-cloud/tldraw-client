@@ -1,1 +1,1 @@
-export * from './configuration.mapper';
+export * from "./configuration.mapper";

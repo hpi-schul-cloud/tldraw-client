@@ -27,6 +27,7 @@ import { UserPresence } from "../types/UserPresence";
 import {
   importAssetsToS3,
   openFromFileSystem,
+  openAssetsFromFileSystem,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
@@ -107,6 +108,21 @@ export function useMultiplayerState({
       app.saveProjectAs = async (filename) => {
         await onSaveAs(app, filename);
         return app;
+      };
+
+      app.openAsset = async () => {
+        if (app.disableAssets) return;
+
+        try {
+          const files = await openAssetsFromFileSystem();
+
+          if (!files) return;
+
+          const filesToAdd = Array.isArray(files) ? files : [files];
+          app.addMediaFromFiles(filesToAdd, app.centerPoint);
+        } catch (error) {
+          handleError("An error occurred while uploading asset", error);
+        }
       };
 
       app.openProject = async () => {
