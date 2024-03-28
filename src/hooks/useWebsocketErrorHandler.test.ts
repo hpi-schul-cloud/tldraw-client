@@ -46,7 +46,7 @@ describe("useWebsocketErrorHandler hook", () => {
 
     expect(setErrorData).toHaveBeenCalledWith(
       HttpStatusCode.InternalServerError,
-      "tldraw.error.ws.4500",
+      "error.4500",
     );
     expect(redirectToErrorPage).toHaveBeenCalled();
   });

@@ -32,13 +32,13 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
   }
 
   if (!envs || !userResult.user) {
-    setErrorData(HttpStatusCode.InternalServerError, "tldraw.error.500");
+    setErrorData(HttpStatusCode.InternalServerError, "error.500");
     redirectToErrorPage();
     return;
   }
 
   if (!envs!.FEATURE_TLDRAW_ENABLED) {
-    setErrorData(HttpStatusCode.Forbidden, "tldraw.error.403");
+    setErrorData(HttpStatusCode.Forbidden, "error.403");
     redirectToErrorPage();
     return;
   }
