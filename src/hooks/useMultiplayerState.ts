@@ -26,6 +26,7 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
+import { fileMimeExtensions } from "../types/fileExtensions";
 import {
   importAssetsToS3,
   openFromFileSystem,
@@ -34,7 +35,6 @@ import {
   createDisallowedFilesErrorMessage,
   handleDisallowedFilesError,
   addMediaFromFiles,
-  fileMimeExtensions,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
