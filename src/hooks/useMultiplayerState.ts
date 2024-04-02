@@ -8,7 +8,6 @@ import {
   TDUser,
   TldrawApp,
   TldrawPatch,
-  TLDR,
 } from "@tldraw/tldraw";
 import { Utils } from "@tldraw/core";
 import { User } from "@y-presence/client";
@@ -32,7 +31,6 @@ import {
   importAssetsToS3,
   openFromFileSystem,
   openAssetsFromFileSystem,
-  addMediaFromFiles,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
@@ -112,6 +110,65 @@ export function useMultiplayerState({
       // some of them had to be changed/fixed to support additional functionality
       app.saveProjectAs = async (filename) => {
         await onSaveAs(app, filename);
+        return app;
+      };
+
+      const addMediaFromFiles = async (
+        files: File[],
+        point = app.centerPoint,
+      ) => {
+        app.setIsLoading(false);
+
+        const shapesToCreate: TDShape[] = [];
+        const pagePoint = app.getPagePoint(point);
+
+        for (const file of files) {
+          const id = Utils.uniqueId();
+          const extension = file.name.match(/\.[0-9a-z]+$/i);
+
+          if (!extension) throw Error("No extension");
+
+          const mimeTypes = Object.keys(fileMimeExtensions);
+          const fileMimeType = mimeTypes.find((mimeType) =>
+            file.type.startsWith(mimeType),
+          );
+
+          if (!fileMimeType) {
+            app.setIsLoading(true);
+            toast.error("Wrong file format");
+            continue;
+          }
+
+          const allowedExtensions = fileMimeExtensions[fileMimeType];
+          const isImage = allowedExtensions.some(
+            (ext) => ext === extension[0].toLowerCase(),
+          );
+
+          if (!isImage) {
+            app.setIsLoading(true);
+            toast.error("Wrong file format");
+            continue;
+          }
+
+          let src: string | ArrayBuffer | null;
+
+          try {
+            if (app.callbacks.onAssetCreate) {
+              const result = await app.callbacks.onAssetCreate(app, file, id);
+
+              if (!result)
+                throw Error("Asset creation callback returned false");
+
+              src = result;
+            } else {
+              src = await fileToBase64(file);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+
+        app.setIsLoading(false);
         return app;
       };
 
@@ -513,59 +570,4 @@ const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
       continue;
     }
   }
-};
-
-const addMediaFromFiles = async (files: File[], point = app.centerPoint) => {
-  app.setIsLoading(false);
-
-  const shapesToCreate: TDShape[] = [];
-  const pagePoint = app.getPagePoint(point);
-
-  for (const file of files) {
-    const id = Utils.uniqueId();
-    const extension = file.name.match(/\.[0-9a-z]+$/i);
-
-    if (!extension) throw Error("No extension");
-
-    const mimeTypes = Object.keys(fileMimeExtensions);
-    const fileMimeType = mimeTypes.find((mimeType) =>
-      file.type.startsWith(mimeType),
-    );
-
-    if (!fileMimeType) {
-      app.setIsLoading(true);
-      toast.error("Wrong file format");
-      continue;
-    }
-
-    const allowedExtensions = fileMimeExtensions[fileMimeType];
-    const isImage = allowedExtensions.some(
-      (ext) => ext === extension[0].toLowerCase(),
-    );
-
-    if (!isImage) {
-      app.setIsLoading(true);
-      toast.error("Wrong file format");
-      continue;
-    }
-
-    let src: string | ArrayBuffer | null;
-
-    try {
-      if (app.callbacks.onAssetCreate) {
-        const result = await app.callbacks.onAssetCreate(app, file, id);
-
-        if (!result) throw Error("Asset creation callback returned false");
-
-        src = result;
-      } else {
-        src = await fileToBase64(file);
-      }
-    } catch (error) {
-      // Even if one shape errors, keep going (we might have had other shapes that didn't error)
-    }
-  }
-
-  app.setIsLoading(false);
-  return app;
 };
