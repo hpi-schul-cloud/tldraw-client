@@ -8,8 +8,11 @@ import {
   TDUser,
   TldrawApp,
   TldrawPatch,
+  TLDR,
+  getVideoSizeFromSrc,
+  getImageSizeFromSrc,
 } from "@tldraw/tldraw";
-import { Utils, TDShapeType } from "@tldraw/core";
+import { Utils } from "@tldraw/core";
 import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";

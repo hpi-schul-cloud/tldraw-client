@@ -1,18 +1,10 @@
-import {
-  TDAsset,
-  TDDocument,
-  TDFile,
-  getImageSizeFromSrc,
-  getVideoSizeFromSrc,
-} from "@tldraw/tldraw";
+import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
-import { TldrawApp, TLDR } from "@tldraw/tldraw";
-import { Utils, TDShape } from "@tldraw/core";
+import { TldrawApp } from "@tldraw/tldraw";
 import { API } from "../configuration/api/api.configuration";
 import { envs } from "../stores/setup";
 import { fileMimeExtensions } from "../types/fileExtensions";
-import { fileToBase64 } from "../utils/boardExportUtils.ts";
 
 const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
