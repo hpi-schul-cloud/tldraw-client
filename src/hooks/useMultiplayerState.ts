@@ -1,4 +1,5 @@
 import lodash from "lodash";
+import React from "react";
 import {
   TDAsset,
   TDBinding,
@@ -8,6 +9,7 @@ import {
   TldrawApp,
   TldrawPatch,
 } from "@tldraw/tldraw";
+import { Utils, TDShapeType } from "@tldraw/core";
 import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -31,6 +33,8 @@ import {
   hasDisallowedExtension,
   createDisallowedFilesErrorMessage,
   handleDisallowedFilesError,
+  addMediaFromFiles,
+  fileMimeExtensions,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
@@ -117,25 +121,12 @@ export function useMultiplayerState({
         if (app.disableAssets) return;
 
         try {
-          const result = await openAssetsFromFileSystem();
+          const files = await openAssetsFromFileSystem();
 
-          if (!result) return;
+          if (!files) return;
 
-          const files = Array.isArray(result) ? result : [result];
-          const disallowedExtensions = [".txt", ".pdf", ".doc", ".docx"];
-
-          const disallowedFiles = files.filter((file) =>
-            hasDisallowedExtension(file.name, disallowedExtensions),
-          );
-
-          if (disallowedFiles.length > 0) {
-            const errorMessage =
-              createDisallowedFilesErrorMessage(disallowedExtensions);
-            handleDisallowedFilesError(errorMessage);
-            return;
-          }
-
-          app.addMediaFromFiles(files, app.centerPoint);
+          const filesToAdd = Array.isArray(files) ? files : [files];
+          addMediaFromFiles(filesToAdd, app.centerPoint);
         } catch (error) {
           handleError("An error occurred while uploading asset", error);
         }
@@ -397,6 +388,7 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
+    onDrop,
   };
 }
 
@@ -470,5 +462,57 @@ const handleError = (toastMessage: string, error: unknown) => {
 
     console.error(toastMessage, error);
     toast.error(toastMessage);
+  }
+};
+
+const onDrop = async (e: React.DragEvent<HTMLDivElement>, app: TldrawApp) => {
+  e.preventDefault();
+
+  if (app.disableAssets) return app;
+
+  const dataTransfer = e.dataTransfer;
+  if (!dataTransfer) return app;
+
+  const files = dataTransfer.files;
+  if (!files) return app;
+
+  try {
+    await handleDroppedFiles(files, app);
+  } catch (error) {
+    handleError("An error occurred while handling dropped files", error);
+  }
+
+  return app;
+};
+
+const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
+  const mimeTypes = Object.keys(fileMimeExtensions);
+
+  for (const file of Array.from(files)) {
+    const id = Utils.uniqueId();
+    const extension = file.name.match(/\.[0-9a-z]+$/i);
+
+    if (!extension) throw Error("No extension");
+
+    const fileMimeType = mimeTypes.find((mimeType) =>
+      file.type.startsWith(mimeType),
+    );
+
+    if (!fileMimeType) {
+      app.setIsLoading(false);
+      toast.error("Wrong file format");
+      continue;
+    }
+
+    const allowedExtensions = fileMimeExtensions[fileMimeType];
+    const isAllowedExtension = allowedExtensions.some(
+      (ext) => ext === extension[0].toLowerCase(),
+    );
+
+    if (!isAllowedExtension) {
+      app.setIsLoading(false);
+      toast.error("Wrong file format");
+      continue;
+    }
   }
 };
