@@ -1,7 +1,6 @@
 import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
-import { TldrawApp } from "@tldraw/tldraw";
 import { API } from "../configuration/api/api.configuration";
 import { envs } from "../stores/setup";
 import { fileMimeExtensions } from "../types/fileExtensions";
@@ -124,9 +123,4 @@ const openAssetsFromFileSystem = async () => {
   return result;
 };
 
-export {
-  openFromFileSystem,
-  importAssetsToS3,
-  openAssetsFromFileSystem,
-  getFileExtension,
-};
+export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };

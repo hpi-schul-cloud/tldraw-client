@@ -32,7 +32,7 @@ import {
   openFromFileSystem,
   openAssetsFromFileSystem,
 } from "../utils/boardImportUtils";
-import { saveToFileSystem } from "../utils/boardExportUtils";
+import { saveToFileSystem, fileToBase64 } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
 import { getImageBlob } from "../utils/tldrawImageExportUtils";
 
@@ -118,9 +118,6 @@ export function useMultiplayerState({
         point = app.centerPoint,
       ) => {
         app.setIsLoading(false);
-
-        const shapesToCreate: TDShape[] = [];
-        const pagePoint = app.getPagePoint(point);
 
         for (const file of files) {
           const id = Utils.uniqueId();
@@ -544,7 +541,6 @@ const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
   const mimeTypes = Object.keys(fileMimeExtensions);
 
   for (const file of Array.from(files)) {
-    const id = Utils.uniqueId();
     const extension = file.name.match(/\.[0-9a-z]+$/i);
 
     if (!extension) throw Error("No extension");
