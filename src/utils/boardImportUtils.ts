@@ -1,11 +1,12 @@
 import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
-import { TldrawApp } from "@tldraw/tldraw";
-import { Utils } from "@tldraw/core";
+import { TldrawApp, TLDR } from "@tldraw/tldraw";
+import { Utils, TDShape } from "@tldraw/core";
 import { API } from "../configuration/api/api.configuration";
 import { envs } from "../stores/setup";
 import { fileMimeExtensions } from "../types/fileExtensions";
+import { fileToBase64 } from "../utils/boardExportUtils.ts";
 
 const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
@@ -222,7 +223,7 @@ const loadMedia = async (
     );
     if (result && typeof result === "string") return result;
   }
-  return isImage ? fileToBase64(file) : fileToBlobUrl(file);
+  return isImage ? fileToBase64(file) : fileToBase64(file);
 };
 
 const adjustShapesPosition = (shapes: TDShape[], bounds: number[]): void => {
@@ -243,8 +244,5 @@ export {
   importAssetsToS3,
   openAssetsFromFileSystem,
   getFileExtension,
-  hasDisallowedExtension,
-  createDisallowedFilesErrorMessage,
-  handleDisallowedFilesError,
   addMediaFromFiles,
 };

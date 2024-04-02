@@ -78,4 +78,4 @@ const fileToBase64 = (file: Blob): Promise<string | ArrayBuffer | null> => {
   });
 };
 
-export { saveToFileSystem };
+export { saveToFileSystem, fileToBase64 };

@@ -31,9 +31,6 @@ import {
   importAssetsToS3,
   openFromFileSystem,
   openAssetsFromFileSystem,
-  hasDisallowedExtension,
-  createDisallowedFilesErrorMessage,
-  handleDisallowedFilesError,
   addMediaFromFiles,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
