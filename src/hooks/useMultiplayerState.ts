@@ -513,3 +513,143 @@ const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
     }
   }
 };
+
+const addMediaFromFiles = async (files: File[], point = app.centerPoint) => {
+  app.setIsLoading(false);
+
+  const shapesToCreate: TDShape[] = [];
+  const pagePoint = app.getPagePoint(point);
+
+  for (const file of files) {
+    const id = Utils.uniqueId();
+    const extension = file.name.match(/\.[0-9a-z]+$/i);
+
+    if (!extension) throw Error("No extension");
+
+    const mimeTypes = Object.keys(fileMimeExtensions);
+    const fileMimeType = mimeTypes.find((mimeType) =>
+      file.type.startsWith(mimeType),
+    );
+
+    if (!fileMimeType) {
+      app.setIsLoading(true);
+      toast.error("Wrong file format");
+      continue;
+    }
+
+    const allowedExtensions = fileMimeExtensions[fileMimeType];
+    const isImage = allowedExtensions.some(
+      (ext) => ext === extension[0].toLowerCase(),
+    );
+
+    if (!isImage) {
+      app.setIsLoading(true);
+      toast.error("Wrong file format");
+      continue;
+    }
+
+    let src: string | ArrayBuffer | null;
+
+    try {
+      if (app.callbacks.onAssetCreate) {
+        const result = await app.callbacks.onAssetCreate(app, file, id);
+
+        if (!result) throw Error("Asset creation callback returned false");
+
+        src = result;
+      } else {
+        src = await fileToBase64(file);
+      }
+
+      if (typeof src === "string") {
+        let size = [0, 0];
+
+        if (isImage) {
+          if (extension[0] == ".svg") {
+            let viewBox: string[];
+            const svgString = await fileToText(file);
+            const viewBoxAttribute = app.getViewboxFromSVG(svgString);
+
+            if (viewBoxAttribute) {
+              viewBox = viewBoxAttribute.split(" ");
+              size[0] = parseFloat(viewBox[2]);
+              size[1] = parseFloat(viewBox[3]);
+            }
+          }
+          if (Vec.isEqual(size, [0, 0])) {
+            size = await getImageSizeFromSrc(src);
+          }
+        } else {
+          size = await getVideoSizeFromSrc(src);
+        }
+
+        const match = Object.values(app.document.assets).find(
+          (asset) => asset.type === assetType && asset.src === src,
+        );
+
+        let assetId: string;
+
+        if (!match) {
+          assetId = id;
+
+          const asset = {
+            id: assetId,
+            type: assetType,
+            name: file.name,
+            src,
+            size,
+          };
+
+          app.patchState({
+            document: {
+              assets: {
+                [assetId]: asset,
+              },
+            },
+          });
+        } else {
+          assetId = match.id;
+        }
+
+        shapesToCreate.push(
+          app.getImageOrVideoShapeAtPoint(id, point, size, assetId),
+        );
+      }
+    } catch (error) {
+      // Even if one shape errors, keep going (we might have had other shapes that didn't error)
+    }
+  }
+
+  if (shapesToCreate.length) {
+    const currentPoint = Vec.add(pagePoint, [0, 0]);
+
+    shapesToCreate.forEach((shape, i) => {
+      const bounds = TLDR.getBounds(shape);
+
+      if (i === 0) {
+        currentPoint[0] -= bounds.width / 2;
+        currentPoint[1] -= bounds.height / 2;
+      }
+
+      shape.point = [...currentPoint];
+
+      currentPoint[0] += bounds.width;
+    });
+
+    const commonBounds = Utils.getCommonBounds(
+      shapesToCreate.map(TLDR.getBounds),
+    );
+
+    app.createShapes(...shapesToCreate);
+
+    if (!Utils.boundsContain(app.viewport, commonBounds)) {
+      app.zoomToSelection();
+      if (app.zoom > 1) {
+        app.resetZoom();
+      }
+    }
+  }
+
+  app.setIsLoading(false);
+  return app;
+};
