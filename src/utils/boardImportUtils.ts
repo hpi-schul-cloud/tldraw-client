@@ -123,4 +123,16 @@ const openAssetsFromFileSystem = async () => {
   return result;
 };
 
-export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
+const getAllowedExtensions = (file: File): string[] | null => {
+  const fileMimeType = file.type;
+  const allowedExtensions = fileMimeExtensions[fileMimeType];
+  if (!allowedExtensions) return null;
+  return allowedExtensions.map((ext) => ext.toLowerCase());
+};
+
+export {
+  openFromFileSystem,
+  importAssetsToS3,
+  openAssetsFromFileSystem,
+  getAllowedExtensions,
+};

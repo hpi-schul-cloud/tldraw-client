@@ -31,8 +31,9 @@ import {
   importAssetsToS3,
   openFromFileSystem,
   openAssetsFromFileSystem,
+  getAllowedExtensions,
 } from "../utils/boardImportUtils";
-import { saveToFileSystem, fileToBase64 } from "../utils/boardExportUtils";
+import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
 import { getImageBlob } from "../utils/tldrawImageExportUtils";
 
@@ -113,62 +114,6 @@ export function useMultiplayerState({
         return app;
       };
 
-      const addMediaFromFiles = async (
-        files: File[],
-        point = app.centerPoint,
-      ) => {
-        app.setIsLoading(false);
-
-        for (const file of files) {
-          const id = Utils.uniqueId();
-          const extension = file.name.match(/\.[0-9a-z]+$/i);
-
-          if (!extension) throw Error("No extension");
-
-          const mimeTypes = Object.keys(fileMimeExtensions);
-          const fileMimeType = mimeTypes.find((mimeType) =>
-            file.type.startsWith(mimeType),
-          );
-
-          if (!fileMimeType) {
-            app.setIsLoading(true);
-            toast.error("Wrong file format");
-            continue;
-          }
-
-          const allowedExtensions = fileMimeExtensions[fileMimeType];
-          const isImage = allowedExtensions.some(
-            (ext) => ext === extension[0].toLowerCase(),
-          );
-
-          if (!isImage) {
-            app.setIsLoading(true);
-            toast.error("Wrong file format");
-            continue;
-          }
-
-          let src: string | ArrayBuffer | null;
-
-          try {
-            if (app.callbacks.onAssetCreate) {
-              const result = await app.callbacks.onAssetCreate(app, file, id);
-
-              if (!result)
-                throw Error("Asset creation callback returned false");
-
-              src = result;
-            } else {
-              src = await fileToBase64(file);
-            }
-          } catch (error) {
-            console.error(error);
-          }
-        }
-
-        app.setIsLoading(false);
-        return app;
-      };
-
       app.openAsset = async () => {
         if (app.disableAssets) return;
 
@@ -178,8 +123,24 @@ export function useMultiplayerState({
           if (!files) return;
 
           const filesToAdd = Array.isArray(files) ? files : [files];
-          addMediaFromFiles(filesToAdd, app.centerPoint);
+
+          const invalidFiles = filesToAdd.filter((file) => {
+            const fileMIMEType = file.type;
+            const allowedExtensions = getAllowedExtensions(file);
+            if (!allowedExtensions) return true;
+            const fileExtension = `.${file.name.split(".").pop()}`;
+            return !allowedExtensions.includes(fileExtension);
+          });
+
+          if (invalidFiles.length > 0) {
+            toast.error("Invalid file extension.");
+            return;
+          }
+
+          app.addMediaFromFiles(filesToAdd, app.centerPoint);
+          app.setIsLoading(false);
         } catch (error) {
+          app.setIsLoading(false);
           handleError("An error occurred while uploading asset", error);
         }
       };
@@ -545,17 +506,14 @@ const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
 
     if (!extension) throw Error("No extension");
 
-    const fileMimeType = mimeTypes.find((mimeType) =>
-      file.type.startsWith(mimeType),
-    );
+    const allowedExtensions = getAllowedExtensions(file);
 
-    if (!fileMimeType) {
+    if (!allowedExtensions) {
       app.setIsLoading(false);
       toast.error("Wrong file format");
       continue;
     }
 
-    const allowedExtensions = fileMimeExtensions[fileMimeType];
     const isAllowedExtension = allowedExtensions.some(
       (ext) => ext === extension[0].toLowerCase(),
     );
