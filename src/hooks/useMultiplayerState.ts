@@ -25,7 +25,6 @@ import {
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
-import { fileMimeExtensions } from "../types/fileExtensions";
 import {
   importAssetsToS3,
   openFromFileSystem,
@@ -49,7 +48,7 @@ export function useMultiplayerState({
   setIsDarkMode,
   setIsFocusMode,
 }: MultiplayerStateProps) {
-  const [app, setApp] = useState<TldrawApp>({});
+  const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
 
   // Callbacks --------------
@@ -242,24 +241,26 @@ export function useMultiplayerState({
   const onDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
 
-    if (app.disableAssets) return app;
+    if (app) {
+      if (app.disableAssets) return app;
 
-    const dataTransfer = e.dataTransfer;
-    if (!dataTransfer) return app;
+      const dataTransfer = e.dataTransfer;
+      if (!dataTransfer) return app;
 
-    const files = dataTransfer.files;
-    if (!files) return app;
+      const files = dataTransfer.files;
+      if (!files) return app;
 
-    try {
-      await handleDroppedFiles(files);
-    } catch (error) {
-      handleError("An error occurred while handling dropped files", error);
+      try {
+        await handleDroppedFiles(files, app);
+      } catch (error) {
+        handleError("An error occurred while handling dropped files", error);
+      }
+
+      return app;
     }
-
-    return app;
   };
 
-  const handleDroppedFiles = async (files: FileList) => {
+  const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
     for (const file of Array.from(files)) {
       const extension = file.name.match(/\.[0-9a-z]+$/i);
 
