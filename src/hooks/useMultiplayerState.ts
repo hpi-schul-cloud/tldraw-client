@@ -138,9 +138,7 @@ export function useMultiplayerState({
           }
 
           app.addMediaFromFiles(filesToAdd, app.centerPoint);
-          app.setIsLoading(false);
         } catch (error) {
-          app.setIsLoading(false);
           handleError("An error occurred while uploading asset", error);
         }
       };
