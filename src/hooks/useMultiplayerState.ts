@@ -228,7 +228,7 @@ export function useMultiplayerState({
               );
             }
           } catch (error) {
-            console.error("An error occurred while uploading asset:", error);
+            console.error("An error occurred while uploading asset", error);
           }
         }
 
