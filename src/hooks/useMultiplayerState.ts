@@ -9,7 +9,6 @@ import {
   TldrawApp,
   TldrawPatch,
 } from "@tldraw/tldraw";
-import { Utils } from "@tldraw/core";
 import { User } from "@y-presence/client";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -50,7 +49,7 @@ export function useMultiplayerState({
   setIsDarkMode,
   setIsFocusMode,
 }: MultiplayerStateProps) {
-  const [app, setApp] = useState<TldrawApp>();
+  const [app, setApp] = useState<TldrawApp>({});
   const [loading, setLoading] = useState(true);
 
   // Callbacks --------------
@@ -125,7 +124,6 @@ export function useMultiplayerState({
           const filesToAdd = Array.isArray(files) ? files : [files];
 
           const invalidFiles = filesToAdd.filter((file) => {
-            const fileMIMEType = file.type;
             const allowedExtensions = getAllowedExtensions(file);
             if (!allowedExtensions) return true;
             const fileExtension = `.${file.name.split(".").pop()}`;
@@ -253,7 +251,7 @@ export function useMultiplayerState({
     if (!files) return app;
 
     try {
-      await handleDroppedFiles(files, app);
+      await handleDroppedFiles(files);
     } catch (error) {
       handleError("An error occurred while handling dropped files", error);
     }
@@ -262,8 +260,6 @@ export function useMultiplayerState({
   };
 
   const handleDroppedFiles = async (files: FileList) => {
-    const mimeTypes = Object.keys(fileMimeExtensions);
-
     for (const file of Array.from(files)) {
       const extension = file.name.match(/\.[0-9a-z]+$/i);
 
