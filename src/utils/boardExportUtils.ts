@@ -78,4 +78,16 @@ const fileToBase64 = (file: Blob): Promise<string | ArrayBuffer | null> => {
   });
 };
 
-export { saveToFileSystem };
+const fileToText = (file: Blob): Promise<string | ArrayBuffer | null> => {
+  return new Promise((resolve, reject) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.onabort = (error) => reject(error);
+    }
+  });
+};
+
+export { saveToFileSystem, fileToBase64, fileToText };

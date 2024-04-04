@@ -2,7 +2,6 @@ import { TDAsset, TDDocument, TDFile } from "@tldraw/tldraw";
 import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
 import { API } from "../configuration/api/api.configuration";
-import { envs } from "../stores/setup";
 
 const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
@@ -104,28 +103,4 @@ const uploadAction = (
   return promise;
 };
 
-const fileMimeExtensions: { [key: string]: string[] } = {
-  "image/jpeg": [".jpg", ".jpeg"],
-  "image/png": [".png"],
-  "image/svg+xml": [".svg"],
-  "image/gif": [".gif"],
-};
-
-const allowedMimeTypes = envs?.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST || [];
-
-const openAssetsFromFileSystem = async () => {
-  const extensions = allowedMimeTypes.flatMap(
-    (mimeType) => fileMimeExtensions[mimeType] || [],
-  );
-  // NOTE: The extensions here are selected based on the MIME types allowed by TLDRAW,
-  //       taking into account additional extension checks performed internally by TLDRAW.
-
-  const result = await fileOpen({
-    description: "Image",
-    extensions: extensions,
-    multiple: true,
-  });
-  return result;
-};
-
-export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
+export { openFromFileSystem, importAssetsToS3 };

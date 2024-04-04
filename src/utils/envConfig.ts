@@ -1,7 +1,7 @@
-import { Envs } from "../types";
-import { API } from "../configuration";
-import { ConfigurationMapper } from "../mapper";
-import { HttpGuard } from "../guards";
+import { Envs } from "../types/Envs";
+import { API } from "../configuration/api/api.configuration";
+import { ConfigurationMapper } from "../mapper/configuration.mapper";
+import { HttpGuard } from "../guards/http.guard";
 
 // the try catch should not part of getEnvs, the place that use it must handle the errors
 // should be part of a store
