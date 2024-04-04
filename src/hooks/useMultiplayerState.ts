@@ -228,8 +228,7 @@ export function useMultiplayerState({
               );
             }
           } catch (error) {
-            // Even if one shape errors, keep going (we might have had other shapes that didn't error)
-            handleError("An error occurred while uploading asset", error);
+            console.error("An error occurred while uploading asset:", error);
           }
         }
 
