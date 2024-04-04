@@ -145,7 +145,7 @@ export function useMultiplayerState({
               extension[0].toLowerCase(),
             );
 
-            if (!isImage || isVideo) {
+            if (!(isImage || isVideo)) {
               toast.info("Asset of this type is not allowed");
               continue;
             }
