@@ -241,6 +241,54 @@ export function useMultiplayerState({
     [setIsDarkMode, setIsFocusMode],
   );
 
+  const onDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    if (app.disableAssets) return app;
+
+    const dataTransfer = e.dataTransfer;
+    if (!dataTransfer) return app;
+
+    const files = dataTransfer.files;
+    if (!files) return app;
+
+    try {
+      await handleDroppedFiles(files, app);
+    } catch (error) {
+      handleError("An error occurred while handling dropped files", error);
+    }
+
+    return app;
+  };
+
+  const handleDroppedFiles = async (files: FileList) => {
+    const mimeTypes = Object.keys(fileMimeExtensions);
+
+    for (const file of Array.from(files)) {
+      const extension = file.name.match(/\.[0-9a-z]+$/i);
+
+      if (!extension) throw Error("No extension");
+
+      const allowedExtensions = getAllowedExtensions(file);
+
+      if (!allowedExtensions) {
+        app.setIsLoading(false);
+        toast.error("Wrong file format");
+        continue;
+      }
+
+      const isAllowedExtension = allowedExtensions.some(
+        (ext) => ext === extension[0].toLowerCase(),
+      );
+
+      if (!isAllowedExtension) {
+        app.setIsLoading(false);
+        toast.error("Wrong file format");
+        continue;
+      }
+    }
+  };
+
   const onUndo = useCallback(() => {
     undoManager.undo();
   }, []);
@@ -473,53 +521,5 @@ const handleError = (toastMessage: string, error: unknown) => {
 
     console.error(toastMessage, error);
     toast.error(toastMessage);
-  }
-};
-
-const onDrop = async (e: React.DragEvent<HTMLDivElement>, app: TldrawApp) => {
-  e.preventDefault();
-
-  if (app.disableAssets) return app;
-
-  const dataTransfer = e.dataTransfer;
-  if (!dataTransfer) return app;
-
-  const files = dataTransfer.files;
-  if (!files) return app;
-
-  try {
-    await handleDroppedFiles(files, app);
-  } catch (error) {
-    handleError("An error occurred while handling dropped files", error);
-  }
-
-  return app;
-};
-
-const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
-  const mimeTypes = Object.keys(fileMimeExtensions);
-
-  for (const file of Array.from(files)) {
-    const extension = file.name.match(/\.[0-9a-z]+$/i);
-
-    if (!extension) throw Error("No extension");
-
-    const allowedExtensions = getAllowedExtensions(file);
-
-    if (!allowedExtensions) {
-      app.setIsLoading(false);
-      toast.error("Wrong file format");
-      continue;
-    }
-
-    const isAllowedExtension = allowedExtensions.some(
-      (ext) => ext === extension[0].toLowerCase(),
-    );
-
-    if (!isAllowedExtension) {
-      app.setIsLoading(false);
-      toast.error("Wrong file format");
-      continue;
-    }
   }
 };

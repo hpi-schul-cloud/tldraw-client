@@ -40,7 +40,7 @@ function Editor({
   useWebsocketErrorHandler();
 
   return (
-    <div ref={containerRef} onDrop={(e) => onDrop(e, app)}>
+    <div ref={containerRef} onDrop={(e) => onDrop(e)}>
       <Tldraw
         components={components}
         autofocus
