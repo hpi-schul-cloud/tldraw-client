@@ -1,5 +1,4 @@
 import lodash from "lodash";
-import React from "react";
 import {
   TDAsset,
   TDBinding,
@@ -29,7 +28,6 @@ import {
   importAssetsToS3,
   openFromFileSystem,
   openAssetsFromFileSystem,
-  getAllowedExtensions,
 } from "../utils/boardImportUtils";
 import { saveToFileSystem } from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
@@ -121,19 +119,6 @@ export function useMultiplayerState({
           if (!files) return;
 
           const filesToAdd = Array.isArray(files) ? files : [files];
-
-          const invalidFiles = filesToAdd.filter((file) => {
-            const allowedExtensions = getAllowedExtensions(file);
-            if (!allowedExtensions) return true;
-            const fileExtension = `.${file.name.split(".").pop()}`;
-            return !allowedExtensions.includes(fileExtension);
-          });
-
-          if (invalidFiles.length > 0) {
-            toast.error("Invalid file extension.");
-            return;
-          }
-
           app.addMediaFromFiles(filesToAdd, app.centerPoint);
         } catch (error) {
           handleError("An error occurred while uploading asset", error);
@@ -237,54 +222,6 @@ export function useMultiplayerState({
     },
     [setIsDarkMode, setIsFocusMode],
   );
-
-  const onDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-
-    if (app) {
-      if (app.disableAssets) return app;
-
-      const dataTransfer = e.dataTransfer;
-      if (!dataTransfer) return app;
-
-      const files = dataTransfer.files;
-      if (!files) return app;
-
-      try {
-        await handleDroppedFiles(files, app);
-      } catch (error) {
-        handleError("An error occurred while handling dropped files", error);
-      }
-
-      return app;
-    }
-  };
-
-  const handleDroppedFiles = async (files: FileList, app: TldrawApp) => {
-    for (const file of Array.from(files)) {
-      const extension = file.name.match(/\.[0-9a-z]+$/i);
-
-      if (!extension) throw Error("No extension");
-
-      const allowedExtensions = getAllowedExtensions(file);
-
-      if (!allowedExtensions) {
-        app.setIsLoading(false);
-        toast.error("Wrong file format");
-        continue;
-      }
-
-      const isAllowedExtension = allowedExtensions.some(
-        (ext) => ext === extension[0].toLowerCase(),
-      );
-
-      if (!isAllowedExtension) {
-        app.setIsLoading(false);
-        toast.error("Wrong file format");
-        continue;
-      }
-    }
-  };
 
   const onUndo = useCallback(() => {
     undoManager.undo();
@@ -444,7 +381,6 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
-    onDrop,
   };
 }
 

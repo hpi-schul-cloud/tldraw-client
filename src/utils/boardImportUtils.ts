@@ -3,7 +3,6 @@ import { fileOpen } from "browser-fs-access";
 import { toast } from "react-toastify";
 import { API } from "../configuration/api/api.configuration";
 import { envs } from "../stores/setup";
-import { fileMimeExtensions } from "../types/fileExtensions";
 
 const openFromFileSystem = async (): Promise<null | {
   fileHandle: FileSystemFileHandle | null;
@@ -105,6 +104,13 @@ const uploadAction = (
   return promise;
 };
 
+const fileMimeExtensions: { [key: string]: string[] } = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/svg+xml": [".svg"],
+  "image/gif": [".gif"],
+};
+
 const allowedMimeTypes = envs?.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST || [];
 
 const openAssetsFromFileSystem = async () => {
@@ -119,20 +125,7 @@ const openAssetsFromFileSystem = async () => {
     extensions: extensions,
     multiple: true,
   });
-
   return result;
 };
 
-const getAllowedExtensions = (file: File): string[] | null => {
-  const fileMimeType = file.type;
-  const allowedExtensions = fileMimeExtensions[fileMimeType];
-  if (!allowedExtensions) return null;
-  return allowedExtensions.map((ext) => ext.toLowerCase());
-};
-
-export {
-  openFromFileSystem,
-  importAssetsToS3,
-  openAssetsFromFileSystem,
-  getAllowedExtensions,
-};
+export { openFromFileSystem, importAssetsToS3, openAssetsFromFileSystem };
