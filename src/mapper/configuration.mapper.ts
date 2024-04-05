@@ -1,5 +1,5 @@
-import { Envs } from "../types";
-import { TypeGuard } from "../guards";
+import { Envs } from "../types/Envs";
+import { TypeGuard } from "../guards/type.guard";
 
 const checkEnvType = (obj: Record<string, unknown>): void => {
   TypeGuard.checkKeyAndValueExists(obj, "FEATURE_TLDRAW_ENABLED");

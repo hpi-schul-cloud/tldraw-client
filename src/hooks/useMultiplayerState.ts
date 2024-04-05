@@ -1,10 +1,13 @@
 import lodash from "lodash";
 import {
   TDAsset,
+  TDAssetType,
   TDBinding,
   TDExport,
   TDShape,
+  TDShapeType,
   TDUser,
+  TLDR,
   TldrawApp,
   TldrawPatch,
 } from "@tldraw/tldraw";
@@ -27,11 +30,24 @@ import { UserPresence } from "../types/UserPresence";
 import {
   importAssetsToS3,
   openFromFileSystem,
-  openAssetsFromFileSystem,
 } from "../utils/boardImportUtils";
-import { saveToFileSystem } from "../utils/boardExportUtils";
+import {
+  fileToBase64,
+  fileToText,
+  saveToFileSystem,
+} from "../utils/boardExportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
 import { getImageBlob } from "../utils/tldrawImageExportUtils";
+import { Utils } from "@tldraw/core";
+import {
+  getImageSizeFromSrc,
+  getVideoSizeFromSrc,
+  getViewboxFromSVG,
+  IMAGE_EXTENSIONS,
+  openAssetsFromFileSystem,
+  VIDEO_EXTENSIONS,
+} from "../utils/tldrawFileUploadUtils";
+import { Vec } from "@tldraw/vec";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -105,6 +121,156 @@ export function useMultiplayerState({
 
       // below functions are overwriting the original tldraw implementations
       // some of them had to be changed/fixed to support additional functionality
+      app.addMediaFromFiles = async (files, point) => {
+        app.setIsLoading(true);
+
+        const shapesToCreate: TDShape[] = [];
+        const pointArr = point ?? app.centerPoint;
+        const pagePoint = app.getPagePoint(pointArr);
+
+        for (const file of files) {
+          try {
+            const id = Utils.uniqueId();
+            const extension = file.name.match(/\.[0-9a-z]+$/i);
+
+            if (!extension) {
+              toast.info("Asset of this type is not allowed");
+              continue;
+            }
+
+            const isImage = IMAGE_EXTENSIONS.includes(
+              extension[0].toLowerCase(),
+            );
+            const isVideo = VIDEO_EXTENSIONS.includes(
+              extension[0].toLowerCase(),
+            );
+
+            if (!(isImage || isVideo)) {
+              toast.info("Asset of this type is not allowed");
+              continue;
+            }
+
+            const shapeType = isImage ? TDShapeType.Image : TDShapeType.Video;
+            const assetType = isImage ? TDAssetType.Image : TDAssetType.Video;
+
+            let src: string | ArrayBuffer | null;
+
+            if (app.callbacks.onAssetCreate) {
+              const result = await app.callbacks.onAssetCreate(app, file, id);
+
+              if (!result)
+                throw Error("Asset creation callback returned false");
+
+              src = result;
+            } else {
+              src = await fileToBase64(file);
+            }
+
+            if (typeof src === "string") {
+              let size = [0, 0];
+
+              if (isImage) {
+                // attempt to get actual svg size from viewBox attribute as
+                if (extension[0] == ".svg") {
+                  let viewBox: string[];
+                  const svgString = await fileToText(file);
+                  const viewBoxAttribute = getViewboxFromSVG(app, svgString);
+
+                  if (viewBoxAttribute) {
+                    viewBox = viewBoxAttribute.split(" ");
+                    size[0] = parseFloat(viewBox[2]);
+                    size[1] = parseFloat(viewBox[3]);
+                  }
+                }
+                if (Vec.isEqual(size, [0, 0])) {
+                  size = await getImageSizeFromSrc(src);
+                }
+              } else {
+                size = await getVideoSizeFromSrc(src);
+              }
+
+              const match = Object.values(app.document.assets).find(
+                (asset) => asset.type === assetType && asset.src === src,
+              );
+
+              let assetId: string;
+
+              if (!match) {
+                assetId = id;
+
+                const asset = {
+                  id: assetId,
+                  type: assetType,
+                  name: file.name,
+                  src,
+                  size,
+                };
+
+                app.patchState({
+                  document: {
+                    assets: {
+                      [assetId]: asset,
+                    },
+                  },
+                });
+              } else {
+                assetId = match.id;
+              }
+
+              shapesToCreate.push(
+                app.getImageOrVideoShapeAtPoint(
+                  id,
+                  shapeType,
+                  pointArr,
+                  size,
+                  assetId,
+                ),
+              );
+            }
+          } catch (error) {
+            console.error("An error occurred while uploading asset", error);
+          }
+        }
+
+        if (shapesToCreate.length) {
+          const currentPoint = Vec.add(pagePoint, [0, 0]);
+
+          shapesToCreate.forEach((shape, i) => {
+            const bounds = TLDR.getBounds(shape);
+
+            if (i === 0) {
+              // For the first shape, offset the current point so
+              // that the first shape's center is at the page point
+              currentPoint[0] -= bounds.width / 2;
+              currentPoint[1] -= bounds.height / 2;
+            }
+
+            // Set the shape's point the current point
+            shape.point = [...currentPoint];
+
+            // Then bump the page current point by this shape's width
+            currentPoint[0] += bounds.width;
+          });
+
+          const commonBounds = Utils.getCommonBounds(
+            shapesToCreate.map(TLDR.getBounds),
+          );
+
+          app.createShapes(...shapesToCreate);
+
+          // Are the common bounds too big for the viewport?
+          if (!Utils.boundsContain(app.viewport, commonBounds)) {
+            app.zoomToSelection();
+            if (app.zoom > 1) {
+              app.resetZoom();
+            }
+          }
+        }
+
+        app.setIsLoading(false);
+        return app;
+      };
+
       app.saveProjectAs = async (filename) => {
         await onSaveAs(app, filename);
         return app;
