@@ -14,7 +14,7 @@ const websocketErrors = [
   {
     websocketCode: WebsocketStatusCode.Unauthorized,
     httpCode: HttpStatusCode.Unauthorized,
-    translationMessageKey: "tldraw.error.ws.4401",
+    translationMessageKey: "error.4401",
   },
   {
     websocketCode: WebsocketStatusCode.NotFound,
@@ -29,7 +29,7 @@ const websocketErrors = [
   {
     websocketCode: WebsocketStatusCode.InternalServerError,
     httpCode: HttpStatusCode.InternalServerError,
-    translationMessageKey: "tldraw.error.ws.4500",
+    translationMessageKey: "error.4500",
   },
 ];
 

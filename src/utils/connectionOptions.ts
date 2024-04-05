@@ -22,7 +22,7 @@ const getConnectionOptions = async (): Promise<{
       connectionOptions.websocketUrl = data.tldrawServerURL;
     } catch (error) {
       console.error("Error fetching tldrawServerURL:", error);
-      setErrorData(HttpStatusCode.InternalServerError, "tldraw.error.500");
+      setErrorData(HttpStatusCode.InternalServerError, "error.500");
       redirectToErrorPage();
     }
   }
