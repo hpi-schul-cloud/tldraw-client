@@ -1,16 +1,24 @@
 import { TDAsset, TDBinding, TDShape } from "@tldraw/tldraw";
-import { Doc, Map, UndoManager } from "yjs";
-import { WebsocketProvider } from "y-websocket";
 import { Room } from "@y-presence/client";
+import { Cookies } from "react-cookie";
+import { WebsocketProvider } from "y-websocket";
+import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
-import { getUserData } from "../utils/userData";
-import { handleRedirectIfNotValid } from "../utils/redirectUtils";
 import { clearErrorData } from "../utils/errorData";
+import { handleRedirectIfNotValid } from "../utils/redirectUtils";
+import { getUserData } from "../utils/userData";
 import { setDefaultState } from "../utils/userSettings";
 
 clearErrorData();
+
+const getJwt = () => {
+  const cookies = new Cookies();
+  const token = cookies.get("jwt");
+
+  return token;
+};
 
 const [connectionOptions, envs, userResult] = await Promise.all([
   getConnectionOptions(),
@@ -31,6 +39,9 @@ const provider = new WebsocketProvider(
   doc,
   {
     connect: true,
+    params: {
+      yauth: getJwt(),
+    },
   },
 );
 
@@ -41,14 +52,15 @@ const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 export {
-  envs,
-  user,
-  roomId,
   doc,
+  envs,
   provider,
   room,
-  yShapes,
-  yBindings,
-  yAssets,
+  roomId,
   undoManager,
+  user,
+  yAssets,
+  yBindings,
+  yShapes
 };
+
