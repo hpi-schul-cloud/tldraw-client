@@ -16,8 +16,15 @@ function Editor({
   focusModeHandler: (isFocusMode: boolean) => void;
 }) {
   const { onOpenMedia, onOpenProject } = useFileSystem();
-  const { onMount, onSave, onAssetCreate, onPatch, onExport, ...events } =
-    useMultiplayerState({
+  const {
+    onMount,
+    onSave,
+    onAssetCreate,
+    onPatch,
+    onExport,
+    onAssetDelete,
+    ...events
+  } = useMultiplayerState({
       roomId,
       setIsDarkMode: darkModeHandler,
       setIsFocusMode: focusModeHandler,
@@ -50,6 +57,7 @@ function Editor({
         onSaveProjectAs={onSave}
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
+        onAssetDelete={onAssetDelete}
       />
     </div>
   );

@@ -48,6 +48,7 @@ import {
   VIDEO_EXTENSIONS,
 } from "../utils/tldrawFileUploadUtils";
 import { Vec } from "@tldraw/vec";
+import { API } from "../configuration/api/api.configuration";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -389,8 +390,29 @@ export function useMultiplayerState({
     [setIsDarkMode, setIsFocusMode],
   );
 
-  const onUndo = useCallback(() => {
+  const onUndo = useCallback(async (app: TldrawApp) => {
     undoManager.undo();
+
+    const lastAsset = app.assets.pop();
+
+    const regex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
+    const match = lastAsset?.src.match(regex);
+
+    if (match) {
+      const id = match[1];
+
+      const fileRestoreUrl = `/api/v3/file/restore/${id}`;
+
+      const response = await fetch(fileRestoreUrl, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`${response.status} - ${response.statusText}`);
+      }
+    } else {
+      console.log('No match found');
+    }
   }, []);
 
   const onRedo = useCallback(() => {
@@ -535,6 +557,29 @@ export function useMultiplayerState({
     };
   }, []);
 
+  const onAssetDelete = async (app: TldrawApp, id: string) => {
+    const asset = app.assets.find((asset) => asset.id === id);
+
+    const regex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
+    const match = asset?.src.match(regex);
+
+    if (match) {
+      const id = match[1];
+
+      const fileDeleteUrl = API.FILE_DELETE.replace("ASSETID", id);
+
+      const response = await fetch(fileDeleteUrl, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`${response.status} - ${response.statusText}`);
+      }
+    } else {
+      console.log('No match found');
+    }
+  };
+
   return {
     onUndo,
     onRedo,
@@ -547,6 +592,7 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
+    onAssetDelete,
   };
 }
 
