@@ -4,6 +4,8 @@
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-svc.yml.j2
   when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
+  tags:
+    - service
 
 - name: tldraw client configmap
   kubernetes.core.k8s:
@@ -12,6 +14,8 @@
     template: tldraw-client-configmap.yml.j2
     apply: yes
   when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
+  tags:
+    - configmap
 
 - name: tldraw client deployment
   kubernetes.core.k8s:
@@ -19,6 +23,8 @@
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-deployment.yml.j2
   when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
+  tags:
+    - deployment
 
 - name: tldraw client ingress
   kubernetes.core.k8s:
@@ -27,3 +33,5 @@
     template: tldraw-client-ingress.yml.j2
     apply: yes
   when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
+  tags:
+    - ingress
