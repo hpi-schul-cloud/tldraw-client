@@ -391,32 +391,51 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
+    const assetsBefore = [...app.assets];
     undoManager.undo();
+    const assetsAfter = [...app.assets];
 
-    const lastAsset = app.assets.pop();
+    const assetsBeforeIds = assetsBefore.map((asset) => asset.id);
+    const assetsToRestore = assetsAfter.filter(
+      (asset) => !assetsBeforeIds.includes(asset.id),
+    );
 
-    const regex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
-    const match = lastAsset?.src.match(regex);
+    for (const asset of assetsToRestore) {
+      await assetRestore(asset);
+    }
 
-    if (match) {
-      const id = match[1];
+    const assetsAfterIds = assetsAfter.map((asset) => asset.id);
+    const assetsToDelete = assetsBefore.filter(
+      (asset) => !assetsAfterIds.includes(asset.id),
+    );
 
-      const fileRestoreUrl = `/api/v3/file/restore/${id}`;
-
-      const response = await fetch(fileRestoreUrl, {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error(`${response.status} - ${response.statusText}`);
-      }
-    } else {
-      console.log('No match found');
+    for (const asset of assetsToDelete) {
+      await deleteAsset(asset);
     }
   }, []);
 
-  const onRedo = useCallback(() => {
+  const onRedo = useCallback(async (app: TldrawApp) => {
+    const assetsBefore = [...app.assets];
     undoManager.redo();
+    const assetsAfter = [...app.assets];
+
+    const assetsBeforeIds = assetsBefore.map((asset) => asset.id);
+    const assetsToRestore = assetsAfter.filter(
+      (asset) => !assetsBeforeIds.includes(asset.id),
+    );
+
+    for (const asset of assetsToRestore) {
+      await assetRestore(asset);
+    }
+
+    const assetsAfterIds = assetsAfter.map((asset) => asset.id);
+    const assetsToDelete = assetsBefore.filter(
+      (asset) => !assetsAfterIds.includes(asset.id),
+    );
+
+    for (const asset of assetsToDelete) {
+      await deleteAsset(asset);
+    }
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -560,13 +579,65 @@ export function useMultiplayerState({
   const onAssetDelete = async (app: TldrawApp, id: string) => {
     const asset = app.assets.find((asset) => asset.id === id);
 
-    const regex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
-    const match = asset?.src.match(regex);
+    if (asset) deleteAsset(asset);
+  };
 
-    if (match) {
-      const id = match[1];
+  const handleAssets = async (
+    app: TldrawApp,
+    undoManagerCallback: () => void,
+  ) => {
+    const assetsBefore = [...app.assets];
+    console.log("assetsBefore", assetsBefore);
+    undoManagerCallback();
+    const assetsAfter = [...app.assets];
+    console.log("assetsAfter", assetsAfter);
 
-      const fileDeleteUrl = API.FILE_DELETE.replace("ASSETID", id);
+    const assetsToRestore = assetsAfter.filter(
+      (asset) => !assetsBefore.includes(asset),
+    );
+
+    for (const asset of assetsToRestore) {
+      await assetRestore(asset);
+    }
+
+    const assetsToDelete = assetsBefore.filter(
+      (asset) => !assetsAfter.includes(asset),
+    );
+
+    for (const asset of assetsToDelete) {
+      await deleteAsset(asset);
+    }
+  };
+
+  const assetRestore = async (asset: TDAsset) => {
+    const fileRecordId = getFileRecordId(asset);
+
+    if (fileRecordId) {
+      const fileRestoreUrl = API.FILE_RESTORE.replace(
+        "FILERECORD_ID",
+        fileRecordId,
+      );
+
+      const response = await fetch(fileRestoreUrl, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`${response.status} - ${response.statusText}`);
+      }
+    } else {
+      console.log("No match found");
+    }
+  };
+
+  const deleteAsset = async (asset: TDAsset) => {
+    const fileRecordId = getFileRecordId(asset);
+
+    if (fileRecordId) {
+      const fileDeleteUrl = API.FILE_DELETE.replace(
+        "FILERECORD_ID",
+        fileRecordId,
+      );
 
       const response = await fetch(fileDeleteUrl, {
         method: "DELETE",
@@ -576,7 +647,16 @@ export function useMultiplayerState({
         throw new Error(`${response.status} - ${response.statusText}`);
       }
     } else {
-      console.log('No match found');
+      console.log("No match found");
+    }
+  };
+
+  const getFileRecordId = (asset: TDAsset): string | undefined => {
+    const fileRecordIdRegex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
+    const match = asset.src.match(fileRecordIdRegex);
+
+    if (match) {
+      return match[1];
     }
   };
 
