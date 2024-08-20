@@ -48,7 +48,7 @@ import {
   VIDEO_EXTENSIONS,
 } from "../utils/tldrawFileUploadUtils";
 import { Vec } from "@tldraw/vec";
-import { API } from "../configuration/api/api.configuration";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -391,51 +391,15 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
-    const assetsBefore = [...app.assets];
-    undoManager.undo();
-    const assetsAfter = [...app.assets];
-
-    const assetsBeforeIds = assetsBefore.map((asset) => asset.id);
-    const assetsToRestore = assetsAfter.filter(
-      (asset) => !assetsBeforeIds.includes(asset.id),
-    );
-
-    for (const asset of assetsToRestore) {
-      await assetRestore(asset);
-    }
-
-    const assetsAfterIds = assetsAfter.map((asset) => asset.id);
-    const assetsToDelete = assetsBefore.filter(
-      (asset) => !assetsAfterIds.includes(asset.id),
-    );
-
-    for (const asset of assetsToDelete) {
-      await deleteAsset(asset);
-    }
+    await handleAssets(app, () => {
+      undoManager.undo();
+    });
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
-    const assetsBefore = [...app.assets];
-    undoManager.redo();
-    const assetsAfter = [...app.assets];
-
-    const assetsBeforeIds = assetsBefore.map((asset) => asset.id);
-    const assetsToRestore = assetsAfter.filter(
-      (asset) => !assetsBeforeIds.includes(asset.id),
-    );
-
-    for (const asset of assetsToRestore) {
-      await assetRestore(asset);
-    }
-
-    const assetsAfterIds = assetsAfter.map((asset) => asset.id);
-    const assetsToDelete = assetsBefore.filter(
-      (asset) => !assetsAfterIds.includes(asset.id),
-    );
-
-    for (const asset of assetsToDelete) {
-      await deleteAsset(asset);
-    }
+    await handleAssets(app, () => {
+      undoManager.redo();
+    });
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -580,84 +544,6 @@ export function useMultiplayerState({
     const asset = app.assets.find((asset) => asset.id === id);
 
     if (asset) deleteAsset(asset);
-  };
-
-  const handleAssets = async (
-    app: TldrawApp,
-    undoManagerCallback: () => void,
-  ) => {
-    const assetsBefore = [...app.assets];
-    console.log("assetsBefore", assetsBefore);
-    undoManagerCallback();
-    const assetsAfter = [...app.assets];
-    console.log("assetsAfter", assetsAfter);
-
-    const assetsToRestore = assetsAfter.filter(
-      (asset) => !assetsBefore.includes(asset),
-    );
-
-    for (const asset of assetsToRestore) {
-      await assetRestore(asset);
-    }
-
-    const assetsToDelete = assetsBefore.filter(
-      (asset) => !assetsAfter.includes(asset),
-    );
-
-    for (const asset of assetsToDelete) {
-      await deleteAsset(asset);
-    }
-  };
-
-  const assetRestore = async (asset: TDAsset) => {
-    const fileRecordId = getFileRecordId(asset);
-
-    if (fileRecordId) {
-      const fileRestoreUrl = API.FILE_RESTORE.replace(
-        "FILERECORD_ID",
-        fileRecordId,
-      );
-
-      const response = await fetch(fileRestoreUrl, {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error(`${response.status} - ${response.statusText}`);
-      }
-    } else {
-      console.log("No match found");
-    }
-  };
-
-  const deleteAsset = async (asset: TDAsset) => {
-    const fileRecordId = getFileRecordId(asset);
-
-    if (fileRecordId) {
-      const fileDeleteUrl = API.FILE_DELETE.replace(
-        "FILERECORD_ID",
-        fileRecordId,
-      );
-
-      const response = await fetch(fileDeleteUrl, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`${response.status} - ${response.statusText}`);
-      }
-    } else {
-      console.log("No match found");
-    }
-  };
-
-  const getFileRecordId = (asset: TDAsset): string | undefined => {
-    const fileRecordIdRegex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
-    const match = asset.src.match(fileRecordIdRegex);
-
-    if (match) {
-      return match[1];
-    }
   };
 
   return {
