@@ -353,8 +353,6 @@ export function useMultiplayerState({
         return false;
       }
 
-      undoManager.stopCapturing();
-
       try {
         const fileExtension = file.name.split(".").pop()!;
         const url = await uploadFileToStorage(
