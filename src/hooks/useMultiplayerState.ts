@@ -412,7 +412,6 @@ export function useMultiplayerState({
     ) => {
       if (!(yShapes && yBindings && yAssets)) return;
 
-      undoManager.stopCapturing();
       updateDoc(shapes, bindings, assets);
     },
     [],
