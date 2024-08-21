@@ -174,20 +174,22 @@ describe("useMultiplayerState hook", () => {
   });
 
   it("should handle onUndo correctly", () => {
+    const { app } = setup();
     const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
-      result.current.onUndo();
+      result.current.onUndo(app);
     });
 
     expect(undoManager.undo).toHaveBeenCalled();
   });
 
   it("should handle onRedo correctly", () => {
+    const { app } = setup();
     const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
-      result.current.onRedo();
+      result.current.onRedo(app);
     });
 
     expect(undoManager.redo).toHaveBeenCalled();
