@@ -365,6 +365,7 @@ export function useMultiplayerState({
           roomId,
         );
         setShowUndoButtons(true);
+        if (_app) _app.readOnly = false;
 
         return url;
       } catch (error) {
@@ -405,6 +406,7 @@ export function useMultiplayerState({
     }
 
     setShowUndoButtons(true);
+    if (app) app.readOnly = false;
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
@@ -420,6 +422,7 @@ export function useMultiplayerState({
       toast.error("An error occurred while redoing");
     }
     setShowUndoButtons(true);
+    if (app) app.readOnly = false;
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -562,11 +565,17 @@ export function useMultiplayerState({
   const onAssetDelete = async (app: TldrawApp, id: string) => {
     const asset = app.assets.find((asset) => asset.id === id);
     try {
-      if (asset) await deleteAsset(asset);
+      if (asset) {
+        setShowUndoButtons(false);
+
+        await deleteAsset(asset);
+      }
     } catch (error) {
       undoManager.undo();
       toast.error("An error occurred while deleting asset");
     }
+    setShowUndoButtons(true);
+    if (app) app.readOnly = false;
   };
 
   return {

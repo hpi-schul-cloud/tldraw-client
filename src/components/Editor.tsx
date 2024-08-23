@@ -40,8 +40,6 @@ function Editor({
 
   useWebsocketErrorHandler();
 
-  // This solves a bug of tldraws readonly property
-
   return (
     <div ref={containerRef}>
       <Tldraw
@@ -63,7 +61,7 @@ function Editor({
         onAssetDelete={onAssetDelete}
         showStyles={showUndoButtons}
         showZoom={showUndoButtons}
-        showTools={showUndoButtons}
+        readOnly={!showUndoButtons}
       />
     </div>
   );
