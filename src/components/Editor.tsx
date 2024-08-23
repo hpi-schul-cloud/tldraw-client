@@ -61,6 +61,7 @@ function Editor({
         onAssetDelete={onAssetDelete}
         showStyles={showUndoButtons}
         showZoom={showUndoButtons}
+        readOnly={!showUndoButtons}
       />
     </div>
   );
