@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Tldraw, useFileSystem } from "@tldraw/tldraw";
 import { useMultiplayerState } from "../hooks/useMultiplayerState";
 import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
@@ -23,12 +23,13 @@ function Editor({
     onPatch,
     onExport,
     onAssetDelete,
+    showUndoButtons,
     ...events
   } = useMultiplayerState({
-      roomId,
-      setIsDarkMode: darkModeHandler,
-      setIsFocusMode: focusModeHandler,
-    });
+    roomId,
+    setIsDarkMode: darkModeHandler,
+    setIsFocusMode: focusModeHandler,
+  });
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
@@ -58,6 +59,8 @@ function Editor({
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
         onAssetDelete={onAssetDelete}
+        showStyles={showUndoButtons}
+        showZoom={showUndoButtons}
       />
     </div>
   );

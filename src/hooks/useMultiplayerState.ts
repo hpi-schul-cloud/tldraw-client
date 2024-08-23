@@ -65,6 +65,7 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
+  const [showUndoButtons, setShowUndoButtons] = useState(true);
 
   // Callbacks --------------
 
@@ -355,6 +356,7 @@ export function useMultiplayerState({
 
       try {
         const fileExtension = file.name.split(".").pop()!;
+        setShowUndoButtons(false);
         const url = await uploadFileToStorage(
           file,
           fileExtension,
@@ -362,9 +364,11 @@ export function useMultiplayerState({
           user!.schoolId,
           roomId,
         );
+        setShowUndoButtons(true);
 
         return url;
       } catch (error) {
+        setShowUndoButtons(true);
         handleError("An error occurred while uploading asset", error);
       }
 
@@ -389,15 +393,33 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
-    await handleAssets(app, () => {
-      undoManager.undo();
-    });
+    setShowUndoButtons(false);
+    const assetsBeforeCallback = [...app.assets];
+    undoManager.undo();
+    const assetsAfterCallback = [...app.assets];
+    try {
+      await handleAssets(assetsBeforeCallback, assetsAfterCallback);
+    } catch (error) {
+      undoManager.redo();
+      toast.error("An error occurred while undoing");
+    }
+
+    setShowUndoButtons(true);
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
-    await handleAssets(app, () => {
-      undoManager.redo();
-    });
+    setShowUndoButtons(false);
+    const assetsBeforeCallback = [...app.assets];
+    undoManager.redo();
+    const assetsAfterCallback = [...app.assets];
+
+    try {
+      await handleAssets(assetsBeforeCallback, assetsAfterCallback);
+    } catch (error) {
+      undoManager.undo();
+      toast.error("An error occurred while redoing");
+    }
+    setShowUndoButtons(true);
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -539,8 +561,12 @@ export function useMultiplayerState({
 
   const onAssetDelete = async (app: TldrawApp, id: string) => {
     const asset = app.assets.find((asset) => asset.id === id);
-
-    if (asset) deleteAsset(asset);
+    try {
+      if (asset) await deleteAsset(asset);
+    } catch (error) {
+      undoManager.undo();
+      toast.error("An error occurred while deleting asset");
+    }
   };
 
   return {
@@ -556,6 +582,7 @@ export function useMultiplayerState({
     onPatch,
     onAssetCreate,
     onAssetDelete,
+    showUndoButtons,
   };
 }
 

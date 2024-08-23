@@ -1,14 +1,10 @@
-import { TldrawApp, TDAsset } from "@tldraw/tldraw";
+import { TDAsset } from "@tldraw/tldraw";
 import { API } from "../configuration/api/api.configuration";
 
 export const handleAssets = async (
-  app: TldrawApp,
-  undoManagerCallback: () => void,
+  assetsBeforeCallback: TDAsset[],
+  assetsAfterCallback: TDAsset[],
 ) => {
-  const assetsBeforeCallback = [...app.assets];
-  undoManagerCallback();
-  const assetsAfterCallback = [...app.assets];
-
   const assetsToRestore = filterUniqueAssetsById(
     assetsBeforeCallback,
     assetsAfterCallback,
