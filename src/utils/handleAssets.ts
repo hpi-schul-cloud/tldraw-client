@@ -65,7 +65,7 @@ export const deleteAsset = async (asset: TDAsset): Promise<void> => {
 };
 
 const getFileRecordId = (asset: TDAsset): string | undefined => {
-  const fileRecordIdRegex = /\/api\/v3\/file\/download\/([a-f0-9]{24})\//;
+  const fileRecordIdRegex = /\/api\/v3\/file\/download\/([^/]+)\//;
   const match = asset.src.match(fileRecordIdRegex);
 
   if (match) {
