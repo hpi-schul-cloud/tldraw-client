@@ -23,7 +23,7 @@ function Editor({
     onPatch,
     onExport,
     onAssetDelete,
-    showUndoButtons,
+    isReadOnly,
     ...events
   } = useMultiplayerState({
     roomId,
@@ -59,9 +59,9 @@ function Editor({
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
         onAssetDelete={onAssetDelete}
-        showStyles={showUndoButtons}
-        showZoom={showUndoButtons}
-        readOnly={!showUndoButtons}
+        showStyles={isReadOnly}
+        showZoom={isReadOnly}
+        readOnly={!isReadOnly}
       />
     </div>
   );

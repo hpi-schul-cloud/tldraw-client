@@ -65,7 +65,7 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const [showUndoButtons, setShowUndoButtons] = useState(true);
+  const [isReadOnly, setIsReadOnly] = useState(true);
 
   // Callbacks --------------
 
@@ -390,7 +390,7 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
-    setShowUndoButtons(false);
+    setIsReadOnly(false);
     const assetsBeforeCallback = [...app.assets];
     undoManager.undo();
     const assetsAfterCallback = [...app.assets];
@@ -402,12 +402,12 @@ export function useMultiplayerState({
       toast.error("An error occurred while undoing");
     }
 
-    setShowUndoButtons(true);
+    setIsReadOnly(true);
     if (app) app.readOnly = false;
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
-    setShowUndoButtons(false);
+    setIsReadOnly(false);
     const assetsBeforeCallback = [...app.assets];
     undoManager.redo();
     const assetsAfterCallback = [...app.assets];
@@ -418,7 +418,7 @@ export function useMultiplayerState({
       undoManager.undo();
       toast.error("An error occurred while redoing");
     }
-    setShowUndoButtons(true);
+    setIsReadOnly(true);
     //Comment
     if (app) app.readOnly = false;
   }, []);
@@ -564,7 +564,7 @@ export function useMultiplayerState({
     const asset = app.assets.find((asset) => asset.id === id);
     try {
       if (asset) {
-        setShowUndoButtons(false);
+        setIsReadOnly(false);
 
         await deleteAsset(asset);
       }
@@ -572,7 +572,7 @@ export function useMultiplayerState({
       undoManager.undo();
       toast.error("An error occurred while deleting asset");
     }
-    setShowUndoButtons(true);
+    setIsReadOnly(true);
     if (app) app.readOnly = false;
   };
 
@@ -589,7 +589,7 @@ export function useMultiplayerState({
     onPatch,
     onAssetCreate,
     onAssetDelete,
-    showUndoButtons,
+    isReadOnly,
   };
 }
 
