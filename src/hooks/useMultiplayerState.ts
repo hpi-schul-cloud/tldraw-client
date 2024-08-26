@@ -356,7 +356,6 @@ export function useMultiplayerState({
 
       try {
         const fileExtension = file.name.split(".").pop()!;
-        setShowUndoButtons(false);
         const url = await uploadFileToStorage(
           file,
           fileExtension,
@@ -364,12 +363,9 @@ export function useMultiplayerState({
           user!.schoolId,
           roomId,
         );
-        setShowUndoButtons(true);
-        if (_app) _app.readOnly = false;
 
         return url;
       } catch (error) {
-        setShowUndoButtons(true);
         handleError("An error occurred while uploading asset", error);
       }
 
@@ -398,6 +394,7 @@ export function useMultiplayerState({
     const assetsBeforeCallback = [...app.assets];
     undoManager.undo();
     const assetsAfterCallback = [...app.assets];
+
     try {
       await handleAssets(assetsBeforeCallback, assetsAfterCallback);
     } catch (error) {
@@ -422,6 +419,7 @@ export function useMultiplayerState({
       toast.error("An error occurred while redoing");
     }
     setShowUndoButtons(true);
+    //Comment
     if (app) app.readOnly = false;
   }, []);
 
