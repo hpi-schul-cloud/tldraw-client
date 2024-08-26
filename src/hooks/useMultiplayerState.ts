@@ -67,6 +67,13 @@ export function useMultiplayerState({
   const [loading, setLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(false);
 
+  // Bug in tl draw package leads to situation where app context readonly and prop readonly are not in sync.
+  // This function is a workaround to make sure that both are in sync.
+  const setIsReadOnlyToFalse = (app?: TldrawApp) => {
+    setIsReadOnly(false);
+    if (app) app.readOnly = false;
+  };
+
   // Callbacks --------------
 
   const onSave = useCallback(async (app: TldrawApp) => {
@@ -402,8 +409,7 @@ export function useMultiplayerState({
       toast.error("An error occurred while undoing");
     }
 
-    setIsReadOnly(false);
-    if (app) app.readOnly = false;
+    setIsReadOnlyToFalse(app);
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
@@ -418,9 +424,8 @@ export function useMultiplayerState({
       undoManager.undo();
       toast.error("An error occurred while redoing");
     }
-    setIsReadOnly(false);
-    //Comment
-    if (app) app.readOnly = false;
+
+    setIsReadOnlyToFalse(app);
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -572,8 +577,8 @@ export function useMultiplayerState({
       undoManager.undo();
       toast.error("An error occurred while deleting asset");
     }
-    setIsReadOnly(false);
-    if (app) app.readOnly = false;
+
+    setIsReadOnlyToFalse(app);
   };
 
   return {
