@@ -9,7 +9,7 @@ import {
 } from "@tldraw/tldraw";
 import * as Tldraw from "@tldraw/tldraw";
 import { useMultiplayerState } from "./useMultiplayerState";
-import { doc, room } from "../stores/setup";
+import { doc, room, undoManager } from "../stores/setup";
 import { deleteAsset, handleAssets } from "../utils/handleAssets";
 
 vi.mock("@tldraw/tldraw", async () => {
@@ -183,26 +183,62 @@ describe("useMultiplayerState hook", () => {
     });
   });
 
-  it("should handle onUndo correctly", () => {
-    const { app } = setup();
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
+  describe("onUndo", () => {
+    it("should call undoManager.undo", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+      const undoSpy = vi.spyOn(undoManager, "undo");
 
-    act(() => {
-      result.current.onUndo(app);
+      act(() => {
+        result.current.onUndo(app);
+      });
+
+      expect(undoSpy).toHaveBeenCalled();
     });
 
-    expect(handleAssets).toHaveBeenCalled();
+    it("should call handleAssets", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+
+      act(() => {
+        result.current.onUndo(app);
+      });
+
+      expect(handleAssets).toHaveBeenCalled();
+    });
   });
 
-  it("should handle onRedo correctly", () => {
-    const { app } = setup();
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
+  describe("onRedo", () => {
+    it("should call undoManager.redo", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+      const redoSpy = vi.spyOn(undoManager, "redo");
 
-    act(() => {
-      result.current.onRedo(app);
+      act(() => {
+        result.current.onRedo(app);
+      });
+
+      expect(redoSpy).toHaveBeenCalled();
     });
 
-    expect(handleAssets).toHaveBeenCalled();
+    it("should call handleAssets", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+
+      act(() => {
+        result.current.onRedo(app);
+      });
+
+      expect(handleAssets).toHaveBeenCalled();
+    });
   });
 
   it("should handle onChangePage correctly", () => {
