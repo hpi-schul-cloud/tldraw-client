@@ -43,19 +43,13 @@ const assetRestore = async (asset: TDAsset) => {
       fileRecordId,
     );
 
-    const response = await fetch(fileRestoreUrl, {
+    await fetch(fileRestoreUrl, {
       method: "POST",
     });
-
-    if (!response.ok) {
-      throw new Error(`${response.status} - ${response.statusText}`);
-    }
-  } else {
-    console.log("No match found");
   }
 };
 
-export const deleteAsset = async (asset: TDAsset) => {
+export const deleteAsset = async (asset: TDAsset): Promise<void> => {
   const fileRecordId = getFileRecordId(asset);
 
   if (fileRecordId) {
@@ -64,15 +58,9 @@ export const deleteAsset = async (asset: TDAsset) => {
       fileRecordId,
     );
 
-    const response = await fetch(fileDeleteUrl, {
+    await fetch(fileDeleteUrl, {
       method: "DELETE",
     });
-
-    if (!response.ok) {
-      throw new Error(`${response.status} - ${response.statusText}`);
-    }
-  } else {
-    console.log("No match found");
   }
 };
 
