@@ -59,9 +59,9 @@ function Editor({
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
         onAssetDelete={onAssetDelete}
-        showStyles={isReadOnly}
-        showZoom={isReadOnly}
-        readOnly={!isReadOnly}
+        showStyles={!isReadOnly}
+        showZoom={!isReadOnly}
+        readOnly={isReadOnly}
       />
     </div>
   );

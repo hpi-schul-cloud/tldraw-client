@@ -65,7 +65,7 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const [isReadOnly, setIsReadOnly] = useState(true);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   // Callbacks --------------
 
@@ -390,35 +390,35 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
-    setIsReadOnly(false);
-    const assetsBeforeCallback = [...app.assets];
+    setIsReadOnly(true);
+    const assetsBeforeUndo = [...app.assets];
     undoManager.undo();
-    const assetsAfterCallback = [...app.assets];
+    const assetsAfterUndo = [...app.assets];
 
     try {
-      await handleAssets(assetsBeforeCallback, assetsAfterCallback);
+      await handleAssets(assetsBeforeUndo, assetsAfterUndo);
     } catch (error) {
       undoManager.redo();
       toast.error("An error occurred while undoing");
     }
 
-    setIsReadOnly(true);
+    setIsReadOnly(false);
     if (app) app.readOnly = false;
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
-    setIsReadOnly(false);
-    const assetsBeforeCallback = [...app.assets];
+    setIsReadOnly(true);
+    const assetsBeforeRedo = [...app.assets];
     undoManager.redo();
-    const assetsAfterCallback = [...app.assets];
+    const assetsAfterRedo = [...app.assets];
 
     try {
-      await handleAssets(assetsBeforeCallback, assetsAfterCallback);
+      await handleAssets(assetsBeforeRedo, assetsAfterRedo);
     } catch (error) {
       undoManager.undo();
       toast.error("An error occurred while redoing");
     }
-    setIsReadOnly(true);
+    setIsReadOnly(false);
     //Comment
     if (app) app.readOnly = false;
   }, []);
@@ -564,7 +564,7 @@ export function useMultiplayerState({
     const asset = app.assets.find((asset) => asset.id === id);
     try {
       if (asset) {
-        setIsReadOnly(false);
+        setIsReadOnly(true);
 
         await deleteAsset(asset);
       }
@@ -572,7 +572,7 @@ export function useMultiplayerState({
       undoManager.undo();
       toast.error("An error occurred while deleting asset");
     }
-    setIsReadOnly(true);
+    setIsReadOnly(false);
     if (app) app.readOnly = false;
   };
 
