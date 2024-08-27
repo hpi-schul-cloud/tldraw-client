@@ -31,6 +31,13 @@ const websocketErrors = [
     httpCode: HttpStatusCode.InternalServerError,
     translationMessageKey: "error.4500",
   },
+  // This mapping of code 1011 is for the new server, which does not use the above codes.
+  // When the transition to the new server is complete, the error handling can be revised.
+  {
+    websocketCode: 1011,
+    httpCode: HttpStatusCode.InternalServerError,
+    translationMessageKey: "error.4500",
+  },
 ];
 
 export function useWebsocketErrorHandler() {
@@ -39,6 +46,7 @@ export function useWebsocketErrorHandler() {
       const error = websocketErrors.find(
         (element) => element.websocketCode === event.code,
       );
+
       if (!error) return;
       // not acceptable means we have to wait for the server to accept us
       // keep reconnecting
