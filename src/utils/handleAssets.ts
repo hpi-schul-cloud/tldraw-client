@@ -9,17 +9,15 @@ export const handleAssets = async (
     assetsBeforeCallback,
     assetsAfterCallback,
   );
-  for (const asset of assetsToRestore) {
-    await assetRestore(asset);
-  }
+  const restorePromises = assetsToRestore.map((asset) => assetRestore(asset));
 
   const assetsToDelete = filterUniqueAssetsById(
     assetsAfterCallback,
     assetsBeforeCallback,
   );
-  for (const asset of assetsToDelete) {
-    await deleteAsset(asset);
-  }
+  const deletePromises = assetsToDelete.map((asset) => deleteAsset(asset));
+
+  await Promise.all([...deletePromises, ...restorePromises]);
 };
 
 const filterUniqueAssetsById = (
