@@ -5,8 +5,3 @@ export type User = {
   lastName: string;
   initials: string;
 };
-
-export type UserResult = {
-  user?: User;
-  statusCode: number;
-};

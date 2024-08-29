@@ -1,10 +1,10 @@
 import { API } from "../configuration/api/api.configuration";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
-import { User, UserResult } from "../types/User";
+import { User } from "../types/User";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage, redirectToLoginPage } from "./redirectUtils";
 
-export const getUserData = async (): Promise<UserResult> => {
+export const getUserData = async (): Promise<User> => {
   const response = await fetch(API.USER_DATA);
 
   if (response.status === HttpStatusCode.Unauthorized) {
@@ -18,12 +18,17 @@ export const getUserData = async (): Promise<UserResult> => {
     throw new Error("Internal Server Error");
   }
 
-  const data: User = await response.json();
-  data.initials =
-    data.firstName.charAt(0).toUpperCase() +
-    data.lastName.charAt(0).toUpperCase();
+  const data = await response.json();
 
-  const userResult = { user: data, statusCode: response.status };
+  const user: User = {
+    id: data.id,
+    schoolId: data.schoolId,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    initials:
+      data.firstName.charAt(0).toUpperCase() +
+      data.lastName.charAt(0).toUpperCase(),
+  };
 
-  return userResult;
+  return user;
 };

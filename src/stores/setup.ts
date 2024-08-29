@@ -12,17 +12,16 @@ import { setDefaultState } from "../utils/userSettings";
 
 clearErrorData();
 
-const [connectionOptions, envs, userResult] = await Promise.all([
+const [connectionOptions, envs, user] = await Promise.all([
   getConnectionOptions(),
   getEnvs(),
   getUserData(),
 ]);
 
-handleRedirectIfNotValid(userResult, envs);
+handleRedirectIfNotValid(envs);
 
 setDefaultState();
 
-const user = userResult.user;
 const roomId = getRoomId();
 const doc = new Doc();
 const provider = new WebsocketProvider(

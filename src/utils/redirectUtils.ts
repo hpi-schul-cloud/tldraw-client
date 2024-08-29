@@ -1,9 +1,8 @@
-import { getRoomId } from "./connectionOptions";
-import { UserResult } from "../types/User";
-import { Envs } from "../types/Envs";
-import { setErrorData } from "./errorData";
-import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { API } from "../configuration/api/api.configuration";
+import { Envs } from "../types/Envs";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
+import { getRoomId } from "./connectionOptions";
+import { setErrorData } from "./errorData";
 
 const redirectToLoginPage = () => {
   const roomId = getRoomId();
@@ -25,13 +24,8 @@ const redirectToErrorPage = () => {
   }
 };
 
-const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
-  if (userResult.statusCode === HttpStatusCode.Unauthorized) {
-    redirectToLoginPage();
-    return;
-  }
-
-  if (!envs || !userResult.user) {
+const handleRedirectIfNotValid = (envs?: Envs) => {
+  if (!envs) {
     setErrorData(HttpStatusCode.InternalServerError, "error.500");
     redirectToErrorPage();
     return;
@@ -44,4 +38,4 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
   }
 };
 
-export { redirectToLoginPage, redirectToErrorPage, handleRedirectIfNotValid };
+export { handleRedirectIfNotValid, redirectToErrorPage, redirectToLoginPage };
