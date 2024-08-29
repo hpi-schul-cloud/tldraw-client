@@ -3,4 +3,5 @@ export const API = {
   LOGIN_REDIRECT: "/login?redirect=/tldraw?roomName=ROOMID",
   USER_DATA: `/api/v3/user/me`,
   ENV_CONFIG: `/api/v3/config/public`,
+  AUTHZ: "/api/v3/authorization/by-reference",
 };

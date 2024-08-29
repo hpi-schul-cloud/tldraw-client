@@ -9,6 +9,7 @@ import { getUserData } from "../utils/userData";
 import { handleRedirectIfNotValid } from "../utils/redirectUtils";
 import { clearErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
+import { checkAuthz } from "../utils/authzUtils";
 
 clearErrorData();
 
@@ -23,6 +24,9 @@ handleRedirectIfNotValid(envs);
 setDefaultState();
 
 const roomId = getRoomId();
+
+await checkAuthz(roomId);
+
 const doc = new Doc();
 const provider = new WebsocketProvider(
   connectionOptions.websocketUrl,
