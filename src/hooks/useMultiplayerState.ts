@@ -24,6 +24,8 @@ import {
   yShapes,
   user,
   envs,
+  pauseSync,
+  resumeSync,
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
@@ -405,18 +407,21 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
+    pauseSync();
     setIsReadOnlyToTrue(app);
+
     const assetsBeforeUndo = [...app.assets];
     undoManager.undo();
     const assetsAfterUndo = [...app.assets];
 
     try {
       await handleAssets(assetsBeforeUndo, assetsAfterUndo);
+      console.log("handle Assets done");
     } catch (error) {
       undoManager.redo();
       toast.error("An error occurred while undoing");
     }
-
+    resumeSync();
     setIsReadOnlyToFalse(app);
   }, []);
 
