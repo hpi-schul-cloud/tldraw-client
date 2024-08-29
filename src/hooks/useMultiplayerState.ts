@@ -67,11 +67,19 @@ export function useMultiplayerState({
   const [loading, setLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(false);
 
+  const setIsReadOnlyToTrue = (app?: TldrawApp) => {
+    setIsReadOnly(true);
+    if (app) app.setIsLoading(true);
+  };
+
   // Bug in tl draw package leads to situation where app context readonly and prop readonly are not in sync.
   // This function is a workaround to make sure that both are in sync.
   const setIsReadOnlyToFalse = (app?: TldrawApp) => {
     setIsReadOnly(false);
-    if (app) app.readOnly = false;
+    if (app) {
+      app.readOnly = false;
+      app.setIsLoading(false);
+    }
   };
 
   // Callbacks --------------
@@ -397,7 +405,7 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
-    setIsReadOnly(true);
+    setIsReadOnlyToTrue(app);
     const assetsBeforeUndo = [...app.assets];
     undoManager.undo();
     const assetsAfterUndo = [...app.assets];
@@ -413,7 +421,7 @@ export function useMultiplayerState({
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
-    setIsReadOnly(true);
+    setIsReadOnlyToTrue(app);
     const assetsBeforeRedo = [...app.assets];
     undoManager.redo();
     const assetsAfterRedo = [...app.assets];
@@ -569,7 +577,7 @@ export function useMultiplayerState({
     const asset = app.assets.find((asset) => asset.id === id);
     try {
       if (asset) {
-        setIsReadOnly(true);
+        setIsReadOnlyToTrue(app);
 
         await deleteAsset(asset);
       }
