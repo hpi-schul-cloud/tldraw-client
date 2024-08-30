@@ -407,8 +407,8 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
-    pauseSync();
     setIsReadOnlyToTrue(app);
+    pauseSync();
 
     const assetsBeforeUndo = [...app.assets];
     undoManager.undo();
@@ -416,17 +416,19 @@ export function useMultiplayerState({
 
     try {
       await handleAssets(assetsBeforeUndo, assetsAfterUndo);
-      console.log("handle Assets done");
     } catch (error) {
       undoManager.redo();
       toast.error("An error occurred while undoing");
     }
+
     resumeSync();
     setIsReadOnlyToFalse(app);
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
     setIsReadOnlyToTrue(app);
+    pauseSync();
+
     const assetsBeforeRedo = [...app.assets];
     undoManager.redo();
     const assetsAfterRedo = [...app.assets];
@@ -438,6 +440,7 @@ export function useMultiplayerState({
       toast.error("An error occurred while redoing");
     }
 
+    resumeSync();
     setIsReadOnlyToFalse(app);
   }, []);
 
