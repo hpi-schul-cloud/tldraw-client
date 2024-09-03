@@ -25,6 +25,11 @@ const redirectToErrorPage = () => {
   }
 };
 
+const redirectToNotFoundErrorPage = () => {
+  setErrorData(HttpStatusCode.NotFound, "error.404");
+  redirectToErrorPage();
+};
+
 const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
   if (userResult.statusCode === HttpStatusCode.Unauthorized) {
     redirectToLoginPage();
@@ -44,4 +49,9 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
   }
 };
 
-export { redirectToLoginPage, redirectToErrorPage, handleRedirectIfNotValid };
+export {
+  redirectToLoginPage,
+  redirectToErrorPage,
+  redirectToNotFoundErrorPage,
+  handleRedirectIfNotValid,
+};

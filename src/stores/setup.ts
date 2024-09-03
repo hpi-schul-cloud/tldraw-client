@@ -6,7 +6,10 @@ import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
-import { handleRedirectIfNotValid } from "../utils/redirectUtils";
+import {
+  handleRedirectIfNotValid,
+  redirectToNotFoundErrorPage,
+} from "../utils/redirectUtils";
 import { clearErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
 
@@ -39,6 +42,14 @@ const yShapes: Map<TDShape> = doc.getMap("shapes");
 const yBindings: Map<TDBinding> = doc.getMap("bindings");
 const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
+
+if (provider.ws?.onmessage) {
+  provider.ws.onmessage = (event) => {
+    if (event.data === "deleted") {
+      redirectToNotFoundErrorPage();
+    }
+  };
+}
 
 const pauseSync = () => {
   provider.disconnect();
