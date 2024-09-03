@@ -24,6 +24,8 @@ import {
   yShapes,
   user,
   envs,
+  pauseSync,
+  resumeSync,
 } from "../stores/setup";
 import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
@@ -48,6 +50,7 @@ import {
   VIDEO_EXTENSIONS,
 } from "../utils/tldrawFileUploadUtils";
 import { Vec } from "@tldraw/vec";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -64,6 +67,22 @@ export function useMultiplayerState({
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+
+  const setIsReadOnlyToTrue = (app?: TldrawApp) => {
+    setIsReadOnly(true);
+    if (app) app.setIsLoading(true);
+  };
+
+  // Bug in tl draw package leads to situation where app context readonly and prop readonly are not in sync.
+  // This function is a workaround to make sure that both are in sync.
+  const setIsReadOnlyToFalse = (app?: TldrawApp) => {
+    setIsReadOnly(false);
+    if (app) {
+      app.readOnly = false;
+      app.setIsLoading(false);
+    }
+  };
 
   // Callbacks --------------
 
@@ -352,8 +371,6 @@ export function useMultiplayerState({
         return false;
       }
 
-      undoManager.stopCapturing();
-
       try {
         const fileExtension = file.name.split(".").pop()!;
         const url = await uploadFileToStorage(
@@ -389,12 +406,42 @@ export function useMultiplayerState({
     [setIsDarkMode, setIsFocusMode],
   );
 
-  const onUndo = useCallback(() => {
+  const onUndo = useCallback(async (app: TldrawApp) => {
+    setIsReadOnlyToTrue(app);
+    pauseSync();
+
+    const assetsBeforeUndo = [...app.assets];
     undoManager.undo();
+    const assetsAfterUndo = [...app.assets];
+
+    try {
+      await handleAssets(assetsBeforeUndo, assetsAfterUndo);
+    } catch (error) {
+      undoManager.redo();
+      toast.error("An error occurred while undoing");
+    }
+
+    resumeSync();
+    setIsReadOnlyToFalse(app);
   }, []);
 
-  const onRedo = useCallback(() => {
+  const onRedo = useCallback(async (app: TldrawApp) => {
+    setIsReadOnlyToTrue(app);
+    pauseSync();
+
+    const assetsBeforeRedo = [...app.assets];
     undoManager.redo();
+    const assetsAfterRedo = [...app.assets];
+
+    try {
+      await handleAssets(assetsBeforeRedo, assetsAfterRedo);
+    } catch (error) {
+      undoManager.undo();
+      toast.error("An error occurred while redoing");
+    }
+
+    resumeSync();
+    setIsReadOnlyToFalse(app);
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -407,7 +454,6 @@ export function useMultiplayerState({
     ) => {
       if (!(yShapes && yBindings && yAssets)) return;
 
-      undoManager.stopCapturing();
       updateDoc(shapes, bindings, assets);
     },
     [],
@@ -535,6 +581,22 @@ export function useMultiplayerState({
     };
   }, []);
 
+  const onAssetDelete = async (app: TldrawApp, id: string) => {
+    const asset = app.assets.find((asset) => asset.id === id);
+    try {
+      if (asset) {
+        setIsReadOnlyToTrue(app);
+
+        await deleteAsset(asset);
+      }
+    } catch (error) {
+      undoManager.undo();
+      toast.error("An error occurred while deleting asset");
+    }
+
+    setIsReadOnlyToFalse(app);
+  };
+
   return {
     onUndo,
     onRedo,
@@ -547,6 +609,8 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
+    onAssetDelete,
+    isReadOnly,
   };
 }
 

@@ -10,6 +10,7 @@ import {
 import * as Tldraw from "@tldraw/tldraw";
 import { useMultiplayerState } from "./useMultiplayerState";
 import { doc, room, undoManager } from "../stores/setup";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
 
 vi.mock("@tldraw/tldraw", async () => {
   const tldraw = await vi.importActual("@tldraw/tldraw");
@@ -87,6 +88,11 @@ vi.mock("@y-presence/client", () => ({
   User: vi.fn(),
 }));
 
+vi.mock("../utils/handleAssets", () => ({
+  deleteAsset: vi.fn(),
+  handleAssets: vi.fn(),
+}));
+
 Object.fromEntries = vi.fn();
 
 describe("useMultiplayerState hook", () => {
@@ -143,6 +149,10 @@ describe("useMultiplayerState hook", () => {
     setIsFocusMode: vi.fn(),
   };
 
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   it("should handle onMount correctly", () => {
     const { app, loadRoomSpy, pauseSpy } = setup();
     const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
@@ -173,24 +183,62 @@ describe("useMultiplayerState hook", () => {
     });
   });
 
-  it("should handle onUndo correctly", () => {
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
+  describe("onUndo", () => {
+    it("should call undoManager.undo", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+      const undoSpy = vi.spyOn(undoManager, "undo");
 
-    act(() => {
-      result.current.onUndo();
+      act(() => {
+        result.current.onUndo(app);
+      });
+
+      expect(undoSpy).toHaveBeenCalled();
     });
 
-    expect(undoManager.undo).toHaveBeenCalled();
+    it("should call handleAssets", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+
+      act(() => {
+        result.current.onUndo(app);
+      });
+
+      expect(handleAssets).toHaveBeenCalled();
+    });
   });
 
-  it("should handle onRedo correctly", () => {
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
+  describe("onRedo", () => {
+    it("should call undoManager.redo", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+      const redoSpy = vi.spyOn(undoManager, "redo");
 
-    act(() => {
-      result.current.onRedo();
+      act(() => {
+        result.current.onRedo(app);
+      });
+
+      expect(redoSpy).toHaveBeenCalled();
     });
 
-    expect(undoManager.redo).toHaveBeenCalled();
+    it("should call handleAssets", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+
+      act(() => {
+        result.current.onRedo(app);
+      });
+
+      expect(handleAssets).toHaveBeenCalled();
+    });
   });
 
   it("should handle onChangePage correctly", () => {
@@ -224,6 +272,41 @@ describe("useMultiplayerState hook", () => {
 
     expect(room.updatePresence).toHaveBeenCalledWith({
       tdUser: user,
+    });
+  });
+
+  describe("should handle onAssetDelete correctly", () => {
+    describe("when asset exists", () => {
+      it("should call deleteAsset", () => {
+        const { app } = setup();
+        const { result } = renderHook(() =>
+          useMultiplayerState(multiPlayerProps),
+        );
+        const id = "asset1";
+        const assets = { asset1: { id } as TDAsset };
+        app.patchAssets(assets);
+
+        act(() => {
+          result.current.onAssetDelete(app, id);
+        });
+
+        expect(deleteAsset).toHaveBeenCalledWith(assets.asset1);
+      });
+    });
+
+    describe("when asset does not exist", () => {
+      it("should not call deleteAsset", () => {
+        const { app } = setup();
+        const { result } = renderHook(() =>
+          useMultiplayerState(multiPlayerProps),
+        );
+
+        act(() => {
+          result.current.onAssetDelete(app, "asset1");
+        });
+
+        expect(deleteAsset).not.toHaveBeenCalled();
+      });
     });
   });
 });

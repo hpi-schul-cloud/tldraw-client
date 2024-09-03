@@ -40,6 +40,14 @@ const yBindings: Map<TDBinding> = doc.getMap("bindings");
 const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
+const pauseSync = () => {
+  provider.disconnect();
+};
+
+const resumeSync = () => {
+  provider.connect();
+};
+
 export {
   envs,
   user,
@@ -51,4 +59,6 @@ export {
   yBindings,
   yAssets,
   undoManager,
+  pauseSync,
+  resumeSync,
 };
