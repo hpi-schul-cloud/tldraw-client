@@ -45,8 +45,6 @@ const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 if (provider.ws?.onmessage) {
-  const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
-
   provider.ws.onmessage = (event) => {
     const message = new Uint8Array(event.data);
     const decoder = decoding.createDecoder(message);
