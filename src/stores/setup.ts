@@ -44,9 +44,16 @@ const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 if (provider.ws?.onmessage) {
+  const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
+
   provider.ws.onmessage = (event) => {
-    if (event.data === "deleted") {
+    const message = new TextDecoder().decode(new Uint8Array(event.data));
+
+    if (message === "deleted") {
+      provider.disconnect();
       redirectToNotFoundErrorPage();
+    } else {
+      originalOnMessage(event);
     }
   };
 }
