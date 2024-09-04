@@ -12,6 +12,7 @@ import {
 } from "../utils/redirectUtils";
 import { clearErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
+import * as decoding from "lib0/decoding";
 
 clearErrorData();
 
@@ -47,13 +48,18 @@ if (provider.ws?.onmessage) {
   const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
 
   provider.ws.onmessage = (event) => {
-    const message = new TextDecoder().decode(new Uint8Array(event.data));
+    const message = new Uint8Array(event.data);
+    const decoder = decoding.createDecoder(message);
+    const messageType = decoding.readVarUint(decoder);
+    console.log("Received message typ:", messageType);
 
-    if (message === "deleted") {
-      provider.disconnect();
-      redirectToNotFoundErrorPage();
-    } else {
-      originalOnMessage(event);
+    if (messageType === 3) {
+      const messageContent = decoding.readVarString(decoder);
+      console.log("Received message content:", messageContent);
+      if (messageContent === "deleted") {
+        provider.disconnect();
+        redirectToNotFoundErrorPage();
+      }
     }
   };
 }
