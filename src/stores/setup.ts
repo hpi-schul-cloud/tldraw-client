@@ -45,21 +45,32 @@ const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 if (provider.ws?.onmessage) {
-  provider.ws.onmessage = (event) => {
-    const message = new Uint8Array(event.data);
-    const decoder = decoding.createDecoder(message);
-    const messageType = decoding.readVarUint(decoder);
-    console.log("Received message typ:", messageType);
+  const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
 
-    if (messageType === 3) {
-      const messageContent = decoding.readVarString(decoder);
-      console.log("Received message content:", messageContent);
-      if (messageContent === "deleted") {
-        provider.disconnect();
-        redirectToNotFoundErrorPage();
-      }
+  provider.on("status", (event) => {
+    if (!provider.ws?.onmessage) return;
+
+    if (event.status === "connected") {
+      provider.ws.onmessage = (event) => {
+        const message = new Uint8Array(event.data);
+        const decoder = decoding.createDecoder(message);
+        const messageType = decoding.readVarUint(decoder);
+        console.log("Received message typ:", messageType);
+
+        if (messageType === 3) {
+          const messageContent = decoding.readVarString(decoder);
+          console.log("Received message content:", messageContent);
+          if (messageContent === "deleted") {
+            redirectToNotFoundErrorPage();
+          } else {
+            originalOnMessage(event);
+          }
+        } else {
+          originalOnMessage(event);
+        }
+      };
     }
-  };
+  });
 }
 
 const pauseSync = () => {
