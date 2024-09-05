@@ -37,12 +37,6 @@ const provider = new WebsocketProvider(
   },
 );
 
-const room = new Room<UserPresence>(provider.awareness, {});
-const yShapes: Map<TDShape> = doc.getMap("shapes");
-const yBindings: Map<TDBinding> = doc.getMap("bindings");
-const yAssets: Map<TDAsset> = doc.getMap("assets");
-const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
-
 provider.on("status", (event: { status: string }) => {
   if (!provider.ws?.onmessage || event.status !== "connected") return;
 
@@ -56,6 +50,12 @@ provider.on("status", (event: { status: string }) => {
     }
   };
 });
+
+const room = new Room<UserPresence>(provider.awareness, {});
+const yShapes: Map<TDShape> = doc.getMap("shapes");
+const yBindings: Map<TDBinding> = doc.getMap("bindings");
+const yAssets: Map<TDAsset> = doc.getMap("assets");
+const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
 const pauseSync = () => {
   provider.disconnect();
