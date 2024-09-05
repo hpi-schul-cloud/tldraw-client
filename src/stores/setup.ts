@@ -12,7 +12,6 @@ import {
 } from "../utils/redirectUtils";
 import { clearErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
-import * as decoding from "lib0/decoding";
 
 clearErrorData();
 
@@ -44,34 +43,19 @@ const yBindings: Map<TDBinding> = doc.getMap("bindings");
 const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
-if (provider.ws?.onmessage) {
+provider.on("status", (event: { status: string }) => {
+  if (!provider.ws?.onmessage || event.status !== "connected") return;
+
   const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
 
-  provider.on("status", (event) => {
-    if (!provider.ws?.onmessage) return;
-
-    if (event.status === "connected") {
-      provider.ws.onmessage = (event) => {
-        const message = new Uint8Array(event.data);
-        const decoder = decoding.createDecoder(message);
-        const messageType = decoding.readVarUint(decoder);
-        console.log("Received message typ:", messageType);
-
-        if (messageType === 3) {
-          const messageContent = decoding.readVarString(decoder);
-          console.log("Received message content:", messageContent);
-          if (messageContent === "deleted") {
-            redirectToNotFoundErrorPage();
-          } else {
-            originalOnMessage(event);
-          }
-        } else {
-          originalOnMessage(event);
-        }
-      };
+  provider.ws.onmessage = (messageEvent) => {
+    if (messageEvent.data === "deleted") {
+      redirectToNotFoundErrorPage();
+    } else {
+      originalOnMessage(messageEvent);
     }
-  });
-}
+  };
+});
 
 const pauseSync = () => {
   provider.disconnect();
