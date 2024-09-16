@@ -43,7 +43,7 @@ provider.on("status", (event: { status: string }) => {
   const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
 
   provider.ws.onmessage = (messageEvent) => {
-    if (messageEvent.data === "deleted") {
+    if (messageEvent.data === "action:delete") {
       redirectToNotFoundErrorPage();
     } else {
       originalOnMessage(messageEvent);
