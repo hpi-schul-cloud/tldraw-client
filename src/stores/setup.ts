@@ -44,6 +44,7 @@ provider.on("status", (event: { status: string }) => {
 
   provider.ws.onmessage = (messageEvent) => {
     if (messageEvent.data === "action:delete") {
+      provider.disconnect();
       redirectToNotFoundErrorPage();
     } else {
       originalOnMessage(messageEvent);
