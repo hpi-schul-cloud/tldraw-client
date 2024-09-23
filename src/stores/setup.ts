@@ -6,7 +6,10 @@ import { UserPresence } from "../types/UserPresence";
 import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
-import { handleRedirectIfNotValid } from "../utils/redirectUtils";
+import {
+  handleRedirectIfNotValid,
+  redirectToNotFoundErrorPage,
+} from "../utils/redirectUtils";
 import { clearErrorData } from "../utils/errorData";
 import { setDefaultState } from "../utils/userSettings";
 
@@ -33,6 +36,21 @@ const provider = new WebsocketProvider(
     connect: true,
   },
 );
+
+provider.on("status", (event: { status: string }) => {
+  if (!provider.ws?.onmessage || event.status !== "connected") return;
+
+  const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
+
+  provider.ws.onmessage = (messageEvent) => {
+    if (messageEvent.data === "action:delete") {
+      provider.disconnect();
+      redirectToNotFoundErrorPage();
+    } else {
+      originalOnMessage(messageEvent);
+    }
+  };
+});
 
 const room = new Room<UserPresence>(provider.awareness, {});
 const yShapes: Map<TDShape> = doc.getMap("shapes");
