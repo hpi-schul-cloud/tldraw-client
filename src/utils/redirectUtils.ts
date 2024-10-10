@@ -12,7 +12,7 @@ const redirectToLoginPage = () => {
     window.location.assign(redirectUrl);
   } else {
     window.location.assign(
-      `http://localhost:4000/login?redirect=tldraw?roomName=${parentId}`,
+      `http://localhost:4000/login?redirect=tldraw?parentId=${parentId}`,
     );
   }
 };

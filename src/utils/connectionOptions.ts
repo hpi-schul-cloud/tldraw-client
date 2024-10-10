@@ -32,7 +32,7 @@ const getConnectionOptions = async (): Promise<{
 
 const getParentId = () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const parentId = urlParams.get("roomName") ?? "";
+  const parentId = urlParams.get("parentId") ?? "";
 
   validateId(parentId);
 
