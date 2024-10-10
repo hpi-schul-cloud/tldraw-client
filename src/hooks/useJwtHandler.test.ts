@@ -5,7 +5,7 @@ import { useJwtHandler } from "./useJwtHandler";
 
 vi.mock("../stores/setup", () => {
   return {
-    roomId: "test_room_id",
+    parentId: "test_parent_id",
   };
 });
 

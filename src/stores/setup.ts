@@ -3,7 +3,7 @@ import { Doc, Map, UndoManager } from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { Room } from "@y-presence/client";
 import { UserPresence } from "../types/UserPresence";
-import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
+import { getConnectionOptions, getParentId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { getUserData } from "../utils/userData";
 import {
@@ -26,11 +26,11 @@ handleRedirectIfNotValid(userResult, envs);
 setDefaultState();
 
 const user = userResult.user;
-const roomId = getRoomId();
+const parentId = getParentId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
   connectionOptions.websocketUrl,
-  roomId,
+  parentId,
   doc,
   {
     connect: true,
@@ -69,7 +69,7 @@ const resumeSync = () => {
 export {
   envs,
   user,
-  roomId,
+  parentId,
   doc,
   provider,
   room,
