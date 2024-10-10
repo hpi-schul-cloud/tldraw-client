@@ -55,13 +55,13 @@ import { deleteAsset, handleAssets } from "../utils/handleAssets";
 declare const window: Window & { app: TldrawApp };
 
 interface MultiplayerStateProps {
-  roomId: string;
+  parentId: string;
   setIsDarkMode: (isDarkMode: boolean) => void;
   setIsFocusMode: (isFocusMode: boolean) => void;
 }
 
 export function useMultiplayerState({
-  roomId,
+  parentId,
   setIsDarkMode,
   setIsFocusMode,
 }: MultiplayerStateProps) {
@@ -130,8 +130,8 @@ export function useMultiplayerState({
 
   const onMount = useCallback(
     (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      app.document.name = `board-${roomId}`;
+      app.loadRoom(parentId);
+      app.document.name = `board-${parentId}`;
       // Turn off the app's own undo / redo stack
       app.pause();
       // Put the state into the window, for debugging
@@ -320,7 +320,7 @@ export function useMultiplayerState({
           }
 
           const { document, fileHandle } = result;
-          await importAssetsToS3(document, roomId, user!.schoolId);
+          await importAssetsToS3(document, parentId, user!.schoolId);
 
           yShapes.clear();
           yBindings.clear();
@@ -341,7 +341,7 @@ export function useMultiplayerState({
         app.setIsLoading(false);
       };
     },
-    [onSaveAs, roomId],
+    [onSaveAs, parentId],
   );
 
   const onAssetCreate = useCallback(
@@ -378,7 +378,7 @@ export function useMultiplayerState({
           fileExtension,
           id,
           user!.schoolId,
-          roomId,
+          parentId,
         );
 
         return url;
@@ -388,7 +388,7 @@ export function useMultiplayerState({
 
       return false;
     },
-    [roomId],
+    [parentId],
   );
 
   const onPatch = useCallback(
@@ -486,14 +486,14 @@ export function useMultiplayerState({
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `${roomId}_export.${info.type}`;
+        link.download = `${parentId}_export.${info.type}`;
         link.click();
       } catch (error) {
         handleError("An error occurred while exporting to image", error);
       }
       app.setIsLoading(false);
     },
-    [roomId],
+    [parentId],
   );
 
   // Document Changes --------

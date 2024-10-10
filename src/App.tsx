@@ -2,7 +2,7 @@ import { ToastContainer } from "react-toastify";
 import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
 import { useJwtHandler } from "./hooks/useJwtHandler";
-import { roomId } from "./stores/setup";
+import { parentId } from "./stores/setup";
 import { useTldrawSettings } from "./hooks/useTldrawSettings";
 
 function App() {
@@ -20,7 +20,7 @@ function App() {
         <UsersInfo isFocusMode={isFocusMode} isDarkMode={isDarkMode} />
         <div className="tldraw">
           <Editor
-            roomId={roomId}
+            parentId={parentId}
             darkModeHandler={handleDarkModeChange}
             focusModeHandler={handleFocusModeChange}
           />

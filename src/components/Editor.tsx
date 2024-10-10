@@ -7,11 +7,11 @@ import CustomCursor from "./CustomCursor";
 import { useTldrawSettings } from "../hooks/useTldrawSettings";
 
 function Editor({
-  roomId,
+  parentId,
   darkModeHandler,
   focusModeHandler,
 }: {
-  roomId: string;
+  parentId: string;
   darkModeHandler: (isDarkMode: boolean) => void;
   focusModeHandler: (isFocusMode: boolean) => void;
 }) {
@@ -26,7 +26,7 @@ function Editor({
     isReadOnly,
     ...events
   } = useMultiplayerState({
-    roomId,
+    parentId,
     setIsDarkMode: darkModeHandler,
     setIsFocusMode: focusModeHandler,
   });

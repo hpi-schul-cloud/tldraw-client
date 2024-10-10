@@ -30,13 +30,13 @@ const getConnectionOptions = async (): Promise<{
   return connectionOptions;
 };
 
-const getRoomId = () => {
+const getParentId = () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("roomName") ?? "";
+  const parentId = urlParams.get("parentId") ?? "";
 
-  validateId(roomId);
+  validateId(parentId);
 
-  return roomId;
+  return parentId;
 };
 
-export { getConnectionOptions, getRoomId };
+export { getConnectionOptions, getParentId };

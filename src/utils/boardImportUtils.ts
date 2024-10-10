@@ -49,7 +49,7 @@ const openFromFileSystem = async (): Promise<null | {
 
 const importAssetsToS3 = async (
   document: TDDocument,
-  roomId: string,
+  parentId: string,
   schoolId: string,
 ): Promise<void> => {
   const assets = Object.values(document.assets);
@@ -59,7 +59,7 @@ const importAssetsToS3 = async (
   const blobsForUpload = await Promise.all(blobActions);
 
   const uploadActions = blobsForUpload.map((blob, index) =>
-    uploadAction(blob, roomId, schoolId, assets[index]),
+    uploadAction(blob, parentId, schoolId, assets[index]),
   );
   const uploadBlobResults = await Promise.all(uploadActions);
 
@@ -76,7 +76,7 @@ const base64ToBlobAction = (base64: string): Promise<Blob> => {
 
 const uploadAction = (
   blob: Blob,
-  roomId: string,
+  parentId: string,
   schoolId: string,
   asset: TDAsset,
 ): Promise<{ url: string }> => {
@@ -93,7 +93,7 @@ const uploadAction = (
 
   const fileUploadUrl = API.FILE_UPLOAD.replace("SCHOOLID", schoolId).replace(
     "CONTEXTID",
-    roomId,
+    parentId,
   );
   const promise = fetch(fileUploadUrl, {
     method: "POST",

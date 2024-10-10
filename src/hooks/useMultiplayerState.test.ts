@@ -144,7 +144,7 @@ describe("useMultiplayerState hook", () => {
   };
 
   const multiPlayerProps = {
-    roomId: "testRoom",
+    parentId: "testParent",
     setIsDarkMode: vi.fn(),
     setIsFocusMode: vi.fn(),
   };
@@ -161,7 +161,7 @@ describe("useMultiplayerState hook", () => {
       result.current.onMount(app);
     });
 
-    expect(loadRoomSpy).toHaveBeenCalledWith("testRoom");
+    expect(loadRoomSpy).toHaveBeenCalledWith("testParent");
     expect(pauseSpy).toHaveBeenCalled();
   });
 
@@ -266,7 +266,7 @@ describe("useMultiplayerState hook", () => {
     const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
-      app.loadRoom("testRoom");
+      app.loadRoom("testParent");
       result.current.onChangePresence(app, user);
     });
 

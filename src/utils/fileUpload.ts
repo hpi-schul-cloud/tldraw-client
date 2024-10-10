@@ -5,7 +5,7 @@ export const uploadFileToStorage = async (
   fileExtension: string,
   assetId: string,
   schoolId: string,
-  roomId: string,
+  parentId: string,
 ): Promise<string> => {
   const fileToUpload = new File([file], `${assetId}.${fileExtension}`, {
     type: file.type,
@@ -15,7 +15,7 @@ export const uploadFileToStorage = async (
   formData.append("file", fileToUpload);
   const fileUploadUrl = API.FILE_UPLOAD.replace("SCHOOLID", schoolId).replace(
     "CONTEXTID",
-    roomId,
+    parentId,
   );
 
   const response = await fetch(fileUploadUrl, {
