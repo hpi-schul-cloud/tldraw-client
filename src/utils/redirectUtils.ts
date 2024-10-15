@@ -8,7 +8,7 @@ import { API } from "../configuration/api/api.configuration";
 const redirectToLoginPage = () => {
   const parentId = getParentId();
   if (import.meta.env.PROD) {
-    const redirectUrl = API.LOGIN_REDIRECT.replace("ROOMID", parentId);
+    const redirectUrl = API.LOGIN_REDIRECT.replace("PARENTID", parentId);
     window.location.assign(redirectUrl);
   } else {
     window.location.assign(
