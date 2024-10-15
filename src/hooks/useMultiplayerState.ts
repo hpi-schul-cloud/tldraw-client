@@ -1,4 +1,4 @@
-import lodash from "lodash";
+import { Utils } from "@tldraw/core";
 import {
   TDAsset,
   TDAssetType,
@@ -11,36 +11,36 @@ import {
   TldrawApp,
   TldrawPatch,
 } from "@tldraw/tldraw";
+import { Vec } from "@tldraw/vec";
 import { User } from "@y-presence/client";
+import lodash from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   doc,
-  room,
+  envs,
+  pauseSync,
   provider,
+  resumeSync,
+  room,
   undoManager,
+  user,
   yAssets,
   yBindings,
   yShapes,
-  user,
-  envs,
-  pauseSync,
-  resumeSync,
 } from "../stores/setup";
-import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
-import {
-  importAssetsToS3,
-  openFromFileSystem,
-} from "../utils/boardImportUtils";
 import {
   fileToBase64,
   fileToText,
   saveToFileSystem,
 } from "../utils/boardExportUtils";
+import {
+  importAssetsToS3,
+  openFromFileSystem,
+} from "../utils/boardImportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
-import { getImageBlob } from "../utils/tldrawImageExportUtils";
-import { Utils } from "@tldraw/core";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
 import {
   getImageSizeFromSrc,
   getVideoSizeFromSrc,
@@ -49,8 +49,8 @@ import {
   openAssetsFromFileSystem,
   VIDEO_EXTENSIONS,
 } from "../utils/tldrawFileUploadUtils";
-import { Vec } from "@tldraw/vec";
-import { deleteAsset, handleAssets } from "../utils/handleAssets";
+import { getImageBlob } from "../utils/tldrawImageExportUtils";
+import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 
 declare const window: Window & { app: TldrawApp };
 
@@ -355,9 +355,9 @@ export function useMultiplayerState({
         return false;
       }
 
-      if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
+      if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE_BYTES) {
         const bytesInMb = 1048576;
-        const sizeInMb = envs!.TLDRAW__ASSETS_MAX_SIZE / bytesInMb;
+        const sizeInMb = envs!.TLDRAW__ASSETS_MAX_SIZE_BYTES / bytesInMb;
         toast.info(`Asset is too big - max. ${sizeInMb}MB`);
         return false;
       }

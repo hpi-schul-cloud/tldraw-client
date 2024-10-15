@@ -1,9 +1,18 @@
-import { getRoomId } from "./connectionOptions";
-import { UserResult } from "../types/User";
-import { Envs } from "../types/Envs";
-import { setErrorData } from "./errorData";
-import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { API } from "../configuration/api/api.configuration";
+import { Envs } from "../types/Envs";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
+import { UserResult } from "../types/User";
+import { setErrorData } from "./errorData";
+import { validateId } from "./validator";
+
+const getRoomId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("roomName") ?? "";
+
+  validateId(roomId);
+
+  return roomId;
+};
 
 const redirectToLoginPage = () => {
   const roomId = getRoomId();
@@ -50,8 +59,9 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
 };
 
 export {
-  redirectToLoginPage,
-  redirectToErrorPage,
-  redirectToNotFoundErrorPage,
+  getRoomId,
   handleRedirectIfNotValid,
+  redirectToErrorPage,
+  redirectToLoginPage,
+  redirectToNotFoundErrorPage,
 };
