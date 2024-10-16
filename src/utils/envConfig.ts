@@ -26,18 +26,20 @@ export const getEnvs = async (): Promise<Envs> => {
       redirectToErrorPage();
       throw error;
     } else {
-      return {
+      const configuration: Envs = {
         TLDRAW__WEBSOCKET_URL: "ws://localhost:3345",
-        ASSETS_ENABLED: true,
-        ASSETS_MAX_SIZE_BYTES: 10485760,
-        ASSETS_ALLOWED_MIME_TYPES_LIST: [
+        TLDRAW__ASSETS_ENABLED: true,
+        TLDRAW__ASSETS_MAX_SIZE_BYTES: 10485760,
+        TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST: [
           "image/png",
           "image/jpeg",
           "image/gif",
           "image/svg+xml",
         ],
         FEATURE_TLDRAW_ENABLED: true,
-      } as unknown as Envs;
+      };
+
+      return configuration;
     }
   }
 };
