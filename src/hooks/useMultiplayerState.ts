@@ -350,21 +350,21 @@ export function useMultiplayerState({
       file: File,
       id: string,
     ): Promise<string | false> => {
-      if (!envs!.TLDRAW__ASSETS_ENABLED) {
+      if (!envs.TLDRAW__ASSETS_ENABLED) {
         toast.info("Asset uploading is disabled");
         return false;
       }
 
-      if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE_BYTES) {
+      if (file.size > envs.TLDRAW__ASSETS_MAX_SIZE_BYTES) {
         const bytesInMb = 1048576;
-        const sizeInMb = envs!.TLDRAW__ASSETS_MAX_SIZE_BYTES / bytesInMb;
+        const sizeInMb = envs.TLDRAW__ASSETS_MAX_SIZE_BYTES / bytesInMb;
         toast.info(`Asset is too big - max. ${sizeInMb}MB`);
         return false;
       }
 
       const isMimeTypeDisallowed =
-        envs!.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST &&
-        !envs!.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST.includes(file.type);
+        envs.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST &&
+        !envs.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST.includes(file.type);
 
       if (isMimeTypeDisallowed) {
         toast.info("Asset of this type is not allowed");

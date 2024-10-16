@@ -51,7 +51,7 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
     return;
   }
 
-  if (!envs!.FEATURE_TLDRAW_ENABLED) {
+  if (!envs.FEATURE_TLDRAW_ENABLED) {
     setErrorData(HttpStatusCode.Forbidden, "error.403");
     redirectToErrorPage();
     return;
