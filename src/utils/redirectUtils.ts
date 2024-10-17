@@ -1,4 +1,4 @@
-import { getRoomId } from "./connectionOptions";
+import { getParentId } from "./connectionOptions";
 import { UserResult } from "../types/User";
 import { Envs } from "../types/Envs";
 import { setErrorData } from "./errorData";
@@ -6,13 +6,13 @@ import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { API } from "../configuration/api/api.configuration";
 
 const redirectToLoginPage = () => {
-  const roomId = getRoomId();
+  const parentId = getParentId();
   if (import.meta.env.PROD) {
-    const redirectUrl = API.LOGIN_REDIRECT.replace("ROOMID", roomId);
+    const redirectUrl = API.LOGIN_REDIRECT.replace("PARENTID", parentId);
     window.location.assign(redirectUrl);
   } else {
     window.location.assign(
-      `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`,
+      `http://localhost:4000/login?redirect=tldraw?parentId=${parentId}`,
     );
   }
 };
