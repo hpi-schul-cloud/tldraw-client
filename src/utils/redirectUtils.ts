@@ -5,23 +5,23 @@ import { UserResult } from "../types/User";
 import { setErrorData } from "./errorData";
 import { validateId } from "./validator";
 
-const getRoomId = () => {
+const getParentId = () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get("roomName") ?? "";
+  const parentId = urlParams.get("parentId") ?? "";
 
-  validateId(roomId);
+  validateId(parentId);
 
-  return roomId;
+  return parentId;
 };
 
 const redirectToLoginPage = () => {
-  const roomId = getRoomId();
+  const parentId = getParentId();
   if (import.meta.env.PROD) {
-    const redirectUrl = API.LOGIN_REDIRECT.replace("ROOMID", roomId);
+    const redirectUrl = API.LOGIN_REDIRECT.replace("PARENTID", parentId);
     window.location.assign(redirectUrl);
   } else {
     window.location.assign(
-      `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`,
+      `http://localhost:4000/login?redirect=tldraw?parentId=${parentId}`,
     );
   }
 };
@@ -59,7 +59,7 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
 };
 
 export {
-  getRoomId,
+  getParentId,
   handleRedirectIfNotValid,
   redirectToErrorPage,
   redirectToLoginPage,

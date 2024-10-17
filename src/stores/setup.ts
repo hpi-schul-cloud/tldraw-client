@@ -6,7 +6,7 @@ import { UserPresence } from "../types/UserPresence";
 import { getEnvs } from "../utils/envConfig";
 import { clearErrorData } from "../utils/errorData";
 import {
-  getRoomId,
+  getParentId,
   handleRedirectIfNotValid,
   redirectToNotFoundErrorPage,
 } from "../utils/redirectUtils";
@@ -22,11 +22,11 @@ handleRedirectIfNotValid(userResult, envs);
 setDefaultState();
 
 const user = userResult.user;
-const roomId = getRoomId();
+const parentId = getParentId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
   envs?.TLDRAW__WEBSOCKET_URL,
-  roomId,
+  parentId,
   doc,
   {
     connect: true,
@@ -65,11 +65,11 @@ const resumeSync = () => {
 export {
   doc,
   envs,
+  parentId,
   pauseSync,
   provider,
   resumeSync,
   room,
-  roomId,
   undoManager,
   user,
   yAssets,
