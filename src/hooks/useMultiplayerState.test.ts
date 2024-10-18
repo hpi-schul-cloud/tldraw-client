@@ -1,16 +1,16 @@
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import * as Tldraw from "@tldraw/tldraw";
 import {
   TDAsset,
   TDBinding,
   TDShape,
   TDUser,
-  TldrawApp,
   TDUserStatus,
+  TldrawApp,
 } from "@tldraw/tldraw";
-import * as Tldraw from "@tldraw/tldraw";
-import { useMultiplayerState } from "./useMultiplayerState";
 import { doc, room, undoManager } from "../stores/setup";
 import { deleteAsset, handleAssets } from "../utils/handleAssets";
+import { useMultiplayerState } from "./useMultiplayerState";
 
 vi.mock("@tldraw/tldraw", async () => {
   const tldraw = await vi.importActual("@tldraw/tldraw");
@@ -74,7 +74,7 @@ vi.mock("../stores/setup", () => ({
   },
   envs: {
     TLDRAW__ASSETS_ENABLED: true,
-    TLDRAW__ASSETS_MAX_SIZE: 1000000,
+    TLDRAW__ASSETS_MAX_SIZE_BYTES: 1000000,
     TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST: ["image/png", "image/jpeg"],
   },
 }));

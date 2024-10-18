@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
-import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig, PluginOption } from "vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 
 const noncePlugin = (placeholderName = "**CSP_NONCE**"): PluginOption => ({
@@ -32,6 +32,11 @@ export default defineConfig({
       },
       "/api/v3": {
         target: "http://localhost:3030",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/tldraw": {
+        target: "http://localhost:3349",
         changeOrigin: true,
         secure: false,
       },
