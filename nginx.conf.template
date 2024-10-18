@@ -4,6 +4,11 @@ server {
 
     set $csp "default-src 'self'; connect-src 'self' data:; base-uri 'self'; script-src 'nonce-$request_id' 'strict-dynamic' https:; object-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'self' 'unsafe-inline';";
 
+    location /tldraw-client-runtime.config.json {
+        return 200 '{ "SERVER_TLDRAW_2_ENABLED" : "${SERVER_TLDRAW_2_ENABLED}" }';
+        add_header Content-Type application/json;
+    }
+
     location /assets {
         alias /usr/share/nginx/html/assets/;
     }
