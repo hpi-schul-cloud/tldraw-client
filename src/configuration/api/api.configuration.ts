@@ -22,7 +22,7 @@ const getConfigOptions = async (): Promise<{
 
       const data: { SERVER_TLDRAW_2_ENABLED: string } = await response.json();
       connectionOptions.SERVER_TLDRAW_2_ENABLED =
-        data.SERVER_TLDRAW_2_ENABLED === "true";
+        data.SERVER_TLDRAW_2_ENABLED.toLowerCase() === "true";
     } catch (error) {
       setErrorData(HttpStatusCode.InternalServerError, "error.500");
       redirectToErrorPage();
