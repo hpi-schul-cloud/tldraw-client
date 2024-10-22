@@ -6,10 +6,10 @@ import { setErrorData } from "../../utils/errorData";
 import { redirectToErrorPage } from "../../utils/redirectUtils";
 
 const getConfigOptions = async (): Promise<{
-  SERVER_TLDRAW_2_ENABLED: boolean;
+  ENV_CONFIG: string;
 }> => {
   const connectionOptions = {
-    SERVER_TLDRAW_2_ENABLED: !!import.meta.env.VITE_SERVER_TLDRAW_2_ENABLED,
+    ENV_CONFIG: configApiUrl(),
   };
 
   if (import.meta.env.PROD) {
@@ -20,9 +20,8 @@ const getConfigOptions = async (): Promise<{
         throw new Error(`${response.status} - ${response.statusText}`);
       }
 
-      const data: { SERVER_TLDRAW_2_ENABLED: string } = await response.json();
-      connectionOptions.SERVER_TLDRAW_2_ENABLED =
-        data.SERVER_TLDRAW_2_ENABLED.toLowerCase() === "true";
+      const data: { ENV_CONFIG: string } = await response.json();
+      connectionOptions.ENV_CONFIG = data.ENV_CONFIG;
     } catch (error) {
       setErrorData(HttpStatusCode.InternalServerError, "error.500");
       redirectToErrorPage();
@@ -32,8 +31,8 @@ const getConfigOptions = async (): Promise<{
   return connectionOptions;
 };
 
-const configApiUrl = async () => {
-  const configApiUrl = (await getConfigOptions()).SERVER_TLDRAW_2_ENABLED
+const configApiUrl = () => {
+  const configApiUrl = import.meta.env.VITE_SERVER_TLDRAW_2_ENABLED
     ? `/api/tldraw/config/public`
     : `/api/v3/config/public`;
 
@@ -46,5 +45,5 @@ export const API = {
   FILE_RESTORE: "/api/v3/file/restore/FILERECORD_ID",
   LOGIN_REDIRECT: "/login?redirect=/tldraw?parentId=PARENTID",
   USER_DATA: `/api/v3/user/me`,
-  ENV_CONFIG: await configApiUrl(),
+  ENV_CONFIG: await getConfigOptions().then((options) => options.ENV_CONFIG),
 };
