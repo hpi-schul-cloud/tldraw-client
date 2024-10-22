@@ -5,7 +5,7 @@ server {
     set $csp "default-src 'self'; connect-src 'self' data:; base-uri 'self'; script-src 'nonce-$request_id' 'strict-dynamic' https:; object-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'self' 'unsafe-inline';";
 
     location /tldraw-client-runtime.config.json {
-        return 200 '{ "ENV_CONFIG": "${ENV_CONFIG}" }';
+        return 200 '{ "CONFIG_PATH": "${CONFIG_PATH}" }';
         add_header Content-Type application/json;
     }
 

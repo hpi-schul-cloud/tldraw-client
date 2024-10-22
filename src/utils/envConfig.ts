@@ -12,7 +12,7 @@ import { redirectToErrorPage } from "./redirectUtils";
 export const getEnvs = async (): Promise<Envs> => {
   try {
     // TODO: check order..
-    const response = await fetch(API.ENV_CONFIG);
+    const response = await fetch(API.CONFIG_PATH);
     HttpGuard.checkStatusOk(response);
     const responseData = await response.json();
 

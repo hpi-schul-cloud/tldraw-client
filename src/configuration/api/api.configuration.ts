@@ -1,15 +1,15 @@
 // remove this code by BC-7906
-// set ENV_CONFIG to /api/tldraw/config/public
+// set CONFIG_PATH to /api/tldraw/config/public
 // remove line 7 and 8 in ngnix.conf.template
 import { HttpStatusCode } from "../../types/StatusCodeEnums";
 import { setErrorData } from "../../utils/errorData";
 import { redirectToErrorPage } from "../../utils/redirectUtils";
 
 const getConfigOptions = async (): Promise<{
-  ENV_CONFIG: string;
+  CONFIG_PATH: string;
 }> => {
   const connectionOptions = {
-    ENV_CONFIG: configApiUrl(),
+    CONFIG_PATH: configApiUrl(),
   };
 
   if (import.meta.env.PROD) {
@@ -20,8 +20,8 @@ const getConfigOptions = async (): Promise<{
         throw new Error(`${response.status} - ${response.statusText}`);
       }
 
-      const data: { ENV_CONFIG: string } = await response.json();
-      connectionOptions.ENV_CONFIG = data.ENV_CONFIG;
+      const data: { CONFIG_PATH: string } = await response.json();
+      connectionOptions.CONFIG_PATH = data.CONFIG_PATH;
     } catch (error) {
       setErrorData(HttpStatusCode.InternalServerError, "error.500");
       redirectToErrorPage();
@@ -45,5 +45,5 @@ export const API = {
   FILE_RESTORE: "/api/v3/file/restore/FILERECORD_ID",
   LOGIN_REDIRECT: "/login?redirect=/tldraw?parentId=PARENTID",
   USER_DATA: `/api/v3/user/me`,
-  ENV_CONFIG: await getConfigOptions().then((options) => options.ENV_CONFIG),
+  CONFIG_PATH: await getConfigOptions().then((options) => options.CONFIG_PATH),
 };
