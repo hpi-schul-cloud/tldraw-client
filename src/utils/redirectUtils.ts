@@ -1,9 +1,18 @@
-import { getParentId } from "./connectionOptions";
-import { UserResult } from "../types/User";
-import { Envs } from "../types/Envs";
-import { setErrorData } from "./errorData";
-import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { API } from "../configuration/api/api.configuration";
+import { Envs } from "../types/Envs";
+import { HttpStatusCode } from "../types/StatusCodeEnums";
+import { UserResult } from "../types/User";
+import { setErrorData } from "./errorData";
+import { validateId } from "./validator";
+
+const getParentId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const parentId = urlParams.get("parentId") ?? "";
+
+  validateId(parentId);
+
+  return parentId;
+};
 
 const redirectToLoginPage = () => {
   const parentId = getParentId();
@@ -42,7 +51,7 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
     return;
   }
 
-  if (!envs!.FEATURE_TLDRAW_ENABLED) {
+  if (!envs.FEATURE_TLDRAW_ENABLED) {
     setErrorData(HttpStatusCode.Forbidden, "error.403");
     redirectToErrorPage();
     return;
@@ -50,8 +59,9 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
 };
 
 export {
-  redirectToLoginPage,
-  redirectToErrorPage,
-  redirectToNotFoundErrorPage,
+  getParentId,
   handleRedirectIfNotValid,
+  redirectToErrorPage,
+  redirectToLoginPage,
+  redirectToNotFoundErrorPage,
 };

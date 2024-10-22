@@ -1,25 +1,21 @@
 import { TDAsset, TDBinding, TDShape } from "@tldraw/tldraw";
-import { Doc, Map, UndoManager } from "yjs";
-import { WebsocketProvider } from "y-websocket";
 import { Room } from "@y-presence/client";
+import { WebsocketProvider } from "y-websocket";
+import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
-import { getConnectionOptions, getParentId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
-import { getUserData } from "../utils/userData";
+import { clearErrorData } from "../utils/errorData";
 import {
+  getParentId,
   handleRedirectIfNotValid,
   redirectToNotFoundErrorPage,
 } from "../utils/redirectUtils";
-import { clearErrorData } from "../utils/errorData";
+import { getUserData } from "../utils/userData";
 import { setDefaultState } from "../utils/userSettings";
 
 clearErrorData();
 
-const [connectionOptions, envs, userResult] = await Promise.all([
-  getConnectionOptions(),
-  getEnvs(),
-  getUserData(),
-]);
+const [envs, userResult] = await Promise.all([getEnvs(), getUserData()]);
 
 handleRedirectIfNotValid(userResult, envs);
 
@@ -29,7 +25,7 @@ const user = userResult.user;
 const parentId = getParentId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
-  connectionOptions.websocketUrl,
+  envs?.TLDRAW__WEBSOCKET_URL,
   parentId,
   doc,
   {
@@ -67,16 +63,16 @@ const resumeSync = () => {
 };
 
 export {
-  envs,
-  user,
-  parentId,
   doc,
-  provider,
-  room,
-  yShapes,
-  yBindings,
-  yAssets,
-  undoManager,
+  envs,
+  parentId,
   pauseSync,
+  provider,
   resumeSync,
+  room,
+  undoManager,
+  user,
+  yAssets,
+  yBindings,
+  yShapes,
 };
