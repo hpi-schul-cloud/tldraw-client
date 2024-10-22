@@ -11,8 +11,8 @@ server {
             "FILE_DELETE": "${FILE_DELETE}",
             "FILE_RESTORE": "${FILE_RESTORE}",
             "LOGIN_REDIRECT": "${LOGIN_REDIRECT}",
-            "USER_DATA": "${USER_DATA}"
-            "ENV_CONFIG": "${ENV_CONFIG}"
+            "USER_DATA": "${USER_DATA}",
+            "ENV_CONFIG": "${ENV_CONFIG}",
         }';
         add_header Content-Type application/json;
     }
