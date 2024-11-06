@@ -107,6 +107,11 @@ jobs:
       contents: read
       security-events: write
     steps:
+      - name: Restore cached trivy DBs
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}/.cache/trivy
+          key: cache-trivy-${{ steps.date.outputs.date }}
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -119,6 +124,9 @@ jobs:
           severity: 'CRITICAL,HIGH'
           exit-code: 1
           ignore-unfixed: true
+        env:
+          TRIVY_SKIP_DB_UPDATE: true
+          TRIVY_SKIP_JAVA_DB_UPDATE: true
       - name: upload trivy results
         if: ${{ always() }}
         uses: github/codeql-action/upload-sarif@v3
