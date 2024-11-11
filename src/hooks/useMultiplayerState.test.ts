@@ -44,6 +44,8 @@ vi.mock("../stores/setup", () => ({
   provider: {
     disconnect: vi.fn(),
   },
+  pauseSync: vi.fn(),
+  resumeSync: vi.fn(),
   undoManager: {
     stopCapturing: vi.fn(),
     clear: vi.fn(),
