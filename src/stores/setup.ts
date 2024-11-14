@@ -1,52 +1,49 @@
 import { TDAsset, TDBinding, TDShape } from "@tldraw/tldraw";
 import { Room } from "@y-presence/client";
+import { Cookies } from "react-cookie";
 import { WebsocketProvider } from "y-websocket";
 import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
+import { getConnectionOptions, getRoomId } from "../utils/connectionOptions";
 import { getEnvs } from "../utils/envConfig";
 import { clearErrorData } from "../utils/errorData";
-import {
-  getParentId,
-  handleRedirectIfNotValid,
-  redirectToNotFoundErrorPage,
-} from "../utils/redirectUtils";
+import { handleRedirectIfNotValid } from "../utils/redirectUtils";
 import { getUserData } from "../utils/userData";
 import { setDefaultState } from "../utils/userSettings";
 
 clearErrorData();
 
-const [envs, userResult] = await Promise.all([getEnvs(), getUserData()]);
+const getJwt = () => {
+  const cookies = new Cookies();
+  const token = cookies.get("jwt");
+
+  return token;
+};
+
+const [connectionOptions, envs, userResult] = await Promise.all([
+  getConnectionOptions(),
+  getEnvs(),
+  getUserData(),
+]);
 
 handleRedirectIfNotValid(userResult, envs);
 
 setDefaultState();
 
 const user = userResult.user;
-const parentId = getParentId();
+const roomId = getRoomId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
-  envs?.TLDRAW__WEBSOCKET_URL,
-  parentId,
+  connectionOptions.websocketUrl,
+  roomId,
   doc,
   {
     connect: true,
+    params: {
+      yauth: getJwt(),
+    },
   },
 );
-
-provider.on("status", (event: { status: string }) => {
-  if (!provider.ws?.onmessage || event.status !== "connected") return;
-
-  const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
-
-  provider.ws.onmessage = (messageEvent) => {
-    if (messageEvent.data === "action:delete") {
-      provider.disconnect();
-      redirectToNotFoundErrorPage();
-    } else {
-      originalOnMessage(messageEvent);
-    }
-  };
-});
 
 const room = new Room<UserPresence>(provider.awareness, {});
 const yShapes: Map<TDShape> = doc.getMap("shapes");
@@ -54,25 +51,15 @@ const yBindings: Map<TDBinding> = doc.getMap("bindings");
 const yAssets: Map<TDAsset> = doc.getMap("assets");
 const undoManager = new UndoManager([yShapes, yBindings, yAssets]);
 
-const pauseSync = () => {
-  provider.disconnect();
-};
-
-const resumeSync = () => {
-  provider.connect();
-};
-
 export {
   doc,
   envs,
-  parentId,
-  pauseSync,
   provider,
-  resumeSync,
   room,
+  roomId,
   undoManager,
   user,
   yAssets,
   yBindings,
-  yShapes,
+  yShapes
 };
