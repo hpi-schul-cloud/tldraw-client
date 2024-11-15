@@ -8,7 +8,6 @@ import { clearErrorData } from "../utils/errorData";
 import {
   getParentId,
   handleRedirectIfNotValid,
-  redirectToNotFoundErrorPage,
 } from "../utils/redirectUtils";
 import { getUserData } from "../utils/userData";
 import { setDefaultState } from "../utils/userSettings";
@@ -33,21 +32,6 @@ const provider = new WebsocketProvider(
     disableBc: true,
   },
 );
-
-provider.on("status", (event: { status: string }) => {
-  if (!provider.ws?.onmessage || event.status !== "connected") return;
-
-  const originalOnMessage = provider.ws.onmessage.bind(provider.ws);
-
-  provider.ws.onmessage = (messageEvent) => {
-    if (messageEvent.data === "action:delete") {
-      provider.disconnect();
-      redirectToNotFoundErrorPage();
-    } else {
-      originalOnMessage(messageEvent);
-    }
-  };
-});
 
 const room = new Room<UserPresence>(provider.awareness, {});
 const yShapes: Map<TDShape> = doc.getMap("shapes");
