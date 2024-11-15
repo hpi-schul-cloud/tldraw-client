@@ -30,6 +30,7 @@ const provider = new WebsocketProvider(
   doc,
   {
     connect: true,
+    disableBc: true,
   },
 );
 
