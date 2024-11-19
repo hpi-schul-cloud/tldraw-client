@@ -65,6 +65,7 @@ export function useMultiplayerState({
   setIsDarkMode,
   setIsFocusMode,
 }: MultiplayerStateProps) {
+  console.log("useMultiplayerState");
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(false);
@@ -77,6 +78,7 @@ export function useMultiplayerState({
   // Bug in tl draw package leads to situation where app context readonly and prop readonly are not in sync.
   // This function is a workaround to make sure that both are in sync.
   const setIsReadOnlyToFalse = (app?: TldrawApp) => {
+    console.log("setIsReadOnlyToFalse");
     setIsReadOnly(false);
     if (app) {
       app.readOnly = false;
@@ -87,6 +89,7 @@ export function useMultiplayerState({
   // Callbacks --------------
 
   const onSave = useCallback(async (app: TldrawApp) => {
+    console.log("onSave");
     app.setIsLoading(true);
     undoManager.stopCapturing();
     syncAssets(app);
@@ -108,6 +111,7 @@ export function useMultiplayerState({
   }, []);
 
   const onSaveAs = useCallback(async (app: TldrawApp, fileName?: string) => {
+    console.log("onSaveAs");
     app.setIsLoading(true);
     undoManager.stopCapturing();
     syncAssets(app);
@@ -130,8 +134,11 @@ export function useMultiplayerState({
 
   const onMount = useCallback(
     (app: TldrawApp) => {
+      console.log("onMount");
+      console.log("parentId", parentId);
       app.loadRoom(parentId);
       app.document.name = `board-${parentId}`;
+      console.log("app.document", JSON.stringify(app.document));
       // Turn off the app's own undo / redo stack
       app.pause();
       // Put the state into the window, for debugging
@@ -141,6 +148,7 @@ export function useMultiplayerState({
       // below functions are overwriting the original tldraw implementations
       // some of them had to be changed/fixed to support additional functionality
       app.addMediaFromFiles = async (files, point) => {
+        console.log("app.addMediaFromFiles");
         app.setIsLoading(true);
 
         const shapesToCreate: TDShape[] = [];
@@ -291,11 +299,13 @@ export function useMultiplayerState({
       };
 
       app.saveProjectAs = async (filename) => {
+        console.log("app.saveProjectAs");
         await onSaveAs(app, filename);
         return app;
       };
 
       app.openAsset = async () => {
+        console.log("app.openAsset");
         if (app.disableAssets) return;
 
         try {
@@ -311,6 +321,7 @@ export function useMultiplayerState({
       };
 
       app.openProject = async () => {
+        console.log("app.openProject");
         try {
           app.setIsLoading(true);
           const result = await openFromFileSystem();
@@ -350,6 +361,7 @@ export function useMultiplayerState({
       file: File,
       id: string,
     ): Promise<string | false> => {
+      console.log("onAssetCreate");
       if (!envs.TLDRAW__ASSETS_ENABLED) {
         toast.info("Asset uploading is disabled");
         return false;
@@ -393,6 +405,7 @@ export function useMultiplayerState({
 
   const onPatch = useCallback(
     (app: TldrawApp, _patch: TldrawPatch, reason: string | undefined) => {
+      console.log("onPatch");
       if (reason?.includes("settings")) {
         localStorage.setItem(
           STORAGE_SETTINGS_KEY,
@@ -407,6 +420,7 @@ export function useMultiplayerState({
   );
 
   const onUndo = useCallback(async (app: TldrawApp) => {
+    console.log("onUndo");
     setIsReadOnlyToTrue(app);
     pauseSync();
 
@@ -426,6 +440,7 @@ export function useMultiplayerState({
   }, []);
 
   const onRedo = useCallback(async (app: TldrawApp) => {
+    console.log("onRedo");
     setIsReadOnlyToTrue(app);
     pauseSync();
 
@@ -452,6 +467,7 @@ export function useMultiplayerState({
       bindings: Record<string, TDBinding | undefined>,
       assets: Record<string, TDAsset | undefined>,
     ) => {
+      console.log("onChangePage");
       if (!(yShapes && yBindings && yAssets)) return;
 
       updateDoc(shapes, bindings, assets);
@@ -461,6 +477,7 @@ export function useMultiplayerState({
 
   // Handle presence updates when the user's pointer / selection changes
   const onChangePresence = useCallback((app: TldrawApp, tdUser: TDUser) => {
+    console.log("onChangePresence");
     if (!app.room) return;
     tdUser.metadata = {
       id: user!.id,
@@ -472,6 +489,7 @@ export function useMultiplayerState({
 
   const onExport = useCallback(
     async (app: TldrawApp, info: TDExport) => {
+      console.log("onExport");
       app.setIsLoading(true);
       undoManager.stopCapturing();
       syncAssets(app);
@@ -500,9 +518,11 @@ export function useMultiplayerState({
 
   // Update app users whenever there is a change in the room users
   useEffect(() => {
+    console.log("useEffect #1");
     if (!app || !room) return;
 
     const handleUsersChange = (users: User<UserPresence>[]) => {
+      console.log("handleUsersChange");
       if (!app.room) return;
 
       const ids = users
@@ -533,7 +553,9 @@ export function useMultiplayerState({
 
   // Update the app's shapes when the yjs doc's shapes change
   useEffect(() => {
+    console.log("useEffect #2");
     const handleChanges = () => {
+      console.log("handleChanges");
       if (!app) return;
 
       app.replacePageContent(
@@ -544,6 +566,7 @@ export function useMultiplayerState({
     };
 
     const setup = () => {
+      console.log("setup");
       yShapes.observeDeep(handleChanges);
       handleChanges();
 
@@ -570,7 +593,9 @@ export function useMultiplayerState({
   }, [app]);
 
   useEffect(() => {
+    console.log("useEffect #3");
     const handleDisconnect = () => {
+      console.log("handleDisconnect");
       provider.disconnect();
     };
 
@@ -582,6 +607,7 @@ export function useMultiplayerState({
   }, []);
 
   const onAssetDelete = async (app: TldrawApp, id: string) => {
+    console.log("onAssetDelete");
     const asset = app.assets.find((asset) => asset.id === id);
     try {
       if (asset) {
@@ -619,6 +645,7 @@ const updateDoc = (
   bindings: Record<string, TDBinding | undefined>,
   assets: Record<string, TDAsset | undefined>,
 ) => {
+  console.log("updateDoc");
   doc.transact(() => {
     Object.entries(shapes).forEach(([id, shape]) => {
       if (!shape) {
@@ -647,6 +674,7 @@ const updateDoc = (
 };
 
 const syncAssets = (app: TldrawApp) => {
+  console.log("syncAssets");
   const usedShapesAsAssets: TDShape[] = [];
 
   yShapes.forEach((shape) => {
@@ -675,6 +703,7 @@ const syncAssets = (app: TldrawApp) => {
 };
 
 const handleError = (toastMessage: string, error: unknown) => {
+  console.log("handleError");
   if (error instanceof Error) {
     if (error.message === "The user aborted a request.") {
       // a case when user cancels some action, like opening project
