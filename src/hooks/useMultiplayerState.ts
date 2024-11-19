@@ -567,8 +567,8 @@ export function useMultiplayerState({
       console.log("yBindingsObj", yBindingsObj);
       console.log("yAssetsObj", yAssetsObj);
       console.log("doc", doc);
-      const hash = CryptoJS.MD5(doc).toString();
-      console.log("docHash", hash);
+      // const hash = crypto.MD5(doc).toString();
+      // console.log("docHash", hash);
 
       app.replacePageContent(yShapesObj, yBindingsObj, yAssetsObj);
     };
