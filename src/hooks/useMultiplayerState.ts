@@ -136,6 +136,7 @@ export function useMultiplayerState({
     (app: TldrawApp) => {
       console.log("onMount");
       console.log("parentId", parentId);
+      app.resetDocument();
       app.loadRoom(parentId);
       app.document.name = `board-${parentId}`;
       console.log("app.document", JSON.stringify(app.document));
@@ -558,11 +559,18 @@ export function useMultiplayerState({
       console.log("handleChanges");
       if (!app) return;
 
-      app.replacePageContent(
-        Object.fromEntries(yShapes.entries()),
-        Object.fromEntries(yBindings.entries()),
-        Object.fromEntries(yAssets.entries()),
-      );
+      const yShapesObj = Object.fromEntries(yShapes.entries());
+      const yBindingsObj = Object.fromEntries(yBindings.entries());
+      const yAssetsObj = Object.fromEntries(yAssets.entries());
+
+      console.log("yShapesObj", yShapesObj);
+      console.log("yBindingsObj", yBindingsObj);
+      console.log("yAssetsObj", yAssetsObj);
+      console.log("doc", doc);
+      const hash = CryptoJS.MD5(doc).toString();
+      console.log("docHash", hash);
+
+      app.replacePageContent(yShapesObj, yBindingsObj, yAssetsObj);
     };
 
     const setup = () => {
@@ -596,7 +604,10 @@ export function useMultiplayerState({
     console.log("useEffect #3");
     const handleDisconnect = () => {
       console.log("handleDisconnect");
+      provider.doc.destroy();
+      provider.awareness.destroy();
       provider.disconnect();
+      doc.destroy();
     };
 
     window.addEventListener("beforeunload", handleDisconnect);
