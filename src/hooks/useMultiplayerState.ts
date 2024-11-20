@@ -536,11 +536,16 @@ export function useMultiplayerState({
     const handleChanges = () => {
       if (!app) return;
 
-      app.replacePageContent(
-        Object.fromEntries(yShapes.entries()),
-        Object.fromEntries(yBindings.entries()),
-        Object.fromEntries(yAssets.entries()),
-      );
+      const yShapesObj = Object.fromEntries(yShapes.entries());
+      const yBindingsObj = Object.fromEntries(yBindings.entries());
+      const yAssetsObj = Object.fromEntries(yAssets.entries());
+
+      console.log("yShapesObj", yShapesObj);
+      console.log("yBindingsObj", yBindingsObj);
+      console.log("yAssetsObj", yAssetsObj);
+      console.log("doc", doc);
+
+      app.replacePageContent(yShapesObj, yBindingsObj, yAssetsObj);
     };
 
     const setup = () => {
