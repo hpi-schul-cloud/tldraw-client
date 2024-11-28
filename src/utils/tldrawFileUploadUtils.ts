@@ -5,9 +5,9 @@
  *  @see Function we replaced with our own: openAssetsFromFileSystem
  **/
 
-import { envs } from "../stores/setup";
-import { fileOpen } from "browser-fs-access";
 import { TldrawApp } from "@tldraw/tldraw";
+import { fileOpen } from "browser-fs-access";
+import { envs } from "../stores/setup";
 
 // those are all the image extensions that are supported by tldraw
 const IMAGE_EXTENSIONS = [".png", ".svg", ".jpg", ".jpeg", ".gif"];
@@ -29,7 +29,7 @@ const fileMimeExtensions: { [key: string]: string[] } = {
   "image/gif": [".gif"],
 };
 
-const allowedMimeTypes = envs?.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST || [];
+const allowedMimeTypes = envs?.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST || [];
 
 const allowedExtensions = allowedMimeTypes.flatMap(
   (mimeType) => fileMimeExtensions[mimeType] || [],
@@ -81,10 +81,10 @@ const getVideoSizeFromSrc = (src: string): Promise<number[]> => {
 };
 
 export {
-  openAssetsFromFileSystem,
-  getViewboxFromSVG,
   getImageSizeFromSrc,
   getVideoSizeFromSrc,
+  getViewboxFromSVG,
   IMAGE_EXTENSIONS,
+  openAssetsFromFileSystem,
   VIDEO_EXTENSIONS,
 };

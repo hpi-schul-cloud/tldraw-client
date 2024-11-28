@@ -25,7 +25,7 @@ const user = userResult.user;
 const parentId = getParentId();
 const doc = new Doc();
 const provider = new WebsocketProvider(
-  envs?.TLDRAW__WEBSOCKET_URL,
+  envs?.TLDRAW_WEBSOCKET_URL,
   parentId,
   doc,
   {

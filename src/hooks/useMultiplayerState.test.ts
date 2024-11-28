@@ -75,9 +75,9 @@ vi.mock("../stores/setup", () => ({
     firstName: "John",
   },
   envs: {
-    TLDRAW__ASSETS_ENABLED: true,
-    TLDRAW__ASSETS_MAX_SIZE_BYTES: 1000000,
-    TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST: ["image/png", "image/jpeg"],
+    TLDRAW_ASSETS_ENABLED: true,
+    TLDRAW_ASSETS_MAX_SIZE_BYTES: 1000000,
+    TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST: ["image/png", "image/jpeg"],
   },
 }));
 

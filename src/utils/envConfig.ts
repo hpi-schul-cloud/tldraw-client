@@ -27,10 +27,10 @@ export const getEnvs = async (): Promise<Envs> => {
       throw error;
     } else {
       const configuration: Envs = {
-        TLDRAW__WEBSOCKET_URL: "ws://localhost:3345",
-        TLDRAW__ASSETS_ENABLED: true,
-        TLDRAW__ASSETS_MAX_SIZE_BYTES: 10485760,
-        TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST: [
+        TLDRAW_WEBSOCKET_URL: "ws://localhost:3345",
+        TLDRAW_ASSETS_ENABLED: true,
+        TLDRAW_ASSETS_MAX_SIZE_BYTES: 10485760,
+        TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST: [
           "image/png",
           "image/jpeg",
           "image/gif",
