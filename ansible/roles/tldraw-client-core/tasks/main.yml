@@ -3,7 +3,7 @@
     kubeconfig: ~/.kube/config
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-svc.yml.j2
-  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool or WITH_TLDRAW2 is defined and WITH_TLDRAW2|bool
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
   tags:
     - service
 
@@ -13,7 +13,7 @@
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-configmap.yml.j2
     apply: yes
-  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool or WITH_TLDRAW2 is defined and WITH_TLDRAW2|bool
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
   tags:
     - configmap
 
@@ -22,7 +22,7 @@
     kubeconfig: ~/.kube/config
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-deployment.yml.j2
-  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool or WITH_TLDRAW2 is defined and WITH_TLDRAW2|bool
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
   tags:
     - deployment
 
@@ -32,6 +32,6 @@
     namespace: "{{ NAMESPACE }}"
     template: tldraw-client-ingress.yml.j2
     apply: yes
-  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool or WITH_TLDRAW2 is defined and WITH_TLDRAW2|bool
+  when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
   tags:
     - ingress
