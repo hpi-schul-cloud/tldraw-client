@@ -9,7 +9,7 @@ const getConfigOptions = async (): Promise<{
   CONFIG_PATH: string;
 }> => {
   const connectionOptions = {
-    CONFIG_PATH: configApiUrl(),
+    CONFIG_PATH: `/api/tldraw/config/public`,
   };
 
   if (import.meta.env.PROD) {
@@ -29,14 +29,6 @@ const getConfigOptions = async (): Promise<{
   }
 
   return connectionOptions;
-};
-
-const configApiUrl = () => {
-  const configApiUrl = import.meta.env.VITE_SERVER_TLDRAW_2_ENABLED
-    ? `/api/tldraw/config/public`
-    : `/api/v3/config/public`;
-
-  return configApiUrl;
 };
 
 export const API = {
