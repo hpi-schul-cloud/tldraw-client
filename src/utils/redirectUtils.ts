@@ -4,6 +4,7 @@ import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { UserResult } from "../types/User";
 import { setErrorData } from "./errorData";
 import { validateId } from "./validator";
+import { getSystems } from "./systemsData";
 
 const getParentId = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -14,10 +15,19 @@ const getParentId = () => {
   return parentId;
 };
 
-const redirectToLoginPage = () => {
+const redirectToLoginPage = async () => {
   const parentId = getParentId();
   if (import.meta.env.PROD) {
-    const redirectUrl = API.LOGIN_REDIRECT.replace("PARENTID", parentId);
+    let redirectUrl = "";
+    const systems = (await getSystems()).filter(
+      (system) => system.alias === "TSP",
+    );
+    if (systems.length === 0) {
+      redirectUrl = API.LOGIN_REDIRECT.replace("PARENT_ID", parentId);
+    } else {
+      const system = systems[0];
+      redirectUrl = API.TSP_LOGIN_REDIRECT.replace("SYSTEM_ID", system.id);
+    }
     window.location.assign(redirectUrl);
   } else {
     window.location.assign(
