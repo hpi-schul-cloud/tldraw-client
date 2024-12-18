@@ -28,7 +28,6 @@ export const getEnvs = async (): Promise<Envs> => {
     } else {
       const configuration: Envs = {
         TLDRAW_WEBSOCKET_URL: "ws://localhost:3345",
-        FEATURE_TLDRAW_ENABLED: true,
         TLDRAW_ASSETS_ENABLED: true,
         TLDRAW_ASSETS_MAX_SIZE_BYTES: 10485760,
         TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST: [
@@ -37,6 +36,7 @@ export const getEnvs = async (): Promise<Envs> => {
           "image/gif",
           "image/svg+xml",
         ],
+        FEATURE_TLDRAW_ENABLED: true,
         NOT_AUTHENTICATED_REDIRECT_URL: "http://localhost:4000/login",
       };
 
