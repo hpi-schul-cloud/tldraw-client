@@ -37,6 +37,7 @@ export const getEnvs = async (): Promise<Envs> => {
           "image/svg+xml",
         ],
         TLDRAW_WEBSOCKET_URL: "ws://localhost:3345",
+        NOT_AUTHENTICATED_REDIRECT_URL: "http://localhost:4000/login",
       };
 
       return configuration;
