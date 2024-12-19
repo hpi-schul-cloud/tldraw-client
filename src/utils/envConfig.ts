@@ -37,6 +37,7 @@ export const getEnvs = async (): Promise<Envs> => {
           "image/svg+xml",
         ],
         FEATURE_TLDRAW_ENABLED: true,
+        NOT_AUTHENTICATED_REDIRECT_URL: "http://localhost:4000/login",
       };
 
       return configuration;

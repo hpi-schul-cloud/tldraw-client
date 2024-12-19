@@ -10,6 +10,7 @@ const checkEnvType = (obj: Record<string, unknown>): void => {
     obj,
     "TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST",
   );
+  TypeGuard.checkKeyAndValueExists(obj, "NOT_AUTHENTICATED_REDIRECT_URL");
   TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
   TypeGuard.checkNumber(obj.TLDRAW_ASSETS_MAX_SIZE_BYTES);
   TypeGuard.checkArray(obj.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST);
@@ -33,6 +34,8 @@ export class ConfigurationMapper {
       TLDRAW_ASSETS_MAX_SIZE_BYTES: configuration.TLDRAW_ASSETS_MAX_SIZE_BYTES,
       TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST:
         configuration.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST,
+      NOT_AUTHENTICATED_REDIRECT_URL:
+        configuration.NOT_AUTHENTICATED_REDIRECT_URL,
     };
 
     return mappedConfiguration;

@@ -1,9 +1,9 @@
-import { API } from "../configuration/api/api.configuration";
 import { Envs } from "../types/Envs";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { UserResult } from "../types/User";
 import { setErrorData } from "./errorData";
 import { validateId } from "./validator";
+import { getEnvs } from "./envConfig";
 
 const getParentId = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -14,16 +14,13 @@ const getParentId = () => {
   return parentId;
 };
 
-const redirectToLoginPage = () => {
+const redirectToLoginPage = async () => {
+  const envs = await getEnvs();
   const parentId = getParentId();
-  if (import.meta.env.PROD) {
-    const redirectUrl = API.LOGIN_REDIRECT.replace("PARENTID", parentId);
-    window.location.assign(redirectUrl);
-  } else {
-    window.location.assign(
-      `http://localhost:4000/login?redirect=tldraw?parentId=${parentId}`,
-    );
-  }
+  let redirectUrl = envs.NOT_AUTHENTICATED_REDIRECT_URL;
+  const separator = redirectUrl.includes("?") ? "&" : "?";
+  redirectUrl += `${separator}redirect=/tldraw?parentId=${parentId}`;
+  window.location.assign(redirectUrl);
 };
 
 const redirectToErrorPage = () => {
