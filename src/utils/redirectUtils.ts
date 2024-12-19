@@ -17,9 +17,9 @@ const getParentId = () => {
 const redirectToLoginPage = async () => {
   const envs = await getEnvs();
   const parentId = getParentId();
-  const redirectUrl =
-    envs.NOT_AUTHENTICATED_REDIRECT_URL +
-    `&redirect=/tldraw?parentId=${parentId}`;
+  let redirectUrl = envs.NOT_AUTHENTICATED_REDIRECT_URL;
+  const separator = redirectUrl.includes("?") ? "&" : "?";
+  redirectUrl += `${separator}redirect=/tldraw?parentId=${parentId}`;
   window.location.assign(redirectUrl);
 };
 
