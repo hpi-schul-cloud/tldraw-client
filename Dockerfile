@@ -6,7 +6,7 @@ RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts 
 
 COPY LICENSE.md eslint.config.mjs .prettierrc.cjs vite.config.ts tsconfig.json tsconfig.node.json index.html ./
 COPY public ./public
