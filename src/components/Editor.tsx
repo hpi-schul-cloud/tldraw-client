@@ -7,21 +7,29 @@ import CustomCursor from "./CustomCursor";
 import { useTldrawSettings } from "../hooks/useTldrawSettings";
 
 function Editor({
-  roomId,
+  parentId,
   darkModeHandler,
   focusModeHandler,
 }: {
-  roomId: string;
+  parentId: string;
   darkModeHandler: (isDarkMode: boolean) => void;
   focusModeHandler: (isFocusMode: boolean) => void;
 }) {
   const { onOpenMedia, onOpenProject } = useFileSystem();
-  const { onMount, onSave, onAssetCreate, onPatch, onExport, ...events } =
-    useMultiplayerState({
-      roomId,
-      setIsDarkMode: darkModeHandler,
-      setIsFocusMode: focusModeHandler,
-    });
+  const {
+    onMount,
+    onSave,
+    onAssetCreate,
+    onPatch,
+    onExport,
+    onAssetDelete,
+    isReadOnly,
+    ...events
+  } = useMultiplayerState({
+    parentId,
+    setIsDarkMode: darkModeHandler,
+    setIsFocusMode: focusModeHandler,
+  });
   const containerRef = useRef<HTMLDivElement | null>(null);
   useTldrawUiSanitizer(containerRef);
   const { isDarkMode } = useTldrawSettings();
@@ -50,6 +58,10 @@ function Editor({
         onSaveProjectAs={onSave}
         onOpenMedia={onOpenMedia}
         onAssetCreate={onAssetCreate}
+        onAssetDelete={onAssetDelete}
+        showStyles={!isReadOnly}
+        showZoom={!isReadOnly}
+        readOnly={isReadOnly}
       />
     </div>
   );

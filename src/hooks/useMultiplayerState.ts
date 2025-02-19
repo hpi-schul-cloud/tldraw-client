@@ -1,4 +1,4 @@
-import lodash from "lodash";
+import { Utils } from "@tldraw/core";
 import {
   TDAsset,
   TDAssetType,
@@ -11,34 +11,36 @@ import {
   TldrawApp,
   TldrawPatch,
 } from "@tldraw/tldraw";
+import { Vec } from "@tldraw/vec";
 import { User } from "@y-presence/client";
+import lodash from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   doc,
-  room,
+  envs,
+  pauseSync,
   provider,
+  resumeSync,
+  room,
   undoManager,
+  user,
   yAssets,
   yBindings,
   yShapes,
-  user,
-  envs,
 } from "../stores/setup";
-import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 import { UserPresence } from "../types/UserPresence";
-import {
-  importAssetsToS3,
-  openFromFileSystem,
-} from "../utils/boardImportUtils";
 import {
   fileToBase64,
   fileToText,
   saveToFileSystem,
 } from "../utils/boardExportUtils";
+import {
+  importAssetsToS3,
+  openFromFileSystem,
+} from "../utils/boardImportUtils";
 import { uploadFileToStorage } from "../utils/fileUpload";
-import { getImageBlob } from "../utils/tldrawImageExportUtils";
-import { Utils } from "@tldraw/core";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
 import {
   getImageSizeFromSrc,
   getVideoSizeFromSrc,
@@ -47,23 +49,40 @@ import {
   openAssetsFromFileSystem,
   VIDEO_EXTENSIONS,
 } from "../utils/tldrawFileUploadUtils";
-import { Vec } from "@tldraw/vec";
+import { getImageBlob } from "../utils/tldrawImageExportUtils";
+import { STORAGE_SETTINGS_KEY } from "../utils/userSettings";
 
 declare const window: Window & { app: TldrawApp };
 
 interface MultiplayerStateProps {
-  roomId: string;
+  parentId: string;
   setIsDarkMode: (isDarkMode: boolean) => void;
   setIsFocusMode: (isFocusMode: boolean) => void;
 }
 
 export function useMultiplayerState({
-  roomId,
+  parentId,
   setIsDarkMode,
   setIsFocusMode,
 }: MultiplayerStateProps) {
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+
+  const setIsReadOnlyToTrue = (app?: TldrawApp) => {
+    setIsReadOnly(true);
+    if (app) app.setIsLoading(true);
+  };
+
+  // Bug in tl draw package leads to situation where app context readonly and prop readonly are not in sync.
+  // This function is a workaround to make sure that both are in sync.
+  const setIsReadOnlyToFalse = (app?: TldrawApp) => {
+    setIsReadOnly(false);
+    if (app) {
+      app.readOnly = false;
+      app.setIsLoading(false);
+    }
+  };
 
   // Callbacks --------------
 
@@ -111,8 +130,8 @@ export function useMultiplayerState({
 
   const onMount = useCallback(
     (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      app.document.name = `board-${roomId}`;
+      app.loadRoom(parentId);
+      app.document.name = `board-${parentId}`;
       // Turn off the app's own undo / redo stack
       app.pause();
       // Put the state into the window, for debugging
@@ -301,7 +320,7 @@ export function useMultiplayerState({
           }
 
           const { document, fileHandle } = result;
-          await importAssetsToS3(document, roomId, user!.schoolId);
+          await importAssetsToS3(document, parentId, user!.schoolId);
 
           yShapes.clear();
           yBindings.clear();
@@ -322,7 +341,7 @@ export function useMultiplayerState({
         app.setIsLoading(false);
       };
     },
-    [onSaveAs, roomId],
+    [onSaveAs, parentId],
   );
 
   const onAssetCreate = useCallback(
@@ -331,28 +350,26 @@ export function useMultiplayerState({
       file: File,
       id: string,
     ): Promise<string | false> => {
-      if (!envs!.TLDRAW__ASSETS_ENABLED) {
+      if (!envs.TLDRAW_ASSETS_ENABLED) {
         toast.info("Asset uploading is disabled");
         return false;
       }
 
-      if (file.size > envs!.TLDRAW__ASSETS_MAX_SIZE) {
+      if (file.size > envs.TLDRAW_ASSETS_MAX_SIZE_BYTES) {
         const bytesInMb = 1048576;
-        const sizeInMb = envs!.TLDRAW__ASSETS_MAX_SIZE / bytesInMb;
+        const sizeInMb = envs.TLDRAW_ASSETS_MAX_SIZE_BYTES / bytesInMb;
         toast.info(`Asset is too big - max. ${sizeInMb}MB`);
         return false;
       }
 
       const isMimeTypeDisallowed =
-        envs!.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST &&
-        !envs!.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST.includes(file.type);
+        envs.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST &&
+        !envs.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST.includes(file.type);
 
       if (isMimeTypeDisallowed) {
         toast.info("Asset of this type is not allowed");
         return false;
       }
-
-      undoManager.stopCapturing();
 
       try {
         const fileExtension = file.name.split(".").pop()!;
@@ -361,7 +378,7 @@ export function useMultiplayerState({
           fileExtension,
           id,
           user!.schoolId,
-          roomId,
+          parentId,
         );
 
         return url;
@@ -371,7 +388,7 @@ export function useMultiplayerState({
 
       return false;
     },
-    [roomId],
+    [parentId],
   );
 
   const onPatch = useCallback(
@@ -389,12 +406,42 @@ export function useMultiplayerState({
     [setIsDarkMode, setIsFocusMode],
   );
 
-  const onUndo = useCallback(() => {
+  const onUndo = useCallback(async (app: TldrawApp) => {
+    setIsReadOnlyToTrue(app);
+    pauseSync();
+
+    const assetsBeforeUndo = [...app.assets];
     undoManager.undo();
+    const assetsAfterUndo = [...app.assets];
+
+    try {
+      await handleAssets(assetsBeforeUndo, assetsAfterUndo);
+    } catch (error) {
+      undoManager.redo();
+      toast.error("An error occurred while undoing");
+    }
+
+    resumeSync();
+    setIsReadOnlyToFalse(app);
   }, []);
 
-  const onRedo = useCallback(() => {
+  const onRedo = useCallback(async (app: TldrawApp) => {
+    setIsReadOnlyToTrue(app);
+    pauseSync();
+
+    const assetsBeforeRedo = [...app.assets];
     undoManager.redo();
+    const assetsAfterRedo = [...app.assets];
+
+    try {
+      await handleAssets(assetsBeforeRedo, assetsAfterRedo);
+    } catch (error) {
+      undoManager.undo();
+      toast.error("An error occurred while redoing");
+    }
+
+    resumeSync();
+    setIsReadOnlyToFalse(app);
   }, []);
 
   // Update the yjs doc shapes when the app's shapes change
@@ -407,7 +454,6 @@ export function useMultiplayerState({
     ) => {
       if (!(yShapes && yBindings && yAssets)) return;
 
-      undoManager.stopCapturing();
       updateDoc(shapes, bindings, assets);
     },
     [],
@@ -440,14 +486,14 @@ export function useMultiplayerState({
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `${roomId}_export.${info.type}`;
+        link.download = `${parentId}_export.${info.type}`;
         link.click();
       } catch (error) {
         handleError("An error occurred while exporting to image", error);
       }
       app.setIsLoading(false);
     },
-    [roomId],
+    [parentId],
   );
 
   // Document Changes --------
@@ -535,6 +581,22 @@ export function useMultiplayerState({
     };
   }, []);
 
+  const onAssetDelete = async (app: TldrawApp, id: string) => {
+    const asset = app.assets.find((asset) => asset.id === id);
+    try {
+      if (asset) {
+        setIsReadOnlyToTrue(app);
+
+        await deleteAsset(asset);
+      }
+    } catch (error) {
+      undoManager.undo();
+      toast.error("An error occurred while deleting asset");
+    }
+
+    setIsReadOnlyToFalse(app);
+  };
+
   return {
     onUndo,
     onRedo,
@@ -547,6 +609,8 @@ export function useMultiplayerState({
     loading,
     onPatch,
     onAssetCreate,
+    onAssetDelete,
+    isReadOnly,
   };
 }
 

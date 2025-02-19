@@ -3,6 +3,12 @@ kind: Deployment
 metadata:
   name: tldraw-client-deployment
   namespace: {{ NAMESPACE }}
+{% if ANNOTATIONS is defined and ANNOTATIONS|bool %}
+  annotations:
+{% if RELOADER is defined and RELOADER|bool %}
+    reloader.stakater.com/auto: "true"
+{% endif %}
+{% endif %}
   labels:
     app: tldraw-client
     app.kubernetes.io/part-of: schulcloud-verbund
@@ -40,6 +46,8 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         runAsNonRoot: true
+      os:
+        name: linux
       containers:
       - name: tldraw-client
         image: {{ TLDRAW_CLIENT_IMAGE }}:{{ TLDRAW_CLIENT_IMAGE_TAG }}

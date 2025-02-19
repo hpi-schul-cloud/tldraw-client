@@ -1,18 +1,19 @@
-import { Envs } from "../types/Envs";
 import { TypeGuard } from "../guards/type.guard";
+import { Envs } from "../types/Envs";
 
 const checkEnvType = (obj: Record<string, unknown>): void => {
+  TypeGuard.checkKeyAndValueExists(obj, "TLDRAW_WEBSOCKET_URL");
   TypeGuard.checkKeyAndValueExists(obj, "FEATURE_TLDRAW_ENABLED");
-  TypeGuard.checkKeyAndValueExists(obj, "TLDRAW__ASSETS_ENABLED");
-  TypeGuard.checkKeyAndValueExists(obj, "TLDRAW__ASSETS_MAX_SIZE");
+  TypeGuard.checkKeyAndValueExists(obj, "TLDRAW_ASSETS_ENABLED");
+  TypeGuard.checkKeyAndValueExists(obj, "TLDRAW_ASSETS_MAX_SIZE_BYTES");
   TypeGuard.checkKeyAndValueExists(
     obj,
-    "TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST",
+    "TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST",
   );
+  TypeGuard.checkKeyAndValueExists(obj, "NOT_AUTHENTICATED_REDIRECT_URL");
   TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
-  TypeGuard.checkBoolean(obj.FEATURE_TLDRAW_ENABLED);
-  TypeGuard.checkNumber(obj.TLDRAW__ASSETS_MAX_SIZE);
-  TypeGuard.checkArray(obj.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST);
+  TypeGuard.checkNumber(obj.TLDRAW_ASSETS_MAX_SIZE_BYTES);
+  TypeGuard.checkArray(obj.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST);
 };
 
 const castToEnv = (obj: Record<string, unknown>): Envs => {
@@ -27,11 +28,14 @@ export class ConfigurationMapper {
     const configuration = castToEnv(obj);
 
     const mappedConfiguration: Envs = {
+      TLDRAW_WEBSOCKET_URL: configuration.TLDRAW_WEBSOCKET_URL,
       FEATURE_TLDRAW_ENABLED: configuration.FEATURE_TLDRAW_ENABLED,
-      TLDRAW__ASSETS_ENABLED: configuration.TLDRAW__ASSETS_ENABLED,
-      TLDRAW__ASSETS_MAX_SIZE: configuration.TLDRAW__ASSETS_MAX_SIZE,
-      TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST:
-        configuration.TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST,
+      TLDRAW_ASSETS_ENABLED: configuration.TLDRAW_ASSETS_ENABLED,
+      TLDRAW_ASSETS_MAX_SIZE_BYTES: configuration.TLDRAW_ASSETS_MAX_SIZE_BYTES,
+      TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST:
+        configuration.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST,
+      NOT_AUTHENTICATED_REDIRECT_URL:
+        configuration.NOT_AUTHENTICATED_REDIRECT_URL,
     };
 
     return mappedConfiguration;

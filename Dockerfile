@@ -1,14 +1,14 @@
 # build stage
-FROM docker.io/node:20-bullseye as build-stage
+FROM docker.io/node:22-bullseye AS build-stage
 
 RUN mkdir /app && chown -R node:node /app
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts 
 
-COPY LICENSE.md .eslintrc.cjs .prettierrc.cjs vite.config.ts tsconfig.json tsconfig.node.json index.html ./
+COPY LICENSE.md eslint.config.mjs .prettierrc.cjs vite.config.ts tsconfig.json tsconfig.node.json index.html ./
 COPY public ./public
 COPY src ./src
 RUN NODE_ENV=production npm run build

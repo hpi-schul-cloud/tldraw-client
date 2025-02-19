@@ -1,20 +1,26 @@
-import { getRoomId } from "./connectionOptions";
-import { UserResult } from "../types/User";
 import { Envs } from "../types/Envs";
-import { setErrorData } from "./errorData";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
-import { API } from "../configuration/api/api.configuration";
+import { UserResult } from "../types/User";
+import { setErrorData } from "./errorData";
+import { validateId } from "./validator";
+import { getEnvs } from "./envConfig";
 
-const redirectToLoginPage = () => {
-  const roomId = getRoomId();
-  if (import.meta.env.PROD) {
-    const redirectUrl = API.LOGIN_REDIRECT.replace("ROOMID", roomId);
-    window.location.assign(redirectUrl);
-  } else {
-    window.location.assign(
-      `http://localhost:4000/login?redirect=tldraw?roomName=${roomId}`,
-    );
-  }
+const getParentId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const parentId = urlParams.get("parentId") ?? "";
+
+  validateId(parentId);
+
+  return parentId;
+};
+
+const redirectToLoginPage = async () => {
+  const envs = await getEnvs();
+  const parentId = getParentId();
+  let redirectUrl = envs.NOT_AUTHENTICATED_REDIRECT_URL;
+  const separator = redirectUrl.includes("?") ? "&" : "?";
+  redirectUrl += `${separator}redirect=/tldraw?parentId=${parentId}`;
+  window.location.assign(redirectUrl);
 };
 
 const redirectToErrorPage = () => {
@@ -23,6 +29,11 @@ const redirectToErrorPage = () => {
   } else {
     console.warn("Prevented redirect to /error page");
   }
+};
+
+const redirectToNotFoundErrorPage = () => {
+  setErrorData(HttpStatusCode.NotFound, "error.404");
+  redirectToErrorPage();
 };
 
 const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
@@ -37,11 +48,17 @@ const handleRedirectIfNotValid = (userResult: UserResult, envs?: Envs) => {
     return;
   }
 
-  if (!envs!.FEATURE_TLDRAW_ENABLED) {
+  if (!envs.FEATURE_TLDRAW_ENABLED) {
     setErrorData(HttpStatusCode.Forbidden, "error.403");
     redirectToErrorPage();
     return;
   }
 };
 
-export { redirectToLoginPage, redirectToErrorPage, handleRedirectIfNotValid };
+export {
+  getParentId,
+  handleRedirectIfNotValid,
+  redirectToErrorPage,
+  redirectToLoginPage,
+  redirectToNotFoundErrorPage,
+};

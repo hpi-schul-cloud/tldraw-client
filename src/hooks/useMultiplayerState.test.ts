@@ -1,15 +1,16 @@
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import * as Tldraw from "@tldraw/tldraw";
 import {
   TDAsset,
   TDBinding,
   TDShape,
   TDUser,
-  TldrawApp,
   TDUserStatus,
+  TldrawApp,
 } from "@tldraw/tldraw";
-import * as Tldraw from "@tldraw/tldraw";
-import { useMultiplayerState } from "./useMultiplayerState";
 import { doc, room, undoManager } from "../stores/setup";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
+import { useMultiplayerState } from "./useMultiplayerState";
 
 vi.mock("@tldraw/tldraw", async () => {
   const tldraw = await vi.importActual("@tldraw/tldraw");
@@ -43,6 +44,8 @@ vi.mock("../stores/setup", () => ({
   provider: {
     disconnect: vi.fn(),
   },
+  pauseSync: vi.fn(),
+  resumeSync: vi.fn(),
   undoManager: {
     stopCapturing: vi.fn(),
     clear: vi.fn(),
@@ -72,9 +75,9 @@ vi.mock("../stores/setup", () => ({
     firstName: "John",
   },
   envs: {
-    TLDRAW__ASSETS_ENABLED: true,
-    TLDRAW__ASSETS_MAX_SIZE: 1000000,
-    TLDRAW__ASSETS_ALLOWED_MIME_TYPES_LIST: ["image/png", "image/jpeg"],
+    TLDRAW_ASSETS_ENABLED: true,
+    TLDRAW_ASSETS_MAX_SIZE_BYTES: 1000000,
+    TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST: ["image/png", "image/jpeg"],
   },
 }));
 
@@ -85,6 +88,11 @@ vi.mock("../utils/userSettings", () => ({
 
 vi.mock("@y-presence/client", () => ({
   User: vi.fn(),
+}));
+
+vi.mock("../utils/handleAssets", () => ({
+  deleteAsset: vi.fn(),
+  handleAssets: vi.fn(),
 }));
 
 Object.fromEntries = vi.fn();
@@ -138,10 +146,14 @@ describe("useMultiplayerState hook", () => {
   };
 
   const multiPlayerProps = {
-    roomId: "testRoom",
+    parentId: "testParent",
     setIsDarkMode: vi.fn(),
     setIsFocusMode: vi.fn(),
   };
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
 
   it("should handle onMount correctly", () => {
     const { app, loadRoomSpy, pauseSpy } = setup();
@@ -151,7 +163,7 @@ describe("useMultiplayerState hook", () => {
       result.current.onMount(app);
     });
 
-    expect(loadRoomSpy).toHaveBeenCalledWith("testRoom");
+    expect(loadRoomSpy).toHaveBeenCalledWith("testParent");
     expect(pauseSpy).toHaveBeenCalled();
   });
 
@@ -173,24 +185,62 @@ describe("useMultiplayerState hook", () => {
     });
   });
 
-  it("should handle onUndo correctly", () => {
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
+  describe("onUndo", () => {
+    it("should call undoManager.undo", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+      const undoSpy = vi.spyOn(undoManager, "undo");
 
-    act(() => {
-      result.current.onUndo();
+      act(() => {
+        result.current.onUndo(app);
+      });
+
+      expect(undoSpy).toHaveBeenCalled();
     });
 
-    expect(undoManager.undo).toHaveBeenCalled();
+    it("should call handleAssets", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+
+      act(() => {
+        result.current.onUndo(app);
+      });
+
+      expect(handleAssets).toHaveBeenCalled();
+    });
   });
 
-  it("should handle onRedo correctly", () => {
-    const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
+  describe("onRedo", () => {
+    it("should call undoManager.redo", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+      const redoSpy = vi.spyOn(undoManager, "redo");
 
-    act(() => {
-      result.current.onRedo();
+      act(() => {
+        result.current.onRedo(app);
+      });
+
+      expect(redoSpy).toHaveBeenCalled();
     });
 
-    expect(undoManager.redo).toHaveBeenCalled();
+    it("should call handleAssets", () => {
+      const { app } = setup();
+      const { result } = renderHook(() =>
+        useMultiplayerState(multiPlayerProps),
+      );
+
+      act(() => {
+        result.current.onRedo(app);
+      });
+
+      expect(handleAssets).toHaveBeenCalled();
+    });
   });
 
   it("should handle onChangePage correctly", () => {
@@ -218,12 +268,47 @@ describe("useMultiplayerState hook", () => {
     const { result } = renderHook(() => useMultiplayerState(multiPlayerProps));
 
     act(() => {
-      app.loadRoom("testRoom");
+      app.loadRoom("testParent");
       result.current.onChangePresence(app, user);
     });
 
     expect(room.updatePresence).toHaveBeenCalledWith({
       tdUser: user,
+    });
+  });
+
+  describe("should handle onAssetDelete correctly", () => {
+    describe("when asset exists", () => {
+      it("should call deleteAsset", () => {
+        const { app } = setup();
+        const { result } = renderHook(() =>
+          useMultiplayerState(multiPlayerProps),
+        );
+        const id = "asset1";
+        const assets = { asset1: { id } as TDAsset };
+        app.patchAssets(assets);
+
+        act(() => {
+          result.current.onAssetDelete(app, id);
+        });
+
+        expect(deleteAsset).toHaveBeenCalledWith(assets.asset1);
+      });
+    });
+
+    describe("when asset does not exist", () => {
+      it("should not call deleteAsset", () => {
+        const { app } = setup();
+        const { result } = renderHook(() =>
+          useMultiplayerState(multiPlayerProps),
+        );
+
+        act(() => {
+          result.current.onAssetDelete(app, "asset1");
+        });
+
+        expect(deleteAsset).not.toHaveBeenCalled();
+      });
     });
   });
 });
