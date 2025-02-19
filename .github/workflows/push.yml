@@ -77,7 +77,7 @@ jobs:
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BRANCH_REF_NAME: ${{ github.ref_name}}
-          BRANCH_SHA: ${{ needs.branch_meta.outputs.sha }}
+          BRANCH_SHA: ${{ github.sha }}
         run: |
           if [ "${{ github.event_name }}" == 'pull_request' ]; then
             echo "branch=$PR_HEAD_REF" >> $GITHUB_OUTPUT
