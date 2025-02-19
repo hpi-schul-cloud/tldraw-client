@@ -24,6 +24,8 @@ jobs:
       contains(github.event.issue.labels.*.name, 'ready-for-ci') == 'true') ||
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
+    needs:
+      - branch_meta
     permissions:
       packages: write
     steps:
@@ -113,6 +115,7 @@ jobs:
   trivy-vulnerability-scanning:
     needs:
       - build_and_push
+      - branch_meta
     runs-on: ubuntu-latest
     permissions:
       actions: read
