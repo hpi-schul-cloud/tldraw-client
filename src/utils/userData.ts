@@ -1,6 +1,7 @@
-import { User, UserResult } from "../types/User";
+import { UserResult } from "../types/User";
 import { HttpStatusCode } from "../types/StatusCodeEnums";
 import { API } from "../configuration/api/api.configuration";
+import { mapMeResponseToUser } from "../mapper/me-response.mapper";
 
 export const getUserData = async (): Promise<UserResult> => {
   const userResult: UserResult = {
@@ -16,12 +17,11 @@ export const getUserData = async (): Promise<UserResult> => {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
 
-    const data: User = await response.json();
-    data.initials =
-      data.firstName.charAt(0).toUpperCase() +
-      data.lastName.charAt(0).toUpperCase();
+    const data = await response.json();
 
-    userResult.user = data;
+    const user = mapMeResponseToUser(data);
+
+    userResult.user = user;
   } catch (error) {
     console.error("Error fetching user data:", error);
   }
