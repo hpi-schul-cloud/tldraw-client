@@ -3,7 +3,7 @@ export class TypeGuard {
     json: Record<string, unknown>,
     key: string,
   ): void {
-    if (!(key in json) && json[key]) {
+    if (!(key in json) && !json[key]) {
       throw new Error(`The ${key} is missing`);
     }
   }
