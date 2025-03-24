@@ -1,0 +1,41 @@
+name: Test code
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  node: 22
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node }}
+      - name: npm ci
+        run: npm ci --prefer-offline --no-audit
+      - name: npm run test
+        run: npm run test
+        env:
+          NODE_OPTIONS: "--unhandled-rejections=warn"
+
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node }}
+      - name: npm ci
+        run: npm ci --prefer-offline --no-audit
+      - name: npm run lint
+        run: npm run lint
