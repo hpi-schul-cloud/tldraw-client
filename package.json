@@ -44,7 +44,7 @@
     "@types/react-dom": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^8.13.0",
     "@typescript-eslint/parser": "^8.13.0",
-    "@vitejs/plugin-react": "^4.3.3",
+    "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -55,8 +55,8 @@
     "prettier": "^3.3.3",
     "sass": "^1.80.6",
     "typescript": "^5.8.2",
-    "vite": "^5.4.14",
+    "vite": "^6.2.3",
     "vite-plugin-top-level-await": "^1.4.4",
-    "vitest": "^2.1.9"
+    "vitest": "^3.0.9"
   }
 }
