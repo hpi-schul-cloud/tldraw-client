@@ -59,6 +59,5 @@ export {
   getParentId,
   handleRedirectIfNotValid,
   redirectToErrorPage,
-  redirectToLoginPage,
   redirectToNotFoundErrorPage,
 };
