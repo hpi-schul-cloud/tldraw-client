@@ -1,12 +1,10 @@
 import { ToastContainer } from "react-toastify";
 import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
-import { useJwtHandler } from "./hooks/useJwtHandler";
 import { parentId } from "./stores/setup";
 import { useTldrawSettings } from "./hooks/useTldrawSettings";
 
 function App() {
-  useJwtHandler();
   const {
     isDarkMode,
     isFocusMode,
