@@ -3,6 +3,7 @@ import { Room } from "@y-presence/client";
 import { WebsocketProvider } from "y-websocket";
 import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
+import { handleWsClose } from "../utils/closeHandler";
 import { getEnvs } from "../utils/envConfig";
 import { clearErrorData } from "../utils/errorData";
 import {
@@ -46,6 +47,10 @@ provider.on("status", (event: { status: string }) => {
       originalOnMessage(messageEvent);
     }
   };
+});
+
+provider.on("connection-close", (event: CloseEvent) => {
+  handleWsClose(event);
 });
 
 const room = new Room<UserPresence>(provider.awareness, {});

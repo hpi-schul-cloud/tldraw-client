@@ -1,8 +1,7 @@
-import { useEffect } from "react";
 import { provider } from "../stores/setup";
-import { redirectToErrorPage } from "../utils/redirectUtils";
-import { setErrorData } from "../utils/errorData";
 import { HttpStatusCode, WebsocketStatusCode } from "../types/StatusCodeEnums";
+import { setErrorData } from "./errorData";
+import { redirectToErrorPage } from "./redirectUtils";
 
 // the message keys are defined in vue client
 const websocketErrors = [
@@ -30,27 +29,15 @@ const websocketErrors = [
   },
 ];
 
-export function useWebsocketErrorHandler() {
-  useEffect(() => {
-    const handleWsClose = (event: CloseEvent) => {
-      const error = websocketErrors.find(
-        (element) => element.websocketCode === event.code,
-      );
+export const handleWsClose = (event: CloseEvent) => {
+  const error = websocketErrors.find(
+    (element) => element.websocketCode === event.code,
+  );
 
-      if (!error) return;
+  if (!error) return;
 
-      setErrorData(error.httpCode, error.translationMessageKey);
-      redirectToErrorPage();
+  setErrorData(error.httpCode, error.translationMessageKey);
+  redirectToErrorPage();
 
-      provider.disconnect();
-    };
-
-    provider.ws?.addEventListener("close", handleWsClose);
-
-    return () => {
-      provider.ws?.removeEventListener("close", handleWsClose);
-    };
-  }, []);
-
-  return;
-}
+  provider.disconnect();
+};
