@@ -7,11 +7,6 @@ import { HttpStatusCode, WebsocketStatusCode } from "../types/StatusCodeEnums";
 // the message keys are defined in vue client
 const websocketErrors = [
   {
-    websocketCode: WebsocketStatusCode.BadRequest,
-    httpCode: HttpStatusCode.NotFound,
-    translationMessageKey: "tldraw.error.ws.4400",
-  },
-  {
     websocketCode: WebsocketStatusCode.Unauthorized,
     httpCode: HttpStatusCode.Unauthorized,
     translationMessageKey: "error.4401",
@@ -20,11 +15,6 @@ const websocketErrors = [
     websocketCode: WebsocketStatusCode.NotFound,
     httpCode: HttpStatusCode.NotFound,
     translationMessageKey: "tldraw.error.ws.4404",
-  },
-  {
-    websocketCode: WebsocketStatusCode.NotAcceptable,
-    httpCode: HttpStatusCode.NotAcceptable,
-    translationMessageKey: "tldraw.error.ws.4406",
   },
   {
     websocketCode: WebsocketStatusCode.InternalServerError,
@@ -48,9 +38,6 @@ export function useWebsocketErrorHandler() {
       );
 
       if (!error) return;
-      // not acceptable means we have to wait for the server to accept us
-      // keep reconnecting
-      if (error.websocketCode === WebsocketStatusCode.NotAcceptable) return;
 
       setErrorData(error.httpCode, error.translationMessageKey);
       redirectToErrorPage();
