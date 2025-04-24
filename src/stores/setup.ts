@@ -3,6 +3,7 @@ import { Room } from "@y-presence/client";
 import { WebsocketProvider } from "y-websocket";
 import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
+import { checkIfAuthenticated } from "../utils/authCheck";
 import { handleWsClose } from "../utils/closeHandler";
 import { getEnvs } from "../utils/envConfig";
 import { clearErrorData } from "../utils/errorData";
@@ -17,6 +18,10 @@ import { setDefaultState } from "../utils/userSettings";
 clearErrorData();
 
 const [envs, userResult] = await Promise.all([getEnvs(), getUserData()]);
+
+// Since neither the tldraw server nor the tldraw client is informed when a user logs out of the Schulcloud,
+// we check here periodically if the user is still authenticated.
+setInterval(checkIfAuthenticated, 10 * 1000);
 
 handleRedirectIfNotValid(userResult, envs);
 

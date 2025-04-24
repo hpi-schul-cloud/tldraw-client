@@ -4,4 +4,5 @@ export const API = {
   FILE_RESTORE: "/api/v3/file/restore/FILERECORD_ID",
   USER_DATA: `/api/v3/me`,
   CONFIG_PATH: `/api/tldraw/config/public`,
+  CHECK_AUTHENTICATION: `/api/v3/authentication/check`,
 };
