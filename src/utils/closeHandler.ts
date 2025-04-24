@@ -4,7 +4,7 @@ import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 
 // the message keys are defined in vue client
-const websocketErrors = [
+const specifiedErrors = [
   {
     websocketCode: WebsocketStatusCode.Unauthorized,
     httpCode: HttpStatusCode.Unauthorized,
@@ -30,13 +30,14 @@ const websocketErrors = [
 ];
 
 export const handleWsClose = (event: CloseEvent) => {
-  const error = websocketErrors.find(
+  const specifiedError = specifiedErrors.find(
     (element) => element.websocketCode === event.code,
   );
 
-  if (!error) return;
+  // Any error that is not specified above should lead to a reconnection attempt.
+  if (!specifiedError) return;
 
-  setErrorData(error.httpCode, error.translationMessageKey);
+  setErrorData(specifiedError.httpCode, specifiedError.translationMessageKey);
   redirectToErrorPage();
 
   provider.disconnect();
