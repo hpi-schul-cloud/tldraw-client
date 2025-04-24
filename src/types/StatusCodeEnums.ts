@@ -5,8 +5,8 @@ export enum HttpStatusCode {
   InternalServerError = 500,
 }
 
-export enum WebsocketStatusCode {
+export enum WebsocketCloseCode {
+  InternalError = 1011,
   Unauthorized = 4401,
   NotFound = 4404,
-  InternalServerError = 4500,
 }
