@@ -9,6 +9,10 @@ describe("closeHandler", () => {
     vi.mock("./redirectUtils", { spy: true });
   });
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe("handleWsClose", () => {
     describe("when the event code does not correspond to a specified error", () => {
       const setup = () => {
