@@ -1,4 +1,4 @@
-import { provider } from "../stores/setup";
+import { WebsocketProvider } from "y-websocket";
 import { HttpStatusCode, WebsocketCloseCode } from "../types/StatusCodeEnums";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
@@ -22,7 +22,10 @@ const specifiedErrors = [
   },
 ];
 
-export const handleWsClose = (event: CloseEvent) => {
+export const handleWsClose = (
+  event: CloseEvent,
+  provider: WebsocketProvider,
+) => {
   const specifiedError = specifiedErrors.find(
     (element) => element.websocketCode === event.code,
   );

@@ -55,7 +55,7 @@ provider.on("status", (event: { status: string }) => {
 });
 
 provider.on("connection-close", (event: CloseEvent) => {
-  handleWsClose(event);
+  handleWsClose(event, provider);
 });
 
 const room = new Room<UserPresence>(provider.awareness, {});
