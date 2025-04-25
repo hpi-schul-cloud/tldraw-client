@@ -3,7 +3,7 @@ import { HttpStatusCode, WebsocketCloseCode } from "../types/StatusCodeEnums";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 
-// the translation keys are defined in the vue client
+// The translation keys are defined in the vue client.
 const specifiedErrors = [
   {
     websocketCode: WebsocketCloseCode.Unauthorized,
