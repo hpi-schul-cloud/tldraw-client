@@ -3,6 +3,8 @@ import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
 import { parentId } from "./stores/setup";
 import { useTldrawSettings } from "./hooks/useTldrawSettings";
+import { checkAuthentication } from "./utils/authCheck";
+import { useEffect } from "react";
 
 function App() {
   const {
@@ -11,6 +13,16 @@ function App() {
     handleDarkModeChange,
     handleFocusModeChange,
   } = useTldrawSettings();
+
+  useEffect(() => {
+    // Since neither the tldraw server nor the tldraw client is informed when a user logs out of the Schulcloud,
+    // we check here periodically if the user is still authenticated.
+    const interval = setInterval(checkAuthentication, 10 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div>
