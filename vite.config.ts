@@ -17,7 +17,6 @@ const noncePlugin = (placeholderName = "**CSP_NONCE**"): PluginOption => ({
 export default defineConfig({
   plugins: [react(), topLevelAwait(), noncePlugin()],
   server: {
-    open: true,
     port: 3046,
     proxy: {
       "/api/v3/file": {
@@ -46,5 +45,8 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/__tests__/vitest.setup.ts"],
+  },
+  preview: {
+    port: 3046,
   },
 });
