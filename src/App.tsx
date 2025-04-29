@@ -1,10 +1,9 @@
 import { ToastContainer } from "react-toastify";
-import UsersInfo from "./components/UsersInfo";
 import Editor from "./components/Editor";
-import { parentId } from "./stores/setup";
+import UsersInfo from "./components/UsersInfo";
+import { useAuthCheck } from "./hooks/useAuthCheck";
 import { useTldrawSettings } from "./hooks/useTldrawSettings";
-import { checkAuthentication } from "./utils/authCheck";
-import { useEffect } from "react";
+import { parentId } from "./stores/setup";
 
 function App() {
   const {
@@ -14,15 +13,7 @@ function App() {
     handleFocusModeChange,
   } = useTldrawSettings();
 
-  useEffect(() => {
-    // Since neither the tldraw server nor the tldraw client is informed when a user logs out of the Schulcloud,
-    // we check here periodically if the user is still authenticated.
-    const interval = setInterval(checkAuthentication, 10 * 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  useAuthCheck();
 
   return (
     <div>
