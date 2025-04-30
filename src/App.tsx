@@ -6,6 +6,8 @@ import { useTldrawSettings } from "./hooks/useTldrawSettings";
 import { parentId } from "./stores/setup";
 
 function App() {
+  console.log("App component rendered");
+
   const {
     isDarkMode,
     isFocusMode,
