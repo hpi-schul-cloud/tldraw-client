@@ -55,7 +55,7 @@
     "prettier": "^3.3.3",
     "sass": "^1.80.6",
     "typescript": "^5.8.2",
-    "vite": "^6.2.3",
+    "vite": "^6.3.4",
     "vite-plugin-top-level-await": "^1.4.4",
     "vitest": "^3.0.9"
   }
