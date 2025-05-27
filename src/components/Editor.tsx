@@ -1,10 +1,9 @@
-import { useRef } from "react";
 import { Tldraw, useFileSystem } from "@tldraw/tldraw";
+import { useRef } from "react";
 import { useMultiplayerState } from "../hooks/useMultiplayerState";
-import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
-import { useWebsocketErrorHandler } from "../hooks/useWebsocketErrorHandler";
-import CustomCursor from "./CustomCursor";
 import { useTldrawSettings } from "../hooks/useTldrawSettings";
+import { useTldrawUiSanitizer } from "../hooks/useTldrawUiSanitizer";
+import CustomCursor from "./CustomCursor";
 
 function Editor({
   parentId,
@@ -37,8 +36,6 @@ function Editor({
   const components = {
     Cursor: CustomCursor,
   };
-
-  useWebsocketErrorHandler();
 
   return (
     <div ref={containerRef}>
