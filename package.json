@@ -20,7 +20,7 @@
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "@tldraw/core": "^1.23.2",
-    "@tldraw/tldraw": "^1.29.2",
+    "@tldraw/tldraw": "^3.13.1",
     "@tldraw/vec": "^1.9.2",
     "@y-presence/client": "^2.0.1",
     "browser-fs-access": "^0.35.0",
