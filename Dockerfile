@@ -14,7 +14,7 @@ COPY src ./src
 RUN NODE_ENV=production npm run build
 
 # runtime image stage
-FROM docker.io/nginx:1.27-alpine
+FROM docker.io/nginx:1.29-alpine
 
 RUN mkdir /etc/nginx/templates
 
