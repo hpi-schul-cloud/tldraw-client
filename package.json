@@ -57,6 +57,6 @@
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-top-level-await": "^1.4.4",
-    "vitest": "^3.0.9"
+    "vitest": "^3.2.4"
   }
 }
