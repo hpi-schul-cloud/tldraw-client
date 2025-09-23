@@ -13,7 +13,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img_hub
         uses: docker/metadata-action@v5
