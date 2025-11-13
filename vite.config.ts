@@ -48,6 +48,11 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/__tests__/vitest.setup.ts"],
+    server: {
+      // Externalize @stitches/react which is used by tldraw so it doesn't run in jsdom
+      // Otherwise stitches tries to create CSSStyleSheet which fails in jsdom because it's not implemented
+      deps: { external: ["@stitches/react"] },
+    },
   },
   preview: {
     port: 3046,
