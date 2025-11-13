@@ -49,7 +49,9 @@ provider.on("status", (event: { status: string }) => {
   };
 });
 
-provider.on("connection-close", (event: CloseEvent) => {
+provider.on("connection-close", (event: CloseEvent | null) => {
+  if (!event) return;
+
   handleWsClose(event, provider);
 });
 
