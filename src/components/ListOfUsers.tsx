@@ -1,6 +1,5 @@
 import { User } from "@y-presence/client";
 import { UserPresence } from "../types/UserPresence";
-import { useEffect, useState } from "react";
 
 function UserListItem({ user }: { user: User<UserPresence> }) {
   return (
@@ -18,13 +17,7 @@ function UserListItem({ user }: { user: User<UserPresence> }) {
 }
 
 function UserList({ users }: { users: User<UserPresence>[] }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (users.length > 0) {
-      setLoading(false);
-    }
-  }, [users]);
+  const loading = users.length === 0;
 
   if (loading) {
     return (
