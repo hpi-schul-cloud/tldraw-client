@@ -1,10 +1,12 @@
 import { WebsocketProvider } from "y-websocket";
 import { handleWsClose } from "./closeHandler";
+import { showConnectionErrorAndReload } from "./connectionErrorHandler";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 
 describe("closeHandler", () => {
   beforeAll(() => {
+    vi.mock("./connectionErrorHandler", { spy: true });
     vi.mock("./errorData", { spy: true });
     vi.mock("./redirectUtils", { spy: true });
   });
@@ -27,14 +29,17 @@ describe("closeHandler", () => {
         return { event, providerMock };
       };
 
-      it("should not call setErrorData or redirectToErrorPage nor disconnect", () => {
+      it("should disconnect and call showConnectionErrorAndReload but not setErrorData or redirectToErrorPage", () => {
         const { event, providerMock } = setup();
 
         handleWsClose(event, providerMock);
 
+        expect(providerMock.disconnect).toHaveBeenCalled();
+        expect(showConnectionErrorAndReload).toHaveBeenCalledWith(
+          "Connection to server lost. The page will reload in 10 seconds...",
+        );
         expect(setErrorData).not.toHaveBeenCalled();
         expect(redirectToErrorPage).not.toHaveBeenCalled();
-        expect(providerMock.disconnect).not.toHaveBeenCalled();
       });
     });
 

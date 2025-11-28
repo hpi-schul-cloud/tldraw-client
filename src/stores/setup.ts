@@ -13,6 +13,7 @@ import {
 } from "../utils/redirectUtils";
 import { getUserData } from "../utils/userData";
 import { setDefaultState } from "../utils/userSettings";
+import { showConnectionErrorAndReload } from "../utils/connectionErrorHandler";
 
 clearErrorData();
 
@@ -53,6 +54,15 @@ provider.on("connection-close", (event: CloseEvent | null) => {
   if (!event) return;
 
   handleWsClose(event, provider);
+});
+
+// @ts-ignore
+provider.on("connection-error", (event: Event) => {
+  // Disconnect to prevent automatic reconnection attempts
+  provider.disconnect();
+  showConnectionErrorAndReload(
+    "Failed to connect to server. The page will reload in 10 seconds...",
+  );
 });
 
 const room = new Room<UserPresence>(provider.awareness, {});

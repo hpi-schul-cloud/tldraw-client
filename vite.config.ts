@@ -20,6 +20,7 @@ export default defineConfig({
   },
   plugins: [react(), topLevelAwait(), noncePlugin()],
   server: {
+    host: process.env.VITE_CUSTOM_HOST || "localhost",
     port: 3046,
     proxy: {
       "/api/v3/file": {
