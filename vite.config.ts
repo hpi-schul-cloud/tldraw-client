@@ -19,6 +19,7 @@ export default defineConfig({
     target: "es2022",
   },
   plugins: [react(), topLevelAwait(), noncePlugin()],
+  base: "/tldraw",
   server: {
     host: process.env.VITE_CUSTOM_HOST || "localhost",
     port: 3046,

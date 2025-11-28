@@ -4,6 +4,7 @@ import { WebsocketProvider } from "y-websocket";
 import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
 import { handleWsClose } from "../utils/closeHandler";
+import { showConnectionErrorAndReload } from "../utils/connectionErrorHandler";
 import { getEnvs } from "../utils/envConfig";
 import { clearErrorData } from "../utils/errorData";
 import {
@@ -13,7 +14,6 @@ import {
 } from "../utils/redirectUtils";
 import { getUserData } from "../utils/userData";
 import { setDefaultState } from "../utils/userSettings";
-import { showConnectionErrorAndReload } from "../utils/connectionErrorHandler";
 
 clearErrorData();
 
