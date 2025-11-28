@@ -1,5 +1,6 @@
 import { WebsocketProvider } from "y-websocket";
 import { HttpStatusCode, WebsocketCloseCode } from "../types/StatusCodeEnums";
+import { showConnectionErrorAndReload } from "./connectionErrorHandler";
 import { setErrorData } from "./errorData";
 import { redirectToErrorPage } from "./redirectUtils";
 
@@ -30,11 +31,17 @@ export const handleWsClose = (
     (element) => element.websocketCode === event.code,
   );
 
-  // Any error that is not specified above should lead to a reconnection attempt.
-  if (!specifiedError) return;
-
-  setErrorData(specifiedError.httpCode, specifiedError.translationMessageKey);
-  redirectToErrorPage();
-
+  // Disconnect provider to prevent automatic reconnection
   provider.disconnect();
+
+  if (specifiedError) {
+    // For specified errors, use the original error page redirection
+    setErrorData(specifiedError.httpCode, specifiedError.translationMessageKey);
+    redirectToErrorPage();
+  } else {
+    // For any other connection failure, show error message and force reload
+    showConnectionErrorAndReload(
+      "Connection to server lost. The page will reload in 10 seconds...",
+    );
+  }
 };
