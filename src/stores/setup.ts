@@ -56,8 +56,8 @@ provider.on("connection-close", (event: CloseEvent | null) => {
   handleWsClose(event, provider);
 });
 
-// @ts-ignore
-provider.on("connection-error", (event: Event) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+provider.on("connection-error", (_event: Event) => {
   // Disconnect to prevent automatic reconnection attempts
   provider.disconnect();
   showConnectionErrorAndReload(
