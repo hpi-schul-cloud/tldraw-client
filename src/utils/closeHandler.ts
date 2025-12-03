@@ -31,7 +31,7 @@ export const handleWsClose = (
     (element) => element.websocketCode === event.code,
   );
 
-  // Disconnect provider to prevent automatic reconnection
+  // Disconnect provider to prevent automatic reconnection.
   provider.disconnect();
 
   if (specifiedError) {
