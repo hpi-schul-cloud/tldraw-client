@@ -4,6 +4,7 @@ import { WebsocketProvider } from "y-websocket";
 import { Doc, Map, UndoManager } from "yjs";
 import { UserPresence } from "../types/UserPresence";
 import { handleWsClose } from "../utils/closeHandler";
+import { showConnectionErrorAndReload } from "../utils/connectionErrorHandler";
 import { getEnvs } from "../utils/envConfig";
 import { clearErrorData } from "../utils/errorData";
 import {
@@ -53,6 +54,15 @@ provider.on("connection-close", (event: CloseEvent | null) => {
   if (!event) return;
 
   handleWsClose(event, provider);
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+provider.on("connection-error", (_event: Event) => {
+  // Disconnect to prevent automatic reconnection attempts
+  provider.disconnect();
+  showConnectionErrorAndReload(
+    "Failed to connect to server. The page will reload in 10 seconds...",
+  );
 });
 
 const room = new Room<UserPresence>(provider.awareness, {});
