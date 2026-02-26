@@ -5,49 +5,6 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
-// Patch CSSStyleSheet.prototype.insertRule to handle @stitches/react CSS rules
-// that jsdom cannot parse (e.g., '--sxs{--sxs:6}')
-const originalInsertRule = CSSStyleSheet.prototype.insertRule;
-CSSStyleSheet.prototype.insertRule = function (
-  rule: string,
-  index?: number,
-): number {
-  try {
-    return originalInsertRule.call(this, rule, index);
-  } catch {
-    // Return 0 for rules that jsdom cannot parse (like stitches internal rules)
-    return 0;
-  }
-};
-
-// Suppress known console warnings/errors from test dependencies
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-
-const suppressedPatterns = [
-  /zustand.*devtools/i,
-  /act\(\.\.\.\)/i,
-  /not wrapped in act/i,
-  /ReactDOMTestUtils\.act/i,
-  /Could not parse CSS stylesheet/i,
-];
-
-console.error = (...args: unknown[]) => {
-  const message = args[0]?.toString() ?? "";
-  if (suppressedPatterns.some((pattern) => pattern.test(message))) {
-    return;
-  }
-  originalConsoleError.apply(console, args);
-};
-
-console.warn = (...args: unknown[]) => {
-  const message = args[0]?.toString() ?? "";
-  if (suppressedPatterns.some((pattern) => pattern.test(message))) {
-    return;
-  }
-  originalConsoleWarn.apply(console, args);
-};
-
 // Mock TldrawApp class for tests
 class MockTldrawApp {
   document = { name: "", assets: {} };
