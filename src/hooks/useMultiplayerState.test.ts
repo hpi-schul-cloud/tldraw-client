@@ -1,6 +1,24 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, renderHook } from "@testing-library/react";
+import * as Tldraw from "@tldraw/tldraw";
+import {
+  TDAsset,
+  TDBinding,
+  TDShape,
+  TDUser,
+  TDUserStatus,
+  TldrawApp,
+} from "@tldraw/tldraw";
+import { doc, room, undoManager } from "../stores/setup";
+import { deleteAsset, handleAssets } from "../utils/handleAssets";
+import { useMultiplayerState } from "./useMultiplayerState";
 
-// Note: @tldraw/tldraw, @tldraw/core, @tldraw/vec are mocked in vitest.setup.ts
+vi.mock("@tldraw/tldraw", async () => {
+  const tldraw = await vi.importActual("@tldraw/tldraw");
+
+  return {
+    ...tldraw,
+  };
+});
 
 vi.mock("browser-fs-access", () => ({
   fileOpen: vi.fn(),
@@ -55,8 +73,6 @@ vi.mock("../stores/setup", () => ({
     schoolId: "school123",
     id: "user123",
     firstName: "John",
-    lastName: "Doe",
-    initials: "JD",
   },
   envs: {
     TLDRAW_ASSETS_ENABLED: true,
@@ -79,56 +95,6 @@ vi.mock("../utils/handleAssets", () => ({
   handleAssets: vi.fn(),
 }));
 
-vi.mock("../utils/boardExportUtils", () => ({
-  fileToBase64: vi.fn().mockResolvedValue("data:image/png;base64,mock"),
-  fileToText: vi.fn().mockResolvedValue("<svg></svg>"),
-  saveToFileSystem: vi.fn().mockResolvedValue(null),
-}));
-
-vi.mock("../utils/boardImportUtils", () => ({
-  importAssetsToS3: vi.fn().mockResolvedValue(undefined),
-  openFromFileSystem: vi.fn().mockResolvedValue(null),
-}));
-
-vi.mock("../utils/fileUpload", () => ({
-  uploadFileToStorage: vi
-    .fn()
-    .mockResolvedValue("https://example.com/file.png"),
-}));
-
-vi.mock("../utils/tldrawFileUploadUtils", () => ({
-  getImageSizeFromSrc: vi.fn().mockResolvedValue([100, 100]),
-  getVideoSizeFromSrc: vi.fn().mockResolvedValue([100, 100]),
-  getViewboxFromSVG: vi.fn().mockReturnValue("0 0 100 100"),
-  IMAGE_EXTENSIONS: [".png", ".jpg", ".jpeg", ".gif", ".svg"],
-  VIDEO_EXTENSIONS: [".mp4", ".webm"],
-  openAssetsFromFileSystem: vi.fn().mockResolvedValue(null),
-}));
-
-vi.mock("../utils/tldrawImageExportUtils", () => ({
-  getImageBlob: vi.fn().mockResolvedValue(new Blob()),
-}));
-
-vi.mock("lodash", () => ({
-  default: {
-    cloneDeep: <T>(obj: T): T => structuredClone(obj),
-  },
-}));
-
-// Now import after mocks are defined
-import { act, renderHook } from "@testing-library/react";
-import {
-  TDAsset,
-  TDBinding,
-  TDShape,
-  TDUser,
-  TDUserStatus,
-  TldrawApp,
-} from "@tldraw/tldraw";
-import { doc, room, undoManager } from "../stores/setup";
-import { deleteAsset, handleAssets } from "../utils/handleAssets";
-import { useMultiplayerState } from "./useMultiplayerState";
-
 Object.fromEntries = vi.fn();
 
 describe("useMultiplayerState hook", () => {
@@ -147,6 +113,14 @@ describe("useMultiplayerState hook", () => {
     const setIsDarkMode = vi.fn();
     const setIsFocusMode = vi.fn();
 
+    const useFileSystemSpy = vi.spyOn(Tldraw, "useFileSystem").mockReturnValue({
+      onOpenProject: mockOpenProject,
+      onNewProject: vi.fn(),
+      onOpenMedia: vi.fn(),
+      onSaveProject: vi.fn(),
+      onSaveProjectAs: vi.fn(),
+    });
+
     const user: TDUser = {
       activeShapes: [],
       color: "",
@@ -163,6 +137,7 @@ describe("useMultiplayerState hook", () => {
       loadRoomSpy,
       pauseSpy,
       user,
+      useFileSystemSpy,
       mockOpenDialog,
       setIsDarkMode,
       setIsFocusMode,
