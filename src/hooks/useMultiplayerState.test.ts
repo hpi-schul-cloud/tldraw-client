@@ -13,11 +13,7 @@ import { deleteAsset, handleAssets } from "../utils/handleAssets";
 import { useMultiplayerState } from "./useMultiplayerState";
 
 vi.mock("@tldraw/tldraw", async () => {
-  const tldraw = await vi.importActual("@tldraw/tldraw");
-
-  return {
-    ...tldraw,
-  };
+  return await import("./__mocks__/tldrawMock");
 });
 
 vi.mock("browser-fs-access", () => ({

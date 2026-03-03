@@ -3,12 +3,12 @@ import { useLogoutHandler } from "./useLogoutHandler";
 import { renderHook } from "@testing-library/react";
 import { redirectToLoginPage } from "../utils/redirectUtils";
 
-describe("useLogoutHandler", () => {
-  beforeAll(() => {
-    vi.mock("react-cookie");
-    vi.mock("../utils/redirectUtils", { spy: true });
-  });
+vi.mock("react-cookie");
+vi.mock("../utils/redirectUtils", () => ({
+  redirectToLoginPage: vi.fn(),
+}));
 
+describe("useLogoutHandler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
