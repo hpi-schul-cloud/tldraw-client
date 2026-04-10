@@ -1,5 +1,5 @@
 # build stage
-FROM docker.io/node:22-bullseye AS build-stage
+FROM docker.io/node:24-bullseye AS build-stage
 
 RUN mkdir /app && chown -R node:node /app
 
