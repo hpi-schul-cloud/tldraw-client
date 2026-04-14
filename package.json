@@ -5,7 +5,7 @@
   "type": "module",
   "engines": {
     "node": "24",
-    "npm": ">=11"
+    "npm": "11"
   },
   "scripts": {
     "dev": "vite",
