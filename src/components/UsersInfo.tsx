@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactDOM from "react-dom";
-import Icon from "@mdi/react";
+import { Icon } from "@mdi/react";
 import { mdiAccountMultipleOutline } from "@mdi/js";
 import ListOfUsers from "./ListOfUsers";
 import { useUsers } from "../hooks/useUsers";
