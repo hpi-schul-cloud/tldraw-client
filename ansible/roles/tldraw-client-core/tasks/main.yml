@@ -35,3 +35,11 @@
   when: WITH_TLDRAW is defined and WITH_TLDRAW|bool
   tags:
     - ingress
+
+- name: Add tldraw-client-core default allow network policy
+  kubernetes.core.k8s:
+    kubeconfig: ~/.kube/config
+    namespace: "{{ NAMESPACE }}"
+    template: default-allow-networkpolicy.yml.j2
+  tags:
+    - networkPolicy
