@@ -50,6 +50,14 @@ provider.on("status", (event: { status: string }) => {
   };
 });
 
+// Heartbeat alle 15 Sekunden, um Proxies am Leben zu halten
+setInterval(() => {
+  if (provider.wsconnected && provider.ws?.readyState === WebSocket.OPEN) {
+    // Awareness-Update als Heartbeat senden (leichtgewichtig)
+    provider.awareness.setLocalStateField("lastActive", Date.now());
+  }
+}, 15000);
+
 provider.on("connection-close", (event: CloseEvent | null) => {
   if (!event) return;
 
