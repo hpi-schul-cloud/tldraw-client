@@ -32,7 +32,7 @@ const fileMimeExtensions: { [key: string]: string[] } = {
 const allowedMimeTypes = envs?.TLDRAW_ASSETS_ALLOWED_MIME_TYPES_LIST || [];
 
 const allowedExtensions = allowedMimeTypes.flatMap(
-  (mimeType) => fileMimeExtensions[mimeType] || [],
+  (mimeType: string) => fileMimeExtensions[mimeType] || [],
 );
 
 const openAssetsFromFileSystem = async () => {
