@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
 import react from "@vitejs/plugin-react";
 import { defineConfig, PluginOption } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
 
 const noncePlugin = (placeholderName = "**CSP_NONCE**"): PluginOption => ({
   name: "add-nonce-script-attr",
@@ -18,7 +17,7 @@ export default defineConfig({
   build: {
     target: "es2022",
   },
-  plugins: [react(), topLevelAwait(), noncePlugin()],
+  plugins: [react(), noncePlugin()],
   server: {
     port: 3046,
     proxy: {
