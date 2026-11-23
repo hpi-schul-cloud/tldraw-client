@@ -147,6 +147,8 @@ export function useMultiplayerState({
         const pointArr = point ?? app.centerPoint;
         const pagePoint = app.getPagePoint(pointArr);
 
+        let hasErrors = false;
+
         for (const file of files) {
           try {
             const id = Utils.uniqueId();
@@ -197,8 +199,10 @@ export function useMultiplayerState({
 
                   if (viewBoxAttribute) {
                     viewBox = viewBoxAttribute.split(" ");
-                    size[0] = parseFloat(viewBox[2]);
-                    size[1] = parseFloat(viewBox[3]);
+                    if (viewBox.length >= 4) {
+                      size[0] = parseFloat(viewBox[2]);
+                      size[1] = parseFloat(viewBox[3]);
+                    }
                   }
                 }
                 if (Vec.isEqual(size, [0, 0])) {
@@ -248,6 +252,7 @@ export function useMultiplayerState({
             }
           } catch (error) {
             console.error("An error occurred while uploading asset", error);
+            hasErrors = true;
           }
         }
 
@@ -287,6 +292,11 @@ export function useMultiplayerState({
         }
 
         app.setIsLoading(false);
+
+        if (hasErrors) {
+          toast.warning("Some assets could not be processed");
+        }
+
         return app;
       };
 
@@ -320,7 +330,10 @@ export function useMultiplayerState({
           }
 
           const { document, fileHandle } = result;
-          await importAssetsToS3(document, parentId, user!.schoolId);
+          if (!user?.schoolId) {
+            throw new Error("User school ID not available");
+          }
+          await importAssetsToS3(document, parentId, user.schoolId);
 
           yShapes.clear();
           yBindings.clear();
@@ -372,12 +385,18 @@ export function useMultiplayerState({
       }
 
       try {
-        const fileExtension = file.name.split(".").pop()!;
+        const fileExtension = file.name.split(".").pop();
+        if (!fileExtension) {
+          throw new Error("File has no extension");
+        }
+        if (!user?.schoolId) {
+          throw new Error("User school ID not available");
+        }
         const url = await uploadFileToStorage(
           file,
           fileExtension,
           id,
-          user!.schoolId,
+          user.schoolId,
           parentId,
         );
 
@@ -461,11 +480,11 @@ export function useMultiplayerState({
 
   // Handle presence updates when the user's pointer / selection changes
   const onChangePresence = useCallback((app: TldrawApp, tdUser: TDUser) => {
-    if (!app.room) return;
+    if (!app.room || !user) return;
     tdUser.metadata = {
-      id: user!.id,
-      displayName: `${user!.firstName} ${user!.lastName}`,
-      initials: user!.initials,
+      id: user.id,
+      displayName: `${user.firstName} ${user.lastName}`,
+      initials: user.initials,
     };
     room.updatePresence({ tdUser });
   }, []);
@@ -548,16 +567,22 @@ export function useMultiplayerState({
       handleChanges();
 
       if (app) {
-        // Hacky, but without small delay
-        // zoom function does not work
-        // despite tldraw state being loaded
-        setTimeout(() => {
-          app.zoomToContent();
-          app.zoomToFit();
-          if (app.zoom > 1) {
-            app.resetZoom();
-          }
-        }, 200);
+        // NOTE: This is a workaround for tldraw state not being immediately ready.
+        // Using requestAnimationFrame to ensure the next render cycle completes
+        // before attempting zoom operations
+        const scheduleZoomOperations = () => {
+          requestAnimationFrame(() => {
+            if (app && app.document) {
+              app.zoomToContent();
+              app.zoomToFit();
+              if (app.zoom > 1) {
+                app.resetZoom();
+              }
+            }
+          });
+        };
+
+        scheduleZoomOperations();
       }
       setLoading(false);
     };
@@ -583,18 +608,22 @@ export function useMultiplayerState({
 
   const onAssetDelete = async (app: TldrawApp, id: string) => {
     const asset = app.assets.find((asset) => asset.id === id);
-    try {
-      if (asset) {
-        setIsReadOnlyToTrue(app);
-
-        await deleteAsset(asset);
-      }
-    } catch (error) {
-      undoManager.undo();
-      toast.error("An error occurred while deleting asset");
+    if (!asset) {
+      return;
     }
 
-    setIsReadOnlyToFalse(app);
+    try {
+      setIsReadOnlyToTrue(app);
+      await deleteAsset(asset);
+    } catch (error) {
+      // Only undo if there might be something to undo
+      if (undoManager.canUndo()) {
+        undoManager.undo();
+      }
+      toast.error("An error occurred while deleting asset");
+    } finally {
+      setIsReadOnlyToFalse(app);
+    }
   };
 
   return {
